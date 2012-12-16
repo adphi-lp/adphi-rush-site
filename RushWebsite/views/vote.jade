@@ -1,0 +1,85 @@
+extends layout
+
+block head
+  style(type='text/css')
+    table {border-collapse: collapse;}
+    td {vertical-align:top; border: 1px solid #98BF21;padding: 3px 7px 2px 7px;}
+    td.alt {background-color:#EAF2D3;}
+
+block content
+  form(action='/')
+    table
+      tbody
+        tr
+          td Brother:
+          td #{brother}
+        tr
+          td.alt Rushee:
+          td.alt #{rushee}
+        tr
+          td Phone Number:
+          td #{phone}
+        tr
+          td.alt Sponsor(s):
+          td.alt 
+            - if (sponsor != null)
+              | #{sponsor}
+            - else
+              b NEED SPONSOR
+            br
+            label Sponsor Me
+              input#sponsorYes(type='checkbox',name='sponsor',value='sponsorYes')
+        tr
+          td Vote:
+          td
+            table
+              thead
+                td Definite Yes
+                td Yes
+                td No
+                td Veto
+                td None
+              tr 
+                td
+                  input#voteDefiniteYes(type='radio',name='vote',value='voteDefiniteYes')
+                td
+                  input#voteYes(type='radio',name='vote',value='voteYes')
+                td
+                  input#voteNo(type='radio',name='vote',value='voteNo')
+                td
+                  input#voteVeto(type='radio',name='vote',value='voteVeto')
+                td
+                  input#voteNone(type='radio',name='vote',value='voteNone',checked='checked')
+        tr
+          td.alt Comment:
+          td.alt Type:
+            - var types = [{value: 'location', name: 'location'}]
+            select#commentType
+              -for type in types
+                option(value='#{type.value}') #{type.name}
+            br
+            textarea#comment(rows=5,cols=40)
+        tr
+          - var comments = [{type: 'type', text: 'texta\<fa\>jsd;lfkjas;ld kfja;sd lfkjasd;lfkj\nasdflkad sjfadsfasd fdk', name: 'name', time: 'time'}]
+          td Comments:
+          td 
+            table
+              thead
+                td Time
+                td Type
+                td Text
+                td Name
+              -for comment in comments
+                tr
+                  td #{comment.time}
+                  td #{comment.type}
+                  td(style='width:256px') #{comment.text}
+                  td #{comment.name}
+        tr
+          td.alt
+            input#save(type='submit',formmethod='post',formaction='/vote',value='Submit')
+          td.alt
+            input#done(type='button',name='Done',value='Done',onclick='window.location=\'/\'')
+          
+            
+    
