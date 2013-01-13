@@ -1,13 +1,41 @@
 extends layout
 
+block script
+
 block head
   title='Voting'
   style(type='text/css')
+    .rushee-wrapper{display:block;}
+    .lfloat{float:left;}
+    ._large{width:160px; height:160px;}
+    .rushee-info{margin-left:180px;}
+    .rushee-name{font-size:1.5em}
     table {border-collapse: collapse;}
     td {vertical-align:top; border: 1px solid #98BF21;padding: 3px 7px 2px 7px;}
     td.alt {background-color:#EAF2D3;}
+    a {color:#3B5998; text-decoration:none;}
+    a:hover {text-decoration:underline;}
+    a:active {text-decoration:underline;}
 
 block content
+  - var brother = {first:'Jeff', last:'Shen',class:'Celeritas'}
+  - var rushee = {id: 'ID', first: 'First', last: 'Last', nick: 'Nick', dorm: 'MacGregor', phone: '(555) 555-555', email: 'email@mit.edu', photo: '/img/Mc4M1.jpg'}
+  - var sponsors = []
+  - var vote = 9000
+  - var brothers = [{id: '1', first: 'Jeff', last: 'Shen'}]
+  - var types = ['Contact','Hobbies/Interests','Event/Jaunt Interest','Urgent','General']
+  - var jaunts = ['Jaunt 1', 'Jaunt 2']
+  - var comments = [{time:'4324', type:'Contact', text:'Contacted someone about blah and blah, said they\'d be over for dinner tomorrow', name: 'Jeff Shen'}]
+  - rushee['name']=''
+  - if (rushee.nick != ''){rushee.name = rushee.first+' \"'+rushee.nick+'\" '+ rushee.last} else {rushee.name = rushee.first+' ' +rushee.last}
+  
+  .rushee-wrapper.clearfix
+    a.rushee-photo.lfloat(href='/vote?RusheeID='+rushee.id)
+      img._large(src=rushee.photo,alt=rushee.name)
+    .rushee-info
+      .rushee-name
+        a(href='/vote?RusheeID='+rushee.id) #{rushee.name}
+  
   form(action='/')
     table
       tbody
@@ -61,7 +89,6 @@ block content
             br
             textarea#comment(rows=5,cols=40)
         tr
-          - var comments = [{type: 'type', text: 'texta\<fa\>jsd;lfkjas;ld kfja;sd lfkjasd;lfkj\nasdflkad sjfadsfasd fdk', name: 'name', time: 'time'}]
           td Comments:
           td 
             table
