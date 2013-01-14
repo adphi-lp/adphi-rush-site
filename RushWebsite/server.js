@@ -17,5 +17,5 @@ app.get('/vote', function(req, res){
 app.post('/vote', function(req, res){
 	res.render('vote.jade',{brother: 'JS', rushee: 'rushee', phone: 'unknown', sponsor: ['JS', 'JS2']});});
 app.get('/', function(req, res){res.render('index.jade', {title: 'Rush home'});});
-//listen on localhost:3000
-app.listen(3000);
+//listen on localhost:8000
+app.listen(8000);

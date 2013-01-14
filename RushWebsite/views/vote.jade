@@ -8,8 +8,16 @@ block head
     .rushee-wrapper{display:block;}
     .lfloat{float:left;}
     ._large{width:160px; height:160px;}
+    .rushee-wrapper{background-color:#EAF2D3; margin: 10px 0px 10px 0px; padding: 10px 0px 25px 10px; border: 1px solid #98BF21;}
     .rushee-info{margin-left:180px;}
-    .rushee-name{font-size:1.5em}
+    .rushee-info-item{display:block;}
+    .rushee-info-type{font-weight:bold;}
+    .rushee-info-type:after{content:': ';}
+    .brother-action-type{font-weight:bold;}
+    .brother-action-type:after{content:': ';}
+    #rushee-name{font-size:1.5em;}
+    #brother-name{display:inline;}
+    #missing-sponsor{font-weight:bold; color:red;}
     table {border-collapse: collapse;}
     td {vertical-align:top; border: 1px solid #98BF21;padding: 3px 7px 2px 7px;}
     td.alt {background-color:#EAF2D3;}
@@ -18,24 +26,111 @@ block head
     a:active {text-decoration:underline;}
 
 block content
-  - var brother = {first:'Jeff', last:'Shen',class:'Celeritas'}
+  - var brother = {first:'Jeff', last:'Shen',class:'Celeritas',vote:'None',sponsor:false}
   - var rushee = {id: 'ID', first: 'First', last: 'Last', nick: 'Nick', dorm: 'MacGregor', phone: '(555) 555-555', email: 'email@mit.edu', photo: '/img/Mc4M1.jpg'}
-  - var sponsors = []
+  - var sponsors = ['Jeff Shen', 'Jon Chien']
   - var vote = 9000
-  - var brothers = [{id: '1', first: 'Jeff', last: 'Shen'}]
+  - var brothers = [{id: '1', first: 'Jeff', last: 'Shen', class: 'Celeritas'}]
   - var types = ['Contact','Hobbies/Interests','Event/Jaunt Interest','Urgent','General']
   - var jaunts = ['Jaunt 1', 'Jaunt 2']
   - var comments = [{time:'4324', type:'Contact', text:'Contacted someone about blah and blah, said they\'d be over for dinner tomorrow', name: 'Jeff Shen'}]
   - rushee['name']=''
   - if (rushee.nick != ''){rushee.name = rushee.first+' \"'+rushee.nick+'\" '+ rushee.last} else {rushee.name = rushee.first+' ' +rushee.last}
+  - var checked = {}
   
-  .rushee-wrapper.clearfix
-    a.rushee-photo.lfloat(href='/vote?RusheeID='+rushee.id)
-      img._large(src=rushee.photo,alt=rushee.name)
-    .rushee-info
-      .rushee-name
-        a(href='/vote?RusheeID='+rushee.id) #{rushee.name}
-  
+  .rushee-wrapper
+    .rushee-content.clearfix
+      a.rushee-photo.lfloat(href='/vote?RusheeID='+rushee.id)
+        img._large(src=rushee.photo,alt=rushee.name)
+      .rushee-info
+        .rushee-info-item#rushee-name
+          a(href='/vote?RusheeID='+rushee.id) #{rushee.name}
+        .rushee-info-item#rushee-dorm
+          span.rushee-info-type Dorm
+          span.rushee-info-data #{rushee.dorm}
+        .rushee-info-item#rushee-phone
+          span.rushee-info-type Phone
+          span.rushee-info-data #{rushee.phone}
+        .rushee-info-item#rushee-email
+          span.rushee-info-type Email
+          span.rushee-info-data #{rushee.email}
+        .rushee-info-item#rushee-sponsors
+          span.rushee-info-type Sponsor(s)
+          - if (sponsors.length > 0)
+            span.rushee-info-data #{sponsors.join(', ')}
+          - else
+            span.rushee-info-data#missing-sponsor NEED SPONSOR
+        .rushee-info-item#rushee-votes
+          span.rushee-info-type Voting score
+          span.rushee-info-data #{vote}
+        
+  .brother-action-wrapper
+    .brother-action-content
+      .sponsor-wrapper
+        .sponsor-content
+          span.brother-action-type Sponsor
+          -if (brother.sponsor)
+            input#sponsorYes(type='radio',name='sponsor',value='Yes',checked)
+            label.sponsor-choice(for='sponsorYes') Yes
+            input#sponsorNo(type='radio',name='sponsor',value='No')
+            label.sponsor-choice(for='sponsorNo') No
+          -else
+            input#sponsorYes(type='radio',name='sponsor',value='Yes')
+            label.sponsor-choice(for='sponsorYes') Yes
+            input#sponsorNo(type='radio',name='sponsor',value='No',checked)
+            label.sponsor-choice(for='sponsorNo') No
+          
+          
+      .vote-wrapper
+        .vote-content
+          span.brother-action-type Vote
+          -if (brother.vote === 'DefiniteYes')
+            input#voteDefiniteYes(type='radio',name='vote',value='DefiniteYes',checked)
+          -else
+            input#voteDefiniteYes(type='radio',name='vote',value='DefiniteYes')
+          label.vote-choice(for='voteDefiniteYes') Definite Yes
+        
+          -if (brother.vote === 'Yes')
+            input#voteYes(type='radio',name='vote',value='Yes',checked)
+          -else
+            input#voteYes(type='radio',name='vote',value='Yes')
+          label.vote-choice(for='voteYes') Yes
+        
+          -if (brother.vote === 'No')
+            input#voteNo(type='radio',name='vote',value='No',checked)
+          -else
+            input#voteNo(type='radio',name='vote',value='No')
+          label.vote-choice(for='voteNo') No
+        
+          -if (brother.vote === 'Veto')
+            input#voteVeto(type='radio',name='vote',value='Veto',checked)
+          -else
+            input#voteVeto(type='radio',name='vote',value='Veto')
+          label.vote-choice(for='voteVeto') Veto
+        
+          -if (brother.vote === 'None')
+            input#voteNone(type='radio',name='vote',value='None',checked)
+          -else
+            input#voteNone(type='radio',name='vote',value='None')
+          label.vote-choice(for='voteNone') None
+        
+      .comment-wrapper
+        .comment-content
+          .brother-action-type Comment
+          textarea#comment(rows=5,cols=80)
+      .brother-wrapper
+        span Post from: 
+        -if (brother === null) 
+          input.brother-box#brother-name(list='brothers')
+        -else
+          .brother-info#brother-name #{brother.first} #{brother.last}
+        -if (brother === null)
+          datalist.brother-list#brothers
+            -for (b in brothers)
+              option(value='#{b.id}') #{b.first} #{b.last} (#{b.class})
+      
+  .comment-thread-wrapper
+    
   form(action='/')
     table
       tbody
