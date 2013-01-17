@@ -7,10 +7,11 @@ block head
   link(rel='stylesheet',href='/css/vote.css')
 
 block content
-  - var brother = {first:'Jeff', last:'Shen',class:'Celeritas',vote:'None',sponsor:false}
+  - var brother = {first:'Jeff', last:'Shen',class:'Celeritas',vote:'None', voteTime:'1/17/2013 2:46 AM', sponsor:false}
   - var rushee = {id: 'ID', first: 'First', last: 'Last', nick: 'Nick', dorm: 'MacGregor', phone: '(555) 555-555', email: 'email@mit.edu', photo: '/img/Mc4M1.jpg'}
   - var sponsors = ['Jeff Shen', 'Jon Chien']
   - var vote = 9000
+  - var voteTypes = ['Definite Yes', 'Yes', 'No', 'Veto', 'None']
   - var brothers = [{id: '1', first: 'Jeff', last: 'Shen', class: 'Celeritas'}]
   - var types = ['General','Contact','Hobbies/Interests','Event/Jaunt Interest','Urgent']
   - var jaunts = ['Jaunt 1', 'Jaunt 2']
@@ -72,35 +73,13 @@ block content
       .vote-wrapper
         .vote-content
           span.brother-action-type Vote
-          -if (brother.vote === 'DefiniteYes')
-            input.span-space#voteDefiniteYes(type='radio',name='vote',value='DefiniteYes',checked)
-          -else
-            input.span-space#voteDefiniteYes(type='radio',name='vote',value='DefiniteYes')
-          label#vote-choice(for='voteDefiniteYes') Definite Yes
-        
-          -if (brother.vote === 'Yes')
-            input.span-space#voteYes(type='radio',name='vote',value='Yes',checked)
-          -else
-            input.span-space#voteYes(type='radio',name='vote',value='Yes')
-          label.vote-choice(for='voteYes') Yes
-        
-          -if (brother.vote === 'No')
-            input.span-space#voteNo(type='radio',name='vote',value='No',checked)
-          -else
-            input.span-space#voteNo(type='radio',name='vote',value='No')
-          label.vote-choice(for='voteNo') No
-        
-          -if (brother.vote === 'Veto')
-            input.span-space#voteVeto(type='radio',name='vote',value='Veto',checked)
-          -else
-            input.span-space#voteVeto(type='radio',name='vote',value='Veto')
-          label.vote-choice(for='voteVeto') Veto
-        
-          -if (brother.vote === 'None')
-            input.span-space#voteNone(type='radio',name='vote',value='None',checked)
-          -else
-            input.span-space#voteNone(type='radio',name='vote',value='None')
-          label.vote-choice(for='voteNone') None
+          - for (var i = 0; i < voteTypes.length; i++)
+            - var voteType = voteTypes[i];
+            - if (brother.vote === voteType)
+              input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType}',checked)
+            -else
+              input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType}')
+            label.vote-choice(for ='vote#{i}') #{voteType}
         
       form.comment-wrapper
         .comment-content.clearfix
