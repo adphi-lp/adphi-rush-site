@@ -1,0 +1,16 @@
+.lfloat{
+	float:left;
+}
+
+.rfloat{
+	float:right;
+}
+
+.span-space{
+	margin: 0em 0em 0em 0.5em
+}
+
+.img-large{
+	width:160px;
+	height:160px;
+}
