@@ -2,25 +2,8 @@ extends layout
 
 block head
   title='Search for a Rushee'
-  script(type='text/javascript')
-    function search() {
-      var query = document.getElementById('search-bar');
-      window.location = buildURL('/search', {'q':query.value});
-    }
-    
-    function buildURL(url, parameters){
-      var qs = '';
-      for (var key in parameters) {
-        var value = parameters[key];
-        qs += encodeURIComponent(key) + '=' + encodeURIComponent(value) + '&';
-      }
-      if (qs.length > 0){
-        qs = qs.substring(0, qs.length-1); //chop off last '&'
-        url = url + '?' + qs;
-      }
-      return url;
-    }
-    
+  script(type='text/javascript',src='/js/vendor/jquery-1.8.3.min.js')
+  script(type='text/javascript',src='/js/search.js')
 
 block content
   - var brother = {first:'Jeff', last:'Shen',class:'Celeritas',vote:'None', voteTime:'1/17/2013 2:46 AM', sponsor:false}
@@ -44,8 +27,9 @@ block content
 
   
   .search-wrapper
-    form.search-content
-      input#search-bar
-      input#search-button(type='button',value='Search',onclick='search()')
+    .search-content
+      form.search-form(method='get',action='/search')
+        input#search-text(name='q',autocomplete='off')
+        button#search-button(value='Search') Search
 
  

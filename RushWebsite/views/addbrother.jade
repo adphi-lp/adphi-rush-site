@@ -1,0 +1,27 @@
+extends layout
+
+block head
+  title='Add a brother'
+
+block content
+  .brother-add-wrapper
+    form.brother-add-content
+      .brother-add-info
+        .brother-add-item#brother-first-name
+          span.brother-add-type First Name
+          input.brother-add-data(name='first',required)
+        .brother-add-item#brother-last-name
+          span.brother-add-type Last Name
+          input.brother-add-data(name='last',required)
+        .brother-add-item#brother-class
+          span.brother-add-type Pledge Class
+          input.brother-add-data(name='class')
+        .brother-add-item#brother-phone
+          span.brother-add-type Phone
+          input.brother-add-data(name='phone')
+        .brother-add-item#brother-email
+          span.brother-add-type Email
+          input.brother-add-data(name='email')
+      .brother-add-post
+        input#save(type='submit',formmethod='post',formaction='/addbrother',value='Submit')
+        
