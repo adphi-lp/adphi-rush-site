@@ -107,17 +107,18 @@ block content
         input#save(type='submit',formmethod='post',formaction='/vote',value='Submit')
         input#done(type='submit',formmethod='get',formaction='/',value='Done')
       
-  ul.comment-thread-wrapper
+  .comment-thread-wrapper
     .title Comments
-    - for (var i in rushee.comments)	
-      -var comment = rushee.comments[i] 
-      il.comment-wrapper
-        .comment-content
-          .comment-header
-            span.comment-header-element.comment-name #{comment.name}
-            span.comment-header-element.type #{comment.type}
-            span.comment-header-element.time #{comment.time}
-          .comment-text #{comment.text}
+    ul.comment-thread-content
+      - for (var i in rushee.comments)	
+        -var comment = rushee.comments[i] 
+        li.comment-wrapper
+          .comment-content
+            .comment-header
+              span.comment-header-element.comment-name #{comment.name}
+              span.comment-header-element.type #{comment.type}
+              span.comment-header-element.time #{comment.time}
+            .comment-text #{comment.text}
 
 
  
