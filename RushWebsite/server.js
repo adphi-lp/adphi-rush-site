@@ -6,11 +6,12 @@ var collections = ['brothers', 'rushees', 'comments', 'sponsors',
 'votes', 'statuses', 'commentTypes', 'jaunts', 'vans']
 var db = require('mongojs').connect(databaseURL, collections);
 
+app.use(express.bodyParser());
+
 //set path to the views (template) directory
 app.set('views', __dirname + '/views');
-//set path to static files
-// app.use('/public', express.static(__dirname + '/../public'));
-//set path to static images
+
+//set path to static things
 app.use('/img',express.static(__dirname + '/img'))
 app.use('/css',express.static(__dirname + '/css'))
 app.use('/js',express.static(__dirname + '/js'))
@@ -45,10 +46,23 @@ app.get('/vote', function(req, res){
 });
 
 app.post('/vote', function(req, res){
-	res.render('vote.jade',{brother: 'JS', rushee: 'rushee', phone: 'unknown', sponsor: ['JS', 'JS2']});});
+	res.render('vote.jade',{brother: 'JS', rushee: 'rushee', phone: 'unknown', sponsor: ['JS', 'JS2']});
+});
 	
 	
 app.get('/addbrother', function(req, res){
+	res.render('addbrother.jade');
+});
+
+app.post('/addbrother', function(req,res) {
+	var brother = {
+		first: req.body.first,
+		last: req.body.last,
+		'class': req.body['class'],
+		phone: req.body.phone,
+		email: req.body.email
+	};
+	db.brothers.insert(brother);
 	res.render('addbrother.jade');
 });
 
