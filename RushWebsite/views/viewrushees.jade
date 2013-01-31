@@ -1,0 +1,45 @@
+extends layout
+
+block head
+  title='View all Rushees'  
+  link(rel='stylesheet',href='/css/viewrushees.css')
+ 
+
+block content
+  .rushees-wrapper
+    h1.rushees-title View all rushees
+    ul.rushees-list
+      -for(var i = 0; i < rushees.length; i++)
+        -var rushee = rushees[i];
+        -if (rushee.nick != '')
+          -rushee.name = rushee.first+' \"'+ rushee.nick + ' \"'+rushee.last;
+        -else
+          -rushee.name = rushee.first+ ' ' +rushee.last;
+        li.rushee-wrapper
+          .rushee-content.clearfix
+            a.rushee-photo.lfloat(href='/vote?RusheeID='+rushee.id)
+              img.img-medium(src=rushee.photo,alt=rushee.name)
+            .rushee-info
+              .rushee-info-item.rushee-name
+                a(href='/vote?rusheeID='+rushee._id) #{rushee.name}
+              .rushee-info-item.rushee-dorm
+                span.rushee-info-type Dorm
+                span.rushee-info-data #{rushee.dorm}
+              .rushee-info-item.rushee-phone
+                span.rushee-info-type Phone
+                span.rushee-info-data #{rushee.phone}
+              .rushee-info-item.rushee-email
+                span.rushee-info-type Email
+                span.rushee-info-data #{rushee.email}
+              .rushee-info-item.rushee-sponsors
+                span.rushee-info-type Sponsor(s)
+                - if (rushee.sponsors != null && rushee.sponsors.length > 0)
+                  span.rushee-info-data #{rushee.sponsors.join(', ')}
+                - else
+                  span.rushee-info-data.missing-sponsor NEED SPONSOR
+              .rushee-info-item.rushee-votes
+                span.rushee-info-type Voting score
+                span.rushee-info-data #{rushee.vote}
+ 
+
+ 
