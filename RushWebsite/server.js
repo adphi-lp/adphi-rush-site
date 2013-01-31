@@ -34,30 +34,41 @@ app.get('/vote', function(req, res){
 	//TODO implement sessions for brothers
 	var rusheeID = req.query.rusheeID;
 	var brotherID = req.query.brotherID;
-
+	try {
+		rusheeID = db.ObjectId(rusheeID);
+	} catch (err) {
+		rusheeID = null;
+	}
+	
+	try {
+		brotherID = db.ObjectId(brotherID);
+	} catch (err) {
+		brotherID = null;
+	}
+	
 	Seq().par(function() {
 		//get brother
 		if (brotherID == null) {
 			this(null, null);
 		} else {
-			db.brothers.findOne({_id : new ObjectID(brotherID)}, this);
+			db.brothers.findOne({_id : brotherID}, this);
 		}
 	}).par(function() {
 		//get rushee
 		if (rusheeID == null) {
 			this(null, null);
 		} else {
-			db.rushees.findOne({_id : new ObjectID(rusheeID)}, this);
+			db.rushees.findOne({_id : rusheeID}, this);
 		}
 	}).par(function() {
 		//get brother list
 		that = this;
 		var brothers = [];
-		db.rushees.find().forEach(function(err, doc) {
+		db.brothers.find().forEach(function(err, doc) {
 			if (doc == null) {
 				that(null, brothers);
 			} else {
-				brothers.push();
+				brothers.push(doc);
 			}
 		});
 	}).par(function() {
@@ -68,16 +79,21 @@ app.get('/vote', function(req, res){
 		var commentTypes = ['General','Contact','Hobbies/Interests','Event/Jaunt Interest','Urgent']
 		this(null, commentTypes);
 	}).par(function() {
-		var jaunts = ['Jaunt 1', 'Jaunt 2'];
+		var jaunts = ['Jaunt 1', 'Jaunt 2', 'None'];
 		this(null, jaunts);
-	}).seq(function(brother, rushee, voteTypes, commentTypes, jaunts) {
+	}).seq(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
 		if (brother == null) {
 			brother = {vote: 'None', sponsor: 'false', name: null}
 		} else {
 			brother.name = brother.first + ' ' + brother.last;
 		}
 		
-		if (rushee.nick == '') {
+		if (rushee == null) {
+			this(new Error('no rushee'));
+			return;
+		}
+		
+		if (rushee.nick != '') {
 			rushee.name = rushee.first+' \"'+rushee.nick+'\" '+ rushee.last;
 		} else {
 			rushee.name = rushee.first + ' ' + rushee.last;
@@ -95,10 +111,11 @@ app.get('/vote', function(req, res){
 	}).seq(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts, comments) {
 		//done, render the page
 		var arguments= {brother: brother, rushee:rushee,brothers:brothers,
-			voteTypes:voteTypes, commentTypes:commentTypes, jaunts:jaunts, comments:comments};
+			voteTypes:voteTypes, types:commentTypes, jaunts:jaunts, comments:comments};
 		res.render('vote.jade', arguments);
 	}).catch(function(err) {
 		console.log(err);
+  		res.redirect('/404');
 	});
 	
 });
@@ -181,6 +198,13 @@ app.get('/test', function(req,res) {
 	res.render('test.jade');
 });
 
-app.get('/', function(req, res){res.render('index.jade', {title: 'Rush home'});});
+app.get('/', function(req, res){
+	res.render('index.jade', {title: 'Rush home'});
+});
+
+app.get('*', function(req, res){
+	res.render('404.jade');
+});
+
 //listen on localhost:8000
 app.listen(8000,'localhost');
