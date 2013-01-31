@@ -17,7 +17,7 @@ block content
           -rushee.name = rushee.first+ ' ' +rushee.last;
         li.rushee-wrapper
           .rushee-content.clearfix
-            a.rushee-photo.lfloat(href='/vote?rusheeID='+rushee.id)
+            a.rushee-photo.lfloat(href='/vote?rusheeID='+rushee._id)
               img.img-medium(src=rushee.photo,alt=rushee.name)
             .rushee-info
               .rushee-info-item.rushee-name

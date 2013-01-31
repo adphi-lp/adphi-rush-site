@@ -33,60 +33,61 @@ block content
         
   .brother-action-wrapper
     form.brother-action-content
-      .sponsor-wrapper
-        .sponsor-content
-          span.brother-action-type Sponsor
-          -if (brother.sponsor)
-            input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes',checked)
-            label.sponsor-choice(for='sponsorYes') Yes
-            input.span-space#sponsorNo(type='radio',name='sponsor',value='No')
-            label.sponsor-choice(for='sponsorNo') No
-          -else
-            input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes')
-            label.sponsor-choice(for='sponsorYes') Yes
-            input.span-space#sponsorNo(type='radio',name='sponsor',value='No',checked)
-            label.sponsor-choice(for='sponsorNo') No
-          
-          
-      .vote-wrapper
-        .vote-content
-          span.brother-action-type Vote
-          - for (var i in voteTypes)
-            - var voteType = voteTypes[i];
-            - if (brother.vote === voteType)
-              input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType}',checked)
-            -else
-              input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType}')
-            label.vote-choice(for ='vote#{i}') #{voteType}
-        
-      .comment-wrapper
-        .comment-content.clearfix
-          span.brother-action-type Comment
-          .comment-textarea-wrapper
-            textarea#comment-textarea(name='comment',rows=5,cols=80)
-          .comment-type
-            .comment-type.lfloat
-              span.brother-action-type Type
-              select#comment-type(name='comment-type')
-                -for (var i in types)
-                  option #{types[i]}
-            .comment-jaunt.rfloat
-              span.brother-action-type Jaunt
-              select#comment-jaunt(name='comment-jaunt')
-                -for (var i in jaunts)
-                  option(value='#{jaunts[i]}') #{jaunts[i]}
-      .brother-wrapper
-        span.brother-action-type Name
-        -if (brother.name !== null) 
-          span.brother-info#brother-name #{brother.first} #{brother.last}
-        -if (brother.name === null)
-          select.brother-list#brothers
+      input(type='hidden',name='rusheeID',value='#{rushee._id}')
+      -if (brother.name == null)
+        .brother-wrapper
+          span.brother-action-type Name
+          select.brother-list#brothers(name='brotherID')
             -for (var i = 0; i < brothers.length; i++)
               -var b = brothers[i];
               option(value='#{b._id}') #{b.first} #{b.last} (#{b.class})
-      .post-wrapper
-        input#save(type='submit',formmethod='post',formaction='/vote',value='Submit')
-        input#done(type='submit',formmethod='get',formaction='/',value='Done')
+         button#brother-select-button(formmethod='get',formaction='/vote',value='Select') Select
+      -else
+        .brother-wrapper
+          span.brother-action-type Name
+          span.brother-info#brother-name #{brother.first} #{brother.last}
+        .sponsor-wrapper
+          .sponsor-content
+            span.brother-action-type Sponsor
+            -if (brother.sponsor)
+              input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes',checked)
+              label.sponsor-choice(for='sponsorYes') Yes
+              input.span-space#sponsorNo(type='radio',name='sponsor',value='No')
+              label.sponsor-choice(for='sponsorNo') No
+            -else
+              input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes')
+              label.sponsor-choice(for='sponsorYes') Yes
+              input.span-space#sponsorNo(type='radio',name='sponsor',value='No',checked)
+              label.sponsor-choice(for='sponsorNo') No
+        .vote-wrapper
+          .vote-content
+            span.brother-action-type Vote
+            - for (var i in voteTypes)
+              - var voteType = voteTypes[i];
+              - if (brother.vote === voteType)
+                input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType}',checked)
+              -else
+                input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType}')
+              label.vote-choice(for ='vote#{i}') #{voteType}
+        .comment-wrapper
+          .comment-content.clearfix
+            span.brother-action-type Comment
+            .comment-textarea-wrapper
+              textarea#comment-textarea(name='comment',rows=5,cols=80)
+            .comment-type
+              .comment-type.lfloat
+                span.brother-action-type Type
+                select#comment-type(name='comment-type')
+                  -for (var i in types)
+                    option #{types[i]}
+              .comment-jaunt.rfloat
+                span.brother-action-type Jaunt
+                select#comment-jaunt(name='comment-jaunt')
+                  -for (var i in jaunts)
+                    option(value='#{jaunts[i]}') #{jaunts[i]}
+        .post-wrapper
+          input#save(type='submit',formmethod='post',formaction='/vote',value='Submit')
+          input#done(type='submit',formmethod='get',formaction='/',value='Done')
       
   .comment-thread-wrapper
     h2.title Comments

@@ -134,6 +134,20 @@ app.get('/viewrushees', function(req,res){
 	});
 });
 
+app.get('/viewbrothers', function(req,res){
+	var brothers = new Array();
+	var cursor = db.brothers.find().sort({first: 1, last: 1});
+	
+	cursor.forEach(function(err, doc) {
+		if (doc ==  null) {
+			//finished reading, render the page
+			res.render('viewbrothers.jade', {'brothers' : brothers});
+		} else {
+			brothers.push(doc);
+		}
+	});
+});
+
 app.post('/vote', function(req, res){
 	res.render('vote.jade',{brother: 'JS', rushee: 'rushee', phone: 'unknown', sponsor: ['JS', 'JS2']});
 });
@@ -207,4 +221,4 @@ app.get('*', function(req, res){
 });
 
 //listen on localhost:8000
-app.listen(8000,'localhost');
+app.listen(8000,'18.202.1.157');
