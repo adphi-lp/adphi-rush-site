@@ -1,6 +1,7 @@
 //create an app server
 var express = require('express');
 var fs = require('fs');
+var Seq = require('seq');
 var app = express();
 var databaseURL = 'ADPhiRush';
 var collections = ['brothers', 'rushees', 'comments', 'sponsors',
@@ -8,44 +9,112 @@ var collections = ['brothers', 'rushees', 'comments', 'sponsors',
 var db = require('mongojs').connect(databaseURL, collections);
 var tools = require('./tools');
 
-app.use(express.bodyParser());
+//to ensure that you can sort
+db.rushees.ensureIndex({first:1 , last:1});
+db.brothers.ensureIndex({first:1 , last:1});
+//TODO Comment sorting, etc.
 
-//set path to the views (template) directory
-app.set('views', __dirname + '/views');
+//for parsing posts
+app.use(express.bodyParser());
 
 //set path to static things
 app.use('/img',express.static(__dirname + '/img'))
 app.use('/css',express.static(__dirname + '/css'))
 app.use('/js',express.static(__dirname + '/js'))
 
+//set path to the views (template) directory
+app.set('views', __dirname + '/views');
+
 
 app.get('/search', function(req, res){
 	res.render('search.jade');
 });
 
-
 app.get('/vote', function(req, res){
-	var rusheeID = req.query['rusheeID'];
-	var brother;
-	if (req.session) {
-		brotherID = req.session["BrotherID"];
+	//TODO implement sessions for brothers
+	var rusheeID = req.query.rusheeID;
+	var brotherID = req.query.brotherID;
+
+	Seq().par(function() {
+		//get brother
+		if (brotherID == null) {
+			this(null, null);
+		} else {
+			db.brothers.findOne({_id : new ObjectID(brotherID)}, this);
+		}
+	}).par(function() {
+		//get rushee
+		if (rusheeID == null) {
+			this(null, null);
+		} else {
+			db.rushees.findOne({_id : new ObjectID(rusheeID)}, this);
+		}
+	}).par(function() {
+		//get brother list
+		that = this;
+		var brothers = [];
+		db.rushees.find().forEach(function(err, doc) {
+			if (doc == null) {
+				that(null, brothers);
+			} else {
+				brothers.push();
+			}
+		});
+	}).par(function() {
+		//get vote types
+		var voteTypes = ['Definite Yes', 'Yes', 'No', 'Veto', 'None'];
+		this(null, voteTypes);
+	}).par(function() {
+		var commentTypes = ['General','Contact','Hobbies/Interests','Event/Jaunt Interest','Urgent']
+		this(null, commentTypes);
+	}).par(function() {
+		var jaunts = ['Jaunt 1', 'Jaunt 2'];
+		this(null, jaunts);
+	}).seq(function(brother, rushee, voteTypes, commentTypes, jaunts) {
+		if (brother == null) {
+			brother = {vote: 'None', sponsor: 'false', name: null}
+		} else {
+			brother.name = brother.first + ' ' + brother.last;
+		}
 		
-		brother = client.getAll("");
-	} else {
-		brother = null;
-	}
+		if (rushee.nick == '') {
+			rushee.name = rushee.first+' \"'+rushee.nick+'\" '+ rushee.last;
+		} else {
+			rushee.name = rushee.first + ' ' + rushee.last;
+		}
+		
+		//TODO hard coded sponsors and comments
+		var vote = 9000;
+		var sponsor = false;
+		var sponsors = ['Jeff Shen', 'Jon Chien'];
+		var comments = [{time:'1/16/2013 5:06 AM', type:'Contact', text:'Contacted someone about blah and blah, said they\'d be over for dinner tomorrow', name: 'Jeff Shen'}];
+		rushee.vote = vote;
+		brother.sponsor = sponsor;
+		rushee.sponsors = sponsors;
+		this(null, brother, rushee, brothers, voteTypes, commentTypes, jaunts, comments);
+	}).seq(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts, comments) {
+		//done, render the page
+		var arguments= {brother: brother, rushee:rushee,brothers:brothers,
+			voteTypes:voteTypes, commentTypes:commentTypes, jaunts:jaunts, comments:comments};
+		res.render('vote.jade', arguments);
+	}).catch(function(err) {
+		console.log(err);
+	});
 	
-	var brother = {first:'Jeff', last:'Shen',class:'Celeritas',vote:'None',sponsor:false}
-	var rushee = {id: 'ID', first: 'First', last: 'Last', nick: 'Nick', dorm: 'MacGregor', phone: '(555) 555-555', email: 'email@mit.edu', photo: '/img/Mc4M1.jpg'}
-	var sponsors = ['Jeff Shen', 'Jon Chien']
-	var vote = 9000
-	var brothers = [{id: '1', first: 'Jeff', last: 'Shen', class: 'Celeritas'}]
-	var types = ['General','Contact','Hobbies/Interests','Event/Jaunt Interest','Urgent']
-	var jaunts = ['Jaunt 1', 'Jaunt 2']
-	var comments = [{time:'1/16/2013 5:06 AM', type:'Contact', text:'Contacted someone about blah and blah, said they\'d be over for dinner tomorrow', name: 'Jeff Shen'}]
-  
-	res.render('vote.jade',{brother: 'JS', rushee: 'rushee', phone: 'unknown', sponsor: ['JS', 'JS2']});
+});
+
+app.get('/viewrushees', function(req,res){
+	var rushees = new Array();
+	var cursor = db.rushees.find().sort({first: 1, last: 1});
 	
+	cursor.forEach(function(err, doc) {
+		if (doc ==  null) {
+			//finished reading, render the page
+			res.render('viewrushees.jade', {'rushees' : rushees});
+		} else {
+			rushees.push(doc);
+		}
+	});
 });
 
 app.post('/vote', function(req, res){
@@ -74,23 +143,24 @@ app.get('/addrushee', function(req,res) {
 });
 
 app.post('/addrushee', function(req,res) {
-	var photo = req.body.photo;
-	var photoLen = 5, photoDefault = 'no_photo.jpg';
-	if (photo == null) {
+	var photo = req.files.photo;
+	var photoLen = 5, photoDefault = '/img/no_photo.jpg';
+	if (photo.size == 0) {
 		var photoPath = photoDefault;
+		console.log('asdf');
 	} else {
 		name = photo.name;
+		console.log(photo);
 		var extension = name.substr(name.lastIndexOf('.')+1);
-		var photoPath = tools.randomString(5,'')+extension;
+		var photoPath = '/img/'+tools.randomString(5,'')+'.'+extension;
 	
 		fs.readFile(req.files.photo.path, function(err, data) {
 			newPath = __dirname + '/img/' + photoPath;
 			fs.writeFile(newPath, data, function(err) {
-				res.redirect('back');
+				console.log(photoPath);
 			});
-		}); 
+		});
 	}
-	
 	
 	var rushee = {
 		first: req.body.first,
