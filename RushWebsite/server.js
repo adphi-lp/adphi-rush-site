@@ -1,10 +1,12 @@
 //create an app server
 var express = require('express');
+var fs = require('fs');
 var app = express();
 var databaseURL = 'ADPhiRush';
 var collections = ['brothers', 'rushees', 'comments', 'sponsors',
 'votes', 'statuses', 'commentTypes', 'jaunts', 'vans']
 var db = require('mongojs').connect(databaseURL, collections);
+var tools = require('./tools');
 
 app.use(express.bodyParser());
 
@@ -21,8 +23,9 @@ app.get('/search', function(req, res){
 	res.render('search.jade');
 });
 
+
 app.get('/vote', function(req, res){
-	var rusheeID = req.query["RusheeID"];
+	var rusheeID = req.query['rusheeID'];
 	var brother;
 	if (req.session) {
 		brotherID = req.session["BrotherID"];
@@ -66,7 +69,48 @@ app.post('/addbrother', function(req,res) {
 	res.render('addbrother.jade');
 });
 
+app.get('/addrushee', function(req,res) {
+	res.render('addrushee.jade');
+});
+
+app.post('/addrushee', function(req,res) {
+	var photo = req.body.photo;
+	var photoLen = 5, photoDefault = 'no_photo.jpg';
+	if (photo == null) {
+		var photoPath = photoDefault;
+	} else {
+		name = photo.name;
+		var extension = name.substr(name.lastIndexOf('.')+1);
+		var photoPath = tools.randomString(5,'')+extension;
+	
+		fs.readFile(req.files.photo.path, function(err, data) {
+			newPath = __dirname + '/img/' + photoPath;
+			fs.writeFile(newPath, data, function(err) {
+				res.redirect('back');
+			});
+		}); 
+	}
+	
+	
+	var rushee = {
+		first: req.body.first,
+		last: req.body.last,
+		nick: req.body.nick,
+		dorm: req.body.dorm,
+		phone: req.body.phone,
+		email: req.body.email,
+		year: req.body.year,
+		photo: photoPath
+	};
+
+	db.rushees.insert(rushee);
+	res.render('addrushee.jade');
+});
+
+app.get('/test', function(req,res) {
+	res.render('test.jade');
+});
+
 app.get('/', function(req, res){res.render('index.jade', {title: 'Rush home'});});
 //listen on localhost:8000
 app.listen(8000,'localhost');
-
