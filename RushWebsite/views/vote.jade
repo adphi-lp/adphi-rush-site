@@ -63,10 +63,11 @@ block content
         .vote-wrapper
           .vote-content
             span.brother-action-type Vote
-            #{brother.vote}
             - for (var i = 0; i < voteTypes.length; i++)
               - var voteType = voteTypes[i];
-              - if (brother.vote == voteType._id)
+              - var bid = brother.vote._id;
+              - var vid = voteType._id;
+              - if ((bid == vid) || (bid != null && vid != null && bid.equals(vid)))
                 input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType._id}',checked)
               -else
                 input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType._id}')
@@ -79,12 +80,12 @@ block content
             .comment-type
               .comment-type.lfloat
                 span.brother-action-type Type
-                select#comment-type(name='comment-type')
+                select#comment-type(name='commentType')
                   -for (var i = 0; i < commentTypes.length; i++)
                     option #{commentTypes[i].name}
               .comment-jaunt.rfloat
                 span.brother-action-type Jaunt
-                select#comment-jaunt(name='comment-jaunt')
+                select#comment-jaunt(name='commentJaunt')
                   -for (var i in jaunts)
                     option(value='#{jaunts[i]}') #{jaunts[i]}
         .post-wrapper

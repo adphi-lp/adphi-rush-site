@@ -9,6 +9,9 @@ var collections = ['brothers', 'rushees', 'comments', 'sponsors',
 var db = require('mongojs').connect(databaseURL, collections);
 var tools = require('./tools');
 
+//constants
+var NULL_VOTE = {name:'None', value:0};
+
 //to ensure that you can sort
 db.rushees.ensureIndex({first:1 , last:1});
 db.brothers.ensureIndex({first:1 , last:1});
@@ -78,7 +81,6 @@ app.get('/vote', function(req, res){
 		var voteTypes = [];
 		db.voteTypes.find().sort({value:-1}).forEach(function(err, doc) {
 			if (doc == null) {
-				voteTypes.push({name: 'None', value: 0})
 				that(null, voteTypes);
 			} else {
 				voteTypes.push(doc);
@@ -95,7 +97,6 @@ app.get('/vote', function(req, res){
 				commentTypes.push(doc);
 			}
 		});
-		this(null, commentTypes);
 	}).par(function() {
 		//get jaunts
 		var jaunts = ['None'];
@@ -125,39 +126,124 @@ app.get('/vote', function(req, res){
 		this(null, args);
 	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
 		//get all votes on rushee
-		db.votes.find({rusheeID: rushee._id}, this);
+		var that = this;
+		var voteIDs = [];
+		var votes = [];
+		
+		db.votes.find({rusheeID: rushee._id}).forEach(function(err, doc){
+			if (doc == null) {
+				//TODO make this not run in O(votes * (voteTypes+brothers))
+				for (var i = 0; i < voteIDs.length; i++) {
+					var vote = {};
+					for (var j = 0; j < voteTypes.length; j++) {
+						if (voteIDs[i].voteID.equals(voteTypes[j]._id)) {
+							vote.voteType = voteTypes[j];
+						}
+					}
+					
+					for (var j = 0; j < brothers.length; j++) {
+						if (voteIDs[i].brotherID.equals(brothers[j]._id)) {
+							vote.brother = brothers[j];
+						}
+					}
+					votes.push(vote);
+				}
+				that(null, votes);
+			} else {
+				voteIDs.push(doc);
+			}
+		});
 	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
 		//get all comments on rushee
-		db.comments.find({rusheeID: rushee._id}, this);
+		var that = this;
+		var comments = [];
+		db.comments.find({rusheeID: rushee._id}).forEach(function(err, doc){
+			if (doc == null) {
+				that(null, comments);
+			} else {
+				comments.push(doc);
+			}
+		});
 	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
 		//get all sponsors on rushee
-		db.sponsors.find({rusheeID: rushee._id}, this);
-	}).seq(function(args, votes, comments, sponsors) {
-		//done, render the page
-		//calculate vote
-		var vote = 0;
-		if (votes != null) {
-			for (var i = 0; i < votes.length; i++) {
-				vote += votes[i].value;
+		var that = this;
+		var sponsorIDs = [];
+		var sponsors = [];
+		
+		// var callback = function() {
+			// Seq().extend(sponsorsID)
+				// .parEach(function(doc) {
+					// db.brothers.findOne({_id: doc.brotherID}, this.into(doc._id));
+				// }).seq(function() {
+					// for (var i = 0; i < sponsorsID.length; i++) {
+						// sponsors.push(this.vars[sponsorsID[i]._id]);
+					// }
+// 					
+					// that(null, sponsors);
+				// }).catch(function(err) {
+					// console.log(err);
+					// that(null, sponsors);
+				// });
+		// };
+		
+		db.sponsors.find({rusheeID: rushee._id}).forEach(function(err, doc){
+			if (doc == null) {
+				//TODO make this not run in O(brothers * sponsors)
+				for (var i = 0; i < sponsorIDs.length; i++) {
+					var sponsor = null;
+					for (var j = 0; j < brothers.length; j++) {
+						if (sponsorIDs[i].brotherID.equals(brothers[j]._id)) {
+							sponsor = brothers[j];
+						}
+					}
+					sponsors.push(sponsor);
+				}
+				that(null, sponsors);
+			} else {
+				sponsorIDs.push(doc)
 			}
+		});		
+	}).seq(function(args, votes, comments, sponsors) {
+		//done, calculate, and render the page
+		args.voteTypes.push(NULL_VOTE);
+		
+		//calculate vote score
+		var vote = 0;
+		for (var i = 0; i < votes.length; i++) {
+			vote += votes[i].voteType.value;
 		}
 		args.rushee.vote = vote;
 		
-		if (sponsors != null && args.brother != null) {
+		//is brother a sponsor?
+		if (args.brother != null) {
+			args.brother.sponsor = false;
 			for (var i = 0; i < sponsors.length; i++) {
-				if (sponsors._id == args.brother._id) {
+				if (sponsors[i]._id.equals(args.brother._id)) {
 					args.brother.sponsor = true;
 				}
 			}
-			args.brother.sponsor = false;
 		}
 		
+		//calculate brother vote
+		if (args.brother != null) {
+			args.brother.vote = NULL_VOTE;
+			for (var i = 0; i < votes.length; i++) {
+				if (votes[i].brother._id.equals(args.brother._id)) {
+					args.brother.vote = votes[i].voteType;
+				}
+			}
+		}
+		
+		//calculate sponsors
+		args.rushee.sponsors = [];
 		if (sponsors != null) {
-			args.rushee.sponsors = sponsors;
-		} else {
-			args.rushee.sponsors = [];
+			for (var i = 0; i < sponsors.length; i++) {
+				args.rushee.sponsors.push(sponsors[i].first+' '+sponsors[i].last);
+			}
 		}
 		
+		
+		//calculate comments
 		if (comments != null) {
 			args.rushee.comments = comments;
 		} else {
@@ -172,7 +258,41 @@ app.get('/vote', function(req, res){
 });
 
 app.post('/vote', function(req, res){
+	var sponsor = (req.body.sponsor == 'Yes');
+	var vote = req.body.vote;
+	var commentText = req.body.comment;
+	var commentType = req.body.commentType;
+	var commentJaunt = req.body.commentJaunt;
+	var rusheeID = db.ObjectId(req.body.rusheeID);
+	var brotherID = db.ObjectId(req.body.brotherID);
+	if (sponsor) {
+		db.sponsors.update(
+			{brotherID: brotherID, rusheeID: rusheeID},
+			{$set : {brotherID: brotherID, rusheeID: rusheeID}},
+			{upsert : true}
+		);
+	} else {
+		db.sponsors.remove(
+			{brotherID: brotherID, rusheeID: rusheeID}
+		);
+	}
 	
+	console.log(vote);
+	if (vote != 'undefined' && vote != 'null') {
+		vote = db.ObjectId(vote);
+		db.votes.update(
+			{brotherID: brotherID, rusheeID: rusheeID},
+			{$set : {brotherID: brotherID, rusheeID: rusheeID, voteID:vote}},
+			{upsert : true}
+		);
+	} else {
+		db.votes.remove(
+			{brotherID: brotherID, rusheeID: rusheeID}
+		);
+	}
+	
+	
+	res.redirect('/');	
 });
 
 app.get('/viewrushees', function(req,res){
