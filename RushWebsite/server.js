@@ -118,6 +118,10 @@ app.get('/vote', function(req, res){
 			rushee.name = rushee.first + ' ' + rushee.last;
 		}
 		
+		for (var i = 0; i < brothers.length; i++) {
+			brothers[i].name = brothers[i].first + ' ' + brothers[i].last;
+		}
+		
 		this(null, brother, rushee, brothers, voteTypes, commentTypes, jaunts);
 	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
 		//pass on variables
@@ -156,12 +160,32 @@ app.get('/vote', function(req, res){
 	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
 		//get all comments on rushee
 		var that = this;
+		var commentIDs = [];
 		var comments = [];
-		db.comments.find({rusheeID: rushee._id}).forEach(function(err, doc){
+		db.comments.find({rusheeID: rushee._id}).sort({_id:-1}).forEach(function(err, doc){
 			if (doc == null) {
+				//TODO make this not run in O(comments * (brothers+types))
+				for (var i = 0; i < commentIDs.length; i++) {
+					var comment = {
+						time:commentIDs[i]._id.getTimestamp(),
+						text:commentIDs[i].text
+					};
+					for (var j = 0; j < commentTypes.length; j++) {
+						if (commentIDs[i].type.equals(commentTypes[j]._id)) {
+							comment.type = commentTypes[j].name;
+						}
+					}
+					
+					for (var j = 0; j < brothers.length; j++) {
+						if (commentIDs[i].brotherID.equals(brothers[j]._id)) {
+							comment.name = brothers[j].name;
+						}
+					}
+					comments.push(comment);
+				}
 				that(null, comments);
 			} else {
-				comments.push(doc);
+				commentIDs.push(doc);
 			}
 		});
 	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
@@ -238,10 +262,9 @@ app.get('/vote', function(req, res){
 		args.rushee.sponsors = [];
 		if (sponsors != null) {
 			for (var i = 0; i < sponsors.length; i++) {
-				args.rushee.sponsors.push(sponsors[i].first+' '+sponsors[i].last);
+				args.rushee.sponsors.push(sponsors[i].name);
 			}
 		}
-		
 		
 		//calculate comments
 		if (comments != null) {
@@ -261,7 +284,7 @@ app.post('/vote', function(req, res){
 	var sponsor = (req.body.sponsor == 'Yes');
 	var vote = req.body.vote;
 	var commentText = req.body.comment;
-	var commentType = req.body.commentType;
+	var commentType = db.ObjectId(req.body.commentType);
 	var commentJaunt = req.body.commentJaunt;
 	var rusheeID = db.ObjectId(req.body.rusheeID);
 	var brotherID = db.ObjectId(req.body.brotherID);
@@ -277,7 +300,6 @@ app.post('/vote', function(req, res){
 		);
 	}
 	
-	console.log(vote);
 	if (vote != 'undefined' && vote != 'null') {
 		vote = db.ObjectId(vote);
 		db.votes.update(
@@ -291,7 +313,12 @@ app.post('/vote', function(req, res){
 		);
 	}
 	
-	
+	if (commentText != '') {
+		db.comments.insert(
+			{brotherID: brotherID, rusheeID: rusheeID, text: commentText, type: commentType}
+		);
+	}
+		
 	res.redirect('/');	
 });
 
@@ -394,4 +421,4 @@ app.get('*', function(req, res){
 
 //listen on localhost:8000
 app.listen(8000,'localhost');
-//app.listen(8000,'18.202.1.157');
+// app.listen(8000,'18.202.1.157');
