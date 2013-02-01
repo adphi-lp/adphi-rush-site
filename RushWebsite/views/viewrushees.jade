@@ -12,7 +12,7 @@ block content
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
         -if (rushee.nick != '')
-          -rushee.name = rushee.first+' \"'+ rushee.nick + ' \"'+rushee.last;
+          -rushee.name = rushee.first+' \"'+ rushee.nick + '\" '+rushee.last;
         -else
           -rushee.name = rushee.first+ ' ' +rushee.last;
         li.rushee-wrapper
