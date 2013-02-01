@@ -34,7 +34,7 @@ block content
   .brother-action-wrapper
     form.brother-action-content
       input(type='hidden',name='rusheeID',value='#{rushee._id}')
-      -if (brother.name == null)
+      -if (brother == null)
         .brother-wrapper
           span.brother-action-type Name
           select.brother-list#brothers(name='brotherID')
@@ -43,6 +43,7 @@ block content
               option(value='#{b._id}') #{b.first} #{b.last} (#{b.class})
          button#brother-select-button(formmethod='get',formaction='/vote',value='Select') Select
       -else
+        input(type='hidden',name='brotherID',value='#{brother._id}')
         .brother-wrapper
           span.brother-action-type Name
           span.brother-info#brother-name #{brother.first} #{brother.last}
@@ -62,13 +63,14 @@ block content
         .vote-wrapper
           .vote-content
             span.brother-action-type Vote
-            - for (var i in voteTypes)
+            #{brother.vote}
+            - for (var i = 0; i < voteTypes.length; i++)
               - var voteType = voteTypes[i];
-              - if (brother.vote === voteType)
-                input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType}',checked)
+              - if (brother.vote == voteType._id)
+                input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType._id}',checked)
               -else
-                input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType}')
-              label.vote-choice(for ='vote#{i}') #{voteType}
+                input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType._id}')
+              label.vote-choice(for ='vote#{i}') #{voteType.name}
         .comment-wrapper
           .comment-content.clearfix
             span.brother-action-type Comment
@@ -78,8 +80,8 @@ block content
               .comment-type.lfloat
                 span.brother-action-type Type
                 select#comment-type(name='comment-type')
-                  -for (var i in types)
-                    option #{types[i]}
+                  -for (var i = 0; i < commentTypes.length; i++)
+                    option #{commentTypes[i].name}
               .comment-jaunt.rfloat
                 span.brother-action-type Jaunt
                 select#comment-jaunt(name='comment-jaunt')
@@ -92,7 +94,7 @@ block content
   .comment-thread-wrapper
     h2.title Comments
     ul.comment-thread-content
-      - for (var i in rushee.comments)	
+      - for (var i = 0; i < rushee.comments.length; i++)	
         -var comment = rushee.comments[i] 
         li.comment-wrapper
           .comment-content

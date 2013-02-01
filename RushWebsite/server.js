@@ -5,13 +5,14 @@ var Seq = require('seq');
 var app = express();
 var databaseURL = 'ADPhiRush';
 var collections = ['brothers', 'rushees', 'comments', 'sponsors',
-'votes', 'statuses', 'commentTypes', 'jaunts', 'vans']
+'votes', 'statuses', 'voteTypes', 'commentTypes', 'jaunts', 'vans']
 var db = require('mongojs').connect(databaseURL, collections);
 var tools = require('./tools');
 
 //to ensure that you can sort
 db.rushees.ensureIndex({first:1 , last:1});
 db.brothers.ensureIndex({first:1 , last:1});
+db.voteTypes.ensureIndex({value:-1});
 //TODO Comment sorting, etc.
 
 //for parsing posts
@@ -62,7 +63,7 @@ app.get('/vote', function(req, res){
 		}
 	}).par(function() {
 		//get brother list
-		that = this;
+		var that = this;
 		var brothers = [];
 		db.brothers.find().forEach(function(err, doc) {
 			if (doc == null) {
@@ -73,24 +74,41 @@ app.get('/vote', function(req, res){
 		});
 	}).par(function() {
 		//get vote types
-		var voteTypes = ['Definite Yes', 'Yes', 'No', 'Veto', 'None'];
-		this(null, voteTypes);
+		var that = this;
+		var voteTypes = [];
+		db.voteTypes.find().sort({value:-1}).forEach(function(err, doc) {
+			if (doc == null) {
+				voteTypes.push({name: 'None', value: 0})
+				that(null, voteTypes);
+			} else {
+				voteTypes.push(doc);
+			}
+		});
 	}).par(function() {
-		var commentTypes = ['General','Contact','Hobbies/Interests','Event/Jaunt Interest','Urgent']
+		//get comment types
+		var that = this;
+		var commentTypes = [];
+		db.commentTypes.find().forEach(function(err, doc) {
+			if (doc == null) {
+				that(null, commentTypes);
+			} else {
+				commentTypes.push(doc);
+			}
+		});
 		this(null, commentTypes);
 	}).par(function() {
-		var jaunts = ['Jaunt 1', 'Jaunt 2', 'None'];
+		//get jaunts
+		var jaunts = ['None'];
 		this(null, jaunts);
 	}).seq(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
-		if (brother == null) {
-			brother = {vote: 'None', sponsor: 'false', name: null}
-		} else {
-			brother.name = brother.first + ' ' + brother.last;
-		}
-		
+		//do some error checking, form names
 		if (rushee == null) {
 			this(new Error('no rushee'));
 			return;
+		}
+		
+		if (brother != null) {
+			brother.name = brother.first + ' ' + brother.last;
 		}
 		
 		if (rushee.nick != '') {
@@ -99,24 +117,61 @@ app.get('/vote', function(req, res){
 			rushee.name = rushee.first + ' ' + rushee.last;
 		}
 		
-		//TODO hard coded sponsors and comments
-		var vote = 9000;
-		var sponsor = false;
-		var sponsors = ['Jeff Shen', 'Jon Chien'];
-		var comments = [{time:'1/16/2013 5:06 AM', type:'Contact', text:'Contacted someone about blah and blah, said they\'d be over for dinner tomorrow', name: 'Jeff Shen'}];
-		rushee.vote = vote;
-		brother.sponsor = sponsor;
-		rushee.sponsors = sponsors;
-		this(null, brother, rushee, brothers, voteTypes, commentTypes, jaunts, comments);
-	}).seq(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts, comments) {
+		this(null, brother, rushee, brothers, voteTypes, commentTypes, jaunts);
+	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
+		//pass on variables
+		var args = {brother:brother, rushee:rushee, brothers:brothers, voteTypes:voteTypes,
+			commentTypes:commentTypes, jaunts:jaunts};
+		this(null, args);
+	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
+		//get all votes on rushee
+		db.votes.find({rusheeID: rushee._id}, this);
+	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
+		//get all comments on rushee
+		db.comments.find({rusheeID: rushee._id}, this);
+	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
+		//get all sponsors on rushee
+		db.sponsors.find({rusheeID: rushee._id}, this);
+	}).seq(function(args, votes, comments, sponsors) {
 		//done, render the page
-		var arguments= {brother: brother, rushee:rushee,brothers:brothers,
-			voteTypes:voteTypes, types:commentTypes, jaunts:jaunts, comments:comments};
-		res.render('vote.jade', arguments);
+		//calculate vote
+		var vote = 0;
+		if (votes != null) {
+			for (var i = 0; i < votes.length; i++) {
+				vote += votes[i].value;
+			}
+		}
+		args.rushee.vote = vote;
+		
+		if (sponsors != null && args.brother != null) {
+			for (var i = 0; i < sponsors.length; i++) {
+				if (sponsors._id == args.brother._id) {
+					args.brother.sponsor = true;
+				}
+			}
+			args.brother.sponsor = false;
+		}
+		
+		if (sponsors != null) {
+			args.rushee.sponsors = sponsors;
+		} else {
+			args.rushee.sponsors = [];
+		}
+		
+		if (comments != null) {
+			args.rushee.comments = comments;
+		} else {
+			args.rushee.comments = [];
+		}
+				
+		res.render('vote.jade', args);
 	}).catch(function(err) {
 		console.log(err);
   		res.redirect('/404');
 	});
+});
+
+app.post('/vote', function(req, res){
 	
 });
 
@@ -147,10 +202,6 @@ app.get('/viewbrothers', function(req,res){
 		}
 	});
 });
-
-app.post('/vote', function(req, res){
-	res.render('vote.jade',{brother: 'JS', rushee: 'rushee', phone: 'unknown', sponsor: ['JS', 'JS2']});
-});
 	
 	
 app.get('/addbrother', function(req, res){
@@ -178,17 +229,18 @@ app.post('/addrushee', function(req,res) {
 	var photoLen = 5, photoDefault = '/img/no_photo.jpg';
 	if (photo.size == 0) {
 		var photoPath = photoDefault;
-		console.log('asdf');
 	} else {
 		name = photo.name;
-		console.log(photo);
 		var extension = name.substr(name.lastIndexOf('.')+1);
 		var photoPath = '/img/'+tools.randomString(5,'')+'.'+extension;
 	
 		fs.readFile(req.files.photo.path, function(err, data) {
-			newPath = __dirname + '/img/' + photoPath;
+			newPath = __dirname + photoPath;
 			fs.writeFile(newPath, data, function(err) {
-				console.log(photoPath);
+				if (err != null) {
+					console.log("photopath: " + photoPath);
+					console.log(err);
+				}
 			});
 		});
 	}
@@ -221,4 +273,5 @@ app.get('*', function(req, res){
 });
 
 //listen on localhost:8000
-app.listen(8000,'18.202.1.157');
+app.listen(8000,'localhost');
+//app.listen(8000,'18.202.1.157');
