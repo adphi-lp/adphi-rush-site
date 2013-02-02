@@ -442,5 +442,5 @@ app.get('*', function(req, res){
 });
 
 //listen on localhost:8000
-// app.listen(8000,'localhost');
-app.listen(8000,'18.202.1.157');
+ app.listen(8000,'localhost');
+//app.listen(8000,'18.202.1.157');

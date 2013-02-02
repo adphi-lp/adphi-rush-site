@@ -1,8 +1,15 @@
+.content-wrapper{
+	margin:0 auto;
+	width:800px;
+	/*box-shadow: 0 0 10px 2px #888;*/
+
+}
 .rushee-wrapper{
-	background-color:#EAF2D3;
-	margin: 10px 0px 10px 0px;
-	padding: 10px 0px 25px 10px;
-	border: 1px solid #98BF21;
+	background-color:rgba(215, 236, 255, 0.4);
+	margin: 10px 0px 40px 0px;
+	padding: 10px 0px 10px 10px;
+	box-shadow: 0 0 10px 2px #888;
+	
 }
 
 .rushee-info{
@@ -25,6 +32,22 @@
 	content:':\0000a0';
 }
 
+.brother-action-content{
+	/*background:rgba(215, 236, 255, 0.4);*/
+	box-shadow: 0 0 10px 2px #888;
+    padding:20px;
+}
+
+.brother-action-content .comment-wrapper{
+	border:none;
+	background: none
+}
+
+.brother-action-wrapper{
+	background-color:rgba(215, 236, 255, 0.4);
+}
+
+
 .comment-header-element{
 	margin: 0em 0em 0em 0.5em
 }
@@ -41,3 +64,55 @@
 .missing-sponsor{
 	font-weight:bold; color:red;
 }
+/*
+.brother-wrapper .brother-action-type{
+	float:left;
+}
+.brother-wrapper .brother-info{
+	float:right;
+	width:75%;
+}*/
+
+.comment-thread-wrapper{
+	margin:40px 0 40px 0;
+	box-shadow: 0 0 10px 2px #888;
+	background-color:rgba(215, 236, 255, 0.4);
+
+}
+.comment-thread-content{
+	padding-bottom:20px;
+}
+
+.comment-thread-wrapper .title{
+	padding: 10px 0 0 10px;
+}
+
+.comment-thread-wrapper ul{
+	list-style: none;
+
+}
+
+.comment-wrapper{
+	margin: 0 auto;
+	margin-bottom:20px;
+	padding:20px;
+	/*border-bottom: 1px solid #aaa;*/
+	position:relative;
+	background:rgba(231, 231, 231, 0.4);
+	width:600px;
+	border-radius: 20px
+}
+
+.comment-time{
+	font-size:12px;
+	position:absolute;
+	right:0;
+	bottom:0;
+}
+
+
+
+.post-wrapper{
+	margin-top:20px;
+}
+
