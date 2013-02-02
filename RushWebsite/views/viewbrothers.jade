@@ -1,0 +1,25 @@
+extends layout
+
+block head
+  title='View all Brothers'  
+  link(rel='stylesheet',href='/css/viewbrothers.css')
+
+block content
+  .brothers-wrapper
+    h1.brothers-title View all brothers
+    ul.brothers-list
+      -for(var i = 0; i < brothers.length; i++)
+        -var brother = brothers[i];
+        li.brother-wrapper
+          .brother-content.clearfix
+            .brother-info
+              .brother-info-item.brother-name #{brother.first} #{brother.last}
+              .brother-info-item.brother-class
+                span.brother-info-type Pledge Class
+                span.brother-info-data #{brother.class}
+              .brother-info-item.rushee-phone
+                span.brother-info-type Phone
+                span.brother-info-data #{brother.phone}
+              .brother-info-item.brother-email
+                span.brother-info-type Email
+                span.brother-info-data #{brother.email}

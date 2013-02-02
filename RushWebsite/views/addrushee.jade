@@ -1,0 +1,36 @@
+extends layout
+
+block head
+  title='Add a rushee'
+
+block content
+  .rushee-add-wrapper
+    h1.rushee-add-title Add a rushee
+    form.rushee-add-content(enctype = 'multipart/form-data')
+      .rushee-add-info
+        .rushee-add-item#rushee-first-name
+          span.rushee-add-type First Name
+          input.rushee-add-data(name='first',required)
+        .rushee-add-item#rushee-last-name
+          span.rushee-add-type Last Name
+          input.rushee-add-data(name='last',required)
+        .rushee-add-item#rushee-nickname
+          span.rushee-add-type Nickname
+          input.rushee-add-data(name='nick')
+        .rushee-add-item#rushee-dorm
+          span.rushee-add-type Dorm
+          input.rushee-add-data(name='dorm')
+        .rushee-add-item#rushee-phone
+          span.rushee-add-type Phone
+          input.rushee-add-data(name='phone')
+        .rushee-add-item#rushee-email
+          span.rushee-add-type Email
+          input.rushee-add-data(name='email')
+        .rushee-add-item#rushee-year
+          span.rushee-add-type Year
+          input.rushee-add-data(name='year')
+        .rushee-add-item#rushee-photo
+          span.rushee-add-type Photo
+          input.rushee-add-data(type='file',name='photo')
+      .rushee-add-post
+        input#save(type='submit',formmethod='post',formaction='/addrushee',value='Submit')

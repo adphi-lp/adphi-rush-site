@@ -1,0 +1,35 @@
+extends layout
+
+block head
+  title='Search for a Rushee'
+  script(type='text/javascript',src='/js/vendor/jquery-1.8.3.min.js')
+  script(type='text/javascript',src='/js/search.js')
+
+block content
+  - var brother = {first:'Jeff', last:'Shen',class:'Celeritas',vote:'None', voteTime:'1/17/2013 2:46 AM', sponsor:false}
+  - var rushee = {id: 'ID', first: 'First', last: 'Last', nick: 'Nick', dorm: 'MacGregor', phone: '(555) 555-555', email: 'email@mit.edu', photo: '/img/Mc4M1.jpg'}
+  - var sponsors = ['Jeff Shen', 'Jon Chien']
+  - var vote = 9000
+  - var voteTypes = ['Definite Yes', 'Yes', 'No', 'Veto', 'None']
+  - var brothers = [{id: '1', first: 'Jeff', last: 'Shen', class: 'Celeritas'}]
+  - var types = ['General','Contact','Hobbies/Interests','Event/Jaunt Interest','Urgent']
+  - var jaunts = ['Jaunt 1', 'Jaunt 2']
+  - var comments = [{time:'1/16/2013 5:06 AM', type:'Contact', text:'Contacted someone about blah and blah, said they\'d be over for dinner tomorrow', name: 'Jeff Shen'}]
+  
+  - if (brother == null)
+    - brother = {vote: 'None', sponsor:'false', name:null}
+  -else
+    - brother.name = '#{brother.first} #{brother.last}'
+  - if (rushee.nick != '')
+    -rushee.name = rushee.first+' \"'+rushee.nick+'\" '+ rushee.last
+  -else
+    -rushee.name = rushee.first+' ' +rushee.last
+
+  
+  .search-wrapper
+    .search-content
+      form.search-form(method='get',action='/search')
+        input#search-text(name='q',autocomplete='off')
+        button#search-button(value='Search') Search
+
+ 

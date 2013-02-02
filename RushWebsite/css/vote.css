@@ -1,0 +1,43 @@
+.rushee-wrapper{
+	background-color:#EAF2D3;
+	margin: 10px 0px 10px 0px;
+	padding: 10px 0px 25px 10px;
+	border: 1px solid #98BF21;
+}
+
+.rushee-info{
+	margin-left:180px;
+}
+
+.rushee-info-type{
+	font-weight:bold;
+}
+
+.rushee-info-type:after{
+	content:':\0000a0';
+}
+
+.brother-action-type{
+	font-weight:bold;
+}
+
+.brother-action-type:after{
+	content:':\0000a0';
+}
+
+.comment-header-element{
+	margin: 0em 0em 0em 0.5em
+}
+
+.comment-name{
+	font-weight:bold;
+	margin-left:0;
+}
+
+.rushee-name{
+	font-size:xx-large;
+}
+
+.missing-sponsor{
+	font-weight:bold; color:red;
+}
