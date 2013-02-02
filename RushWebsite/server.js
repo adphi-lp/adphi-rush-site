@@ -418,7 +418,9 @@ app.get('/', function(req, res){
 	if (accountType == 'admin')
 		res.render('index.jade', {accountType : 'admin'});
 	else if (accountType == 'brother') {
-		res.render('index.jade', {accountType : 'brother'});
+		res.redirect('/viewrushees');
+	} else {
+		res.redirect('/auth');
 	}
 });
 
@@ -442,5 +444,5 @@ app.get('*', function(req, res){
 });
 
 //listen on localhost:8000
-// app.listen(8000,'localhost');
-app.listen(8000,'18.202.1.157');
+app.listen(8000,'localhost');
+// app.listen(8000,'18.202.1.157');
