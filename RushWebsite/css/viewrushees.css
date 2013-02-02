@@ -1,0 +1,47 @@
+body{
+    font-family: "Helvetica";
+}
+
+.rushee-info{
+	margin-left:100px;
+}  
+
+.rushees-wrapper{
+    margin:0 auto;
+    width:400px;
+    /*margin: 20px;*/
+    background:rgba(215, 236, 255, 0.4);
+    padding:20px;
+}
+
+.rushee-wrapper{
+    border-bottom: 1px solid #aaa;
+ 
+    padding:20px;
+}
+
+.rushee-wrapper:hover{
+    background:rgba(215, 236, 255, 0.7);
+}
+
+.rushee-info-type{
+    padding:5px;
+    color:grey;
+}
+
+
+.rushee-info-type:after{
+    content:':\0000a0';
+}
+
+.rushee-name{
+    padding:5px;
+    font-size:20px;
+}
+
+ul
+{
+list-style-type: none;
+padding: 0px;
+margin: 0px;
+}
