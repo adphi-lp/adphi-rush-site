@@ -46,7 +46,7 @@ block content
         input(type='hidden',name='brotherID',value='#{brother._id}')
         .brother-wrapper
           span.brother-action-type Name
-          span.brother-info#brother-name #{brother.first} #{brother.last}
+          span.brother-info#brother-name #{brother.name}
         .sponsor-wrapper
           .sponsor-content
             span.brother-action-type Sponsor
@@ -76,7 +76,7 @@ block content
           .comment-content.clearfix
             span.brother-action-type Comment
             .comment-textarea-wrapper
-              textarea#comment-textarea(name='comment',rows=5,cols=80)
+              textarea#comment-textarea(name='comment',rows=5,cols=60)
             .comment-type
               .comment-type.lfloat
                 span.brother-action-type Type
@@ -103,8 +103,8 @@ block content
             .comment-header
               span.comment-header-element.comment-name #{comment.name}
               span.comment-header-element.type #{comment.type}
-              span.comment-header-element.time #{comment.time}
             .comment-text #{comment.text}
+            .comment-time #{comment.time}
 
 
  
