@@ -20,6 +20,8 @@ db.voteTypes.ensureIndex({value:-1});
 
 //for parsing posts
 app.use(express.bodyParser());
+//TODO: this is a really bad SECRET
+app.use(express.cookieParser('ADPhiRush'));
 
 //set path to static things
 app.use('/img',express.static(__dirname + '/img'))
@@ -412,7 +414,27 @@ app.get('/test', function(req,res) {
 });
 
 app.get('/', function(req, res){
-	res.render('index.jade', {title: 'Rush home'});
+	var accountType = req.cookies.accountType;
+	if (accountType == 'admin')
+		res.render('index.jade', {accountType : 'admin'});
+	else if (accountType == 'brother') {
+		res.render('index.jade', {accountType : 'brother'});
+	}
+});
+
+app.get('/auth', function(req,res){
+	res.render('auth.jade');
+});
+
+app.post('/auth', function(req,res){
+	//TODO authenticate every page and not make hard coded
+	if (req.body.username == 'admin' && req.body.password == 'jeffshen') {
+		res.cookie('accountType', 'admin');
+	} else if (req.body.username == 'brother' && req.body.password == 'adphi') {
+		res.cookie('accountType', 'brother');
+	}
+	
+	res.redirect('/');
 });
 
 app.get('*', function(req, res){
@@ -420,5 +442,5 @@ app.get('*', function(req, res){
 });
 
 //listen on localhost:8000
-app.listen(8000,'localhost');
-// app.listen(8000,'18.202.1.157');
+// app.listen(8000,'localhost');
+app.listen(8000,'18.202.1.157');

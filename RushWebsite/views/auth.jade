@@ -1,0 +1,9 @@
+extends layout
+
+block head
+
+block content
+  form.auth-form(method='post', action='/auth')
+    input#auth-name(name='username')
+    input#auth-pass(type='password',name='password')
+    input#save(type='submit',value='Login')
