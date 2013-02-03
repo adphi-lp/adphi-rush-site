@@ -1,7 +1,9 @@
 //create an app server
 var express = require('express');
+var https = require('https');
 var fs = require('fs');
 var Seq = require('seq');
+var moment = require('moment');
 var app = express();
 var databaseURL = 'ADPhiRush';
 var collections = ['brothers', 'rushees', 'comments', 'sponsors',
@@ -168,13 +170,16 @@ app.get('/vote', function(req, res){
 			if (doc == null) {
 				//TODO make this not run in O(comments * (brothers+types))
 				for (var i = 0; i < commentIDs.length; i++) {
+					var time = moment(commentIDs[i]._id.getTimestamp());
 					var comment = {
-						time:commentIDs[i]._id.getTimestamp(),
+						time:'Posted at ' + time.format('h:mm:ss a') 
+							+ ' on ' + time.format('dddd, MMMM Do YYYY'),
 						text:commentIDs[i].text
 					};
 					for (var j = 0; j < commentTypes.length; j++) {
 						if (commentIDs[i].type.equals(commentTypes[j]._id)) {
 							comment.type = commentTypes[j].name;
+							comment.color = commentTypes[j].color;
 						}
 					}
 					
@@ -430,6 +435,7 @@ app.get('/auth', function(req,res){
 
 app.post('/auth', function(req,res){
 	//TODO authenticate every page and not make hard coded
+	res.clearCookie('');
 	if (req.body.username == 'admin' && req.body.password == 'jeffshen') {
 		res.cookie('accountType', 'admin');
 	} else if (req.body.username == 'brother' && req.body.password == 'adphi') {
@@ -444,5 +450,13 @@ app.get('*', function(req, res){
 });
 
 //listen on localhost:8000
+// app.listen(8000,'localhost');
+var options = {
+key:fs.readFileSync(__dirname+'/cert/key.pem'),
+cert:fs.readFileSync(__dirname+'/cert/cert.pem')
+};
+
+// https.createServer(options, app).listen(8000, '18.202.1.157');
+// https.createServer(options, app).listen(8000, 'localhost');
+// app.listen(8000,'18.202.1.157');
 app.listen(8000,'localhost');
-//app.listen(8000,'18.202.1.157');
