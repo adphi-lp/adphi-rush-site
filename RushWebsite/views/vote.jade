@@ -21,6 +21,9 @@ block content
         .rushee-info-item.rushee-email
           span.rushee-info-type Email
           span.rushee-info-data #{rushee.email}
+        .rushee-info-item.rushee-year
+          span.rushee-info-type Year
+          span.rushee-info-data #{rushee.year}
         .rushee-info-item.rushee-sponsors
           span.rushee-info-type Sponsor(s)
           - if (rushee.sponsors.length > 0)
@@ -102,7 +105,7 @@ block content
           .comment-content
             .comment-header
               span.comment-header-element.comment-name #{comment.name}
-              span.comment-header-element.type #{comment.type}
+              span.comment-header-element.type(style='color:#{comment.color};') #{comment.type}
             .comment-text #{comment.text}
             .comment-time #{comment.time}
 
