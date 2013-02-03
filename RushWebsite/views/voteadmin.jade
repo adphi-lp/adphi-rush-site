@@ -1,0 +1,137 @@
+extends layout
+
+block head
+  title='Voting'
+  link(rel='stylesheet',href='/css/voteadmin.css')
+
+block content
+  .rushee-wrapper
+    .rushee-content.clearfix
+      a.rushee-photo.lfloat(href='/vote?rusheeID='+rushee._id)
+        img.img-large(src=rushee.photo,alt=rushee.name)
+      .rushee-info
+        .rushee-info-item.rushee-name
+          a(href='/vote?rusheeID='+rushee._id) #{rushee.name}
+        .rushee-info-item.rushee-dorm
+          span.rushee-info-type Dorm
+          span.rushee-info-data #{rushee.dorm}
+        .rushee-info-item.rushee-phone
+          span.rushee-info-type Phone
+          span.rushee-info-data #{rushee.phone}
+        .rushee-info-item.rushee-email
+          span.rushee-info-type Email
+          span.rushee-info-data #{rushee.email}
+        .rushee-info-item.rushee-year
+          span.rushee-info-type Year
+          span.rushee-info-data #{rushee.year}
+        .rushee-info-item.rushee-sponsors
+          span.rushee-info-type Sponsor(s)
+          - if (rushee.sponsors.length > 0)
+            span.rushee-info-data #{rushee.sponsors.join(', ')}
+          - else
+            span.rushee-info-data.missing-sponsor NEED SPONSOR
+        .rushee-info-item.rushee-votes
+          span.rushee-info-type Voting score
+          span.rushee-info-data #{rushee.vote}
+
+        
+  .brother-action-wrapper
+    form.brother-action-content
+      input(type='hidden',name='rusheeID',value='#{rushee._id}')
+      -if (brother == null)
+        .brother-wrapper
+          span.brother-action-type Name
+          select.brother-list#brothers(name='brotherID')
+            -for (var i = 0; i < brothers.length; i++)
+              -var b = brothers[i];
+              option(value='#{b._id}') #{b.first} #{b.last} (#{b.class})
+         button#brother-select-button(formmethod='get',formaction='/vote',value='Select') Select
+      -else
+        input(type='hidden',name='brotherID',value='#{brother._id}')
+        .brother-wrapper
+          span.brother-action-type Name
+          span.brother-info#brother-name #{brother.name}
+        .sponsor-wrapper
+          .sponsor-content
+            span.brother-action-type Sponsor
+            -if (brother.sponsor)
+              input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes',checked)
+              label.sponsor-choice(for='sponsorYes') Yes
+              input.span-space#sponsorNo(type='radio',name='sponsor',value='No')
+              label.sponsor-choice(for='sponsorNo') No
+            -else
+              input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes')
+              label.sponsor-choice(for='sponsorYes') Yes
+              input.span-space#sponsorNo(type='radio',name='sponsor',value='No',checked)
+              label.sponsor-choice(for='sponsorNo') No
+        .vote-wrapper
+          .vote-content
+            span.brother-action-type Vote
+            - for (var i = 0; i < voteTypes.length; i++)
+              - var voteType = voteTypes[i];
+              - var bid = brother.vote._id;
+              - var vid = voteType._id;
+              - if ((bid == vid) || (bid != null && vid != null && bid.equals(vid)))
+                input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType._id}',checked)
+              -else
+                input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType._id}')
+              label.vote-choice(for ='vote#{i}') #{voteType.name}
+        .comment-wrapper
+          .comment-content.clearfix
+            span.brother-action-type Comment
+            .comment-textarea-wrapper
+              textarea#comment-textarea(name='comment',rows=5,cols=60)
+            .comment-type
+              .comment-type.lfloat
+                span.brother-action-type Type
+                select#comment-type(name='commentType')
+                  -for (var i = 0; i < commentTypes.length; i++)
+                    option(value='#{commentTypes[i]._id}') #{commentTypes[i].name}
+              //
+                .comment-jaunt.rfloat
+                  span.brother-action-type Jaunt
+                  select#comment-jaunt(name='commentJaunt')
+                    -for (var i in jaunts)
+                      option(value='#{jaunts[i]}') #{jaunts[i]}
+        .post-wrapper
+          input#save(type='submit',formmethod='post',formaction='/vote',value='Submit')
+          input#done(type='submit',formmethod='get',formaction='/',value='Done')
+            
+  .votes-wrapper
+    h2.title Votes
+    .votes-content
+      table.votes-table
+        tr.votes-header-row
+          th.votes-header-name Brother Name
+          -for (var i = 0; i < voteTypes.length; i++)
+            -var voteType = voteTypes[i];
+            th.votes-header-cell #{voteType.name}
+        -for (var i = 0; i < rushee.votes.length; i++)
+          -var vote = rushee.votes[i]
+          -var bid = vote.voteType._id;
+          tr.votes-row
+            td.votes-name #{vote.brother.name}
+            -for (var j = 0; j < voteTypes.length; j++)
+              -var voteType = voteTypes[j];
+              -var vid = voteType._id;
+              -if ((bid == vid) || (bid != null && vid != null && bid.equals(vid)))
+                td.votes-cell
+                  strong X
+              -else
+                td.votes-cell
+           
+  .comment-thread-wrapper
+    h2.title Comments
+    ul.comment-thread-content
+      - for (var i = 0; i < rushee.comments.length; i++)	
+        -var comment = rushee.comments[i];
+        li.comment-wrapper
+          .comment-content
+            .comment-header
+              span.comment-header-element.comment-name #{comment.name}
+              span.comment-header-element.type(style='color:#{comment.color};') #{comment.type}
+            .comment-text #{comment.text}
+            .comment-time #{comment.time}
+
+
+ 

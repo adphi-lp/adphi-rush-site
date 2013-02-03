@@ -72,7 +72,7 @@ app.get('/vote', function(req, res){
 		//get brother list
 		var that = this;
 		var brothers = [];
-		db.brothers.find().forEach(function(err, doc) {
+		db.brothers.find().sort({first:1, last:1}).forEach(function(err, doc) {
 			if (doc == null) {
 				that(null, brothers);
 			} else {
@@ -245,6 +245,18 @@ app.get('/vote', function(req, res){
 		}
 		args.rushee.vote = vote;
 		
+		//get votes
+		args.rushee.votes = votes;
+		args.rushee.votes.sort(function(a, b) {
+			if (a.brother.name < b.brother.name) {
+				return -1;
+			} else if (a.brother.name > b.brother.name) {
+				return 1;
+			} else {
+				return 0;
+			} 
+		});
+		
 		//is brother a sponsor?
 		if (args.brother != null) {
 			args.brother.sponsor = false;
@@ -279,8 +291,15 @@ app.get('/vote', function(req, res){
 		} else {
 			args.rushee.comments = [];
 		}
-				
-		res.render('vote.jade', args);
+		
+		var accountType = req.cookies.accountType;
+		if (accountType == 'brother') {
+			res.render('vote.jade', args);
+		} else if (accountType == 'admin') {
+			res.render('voteadmin.jade', args);
+		} else {
+			res.redirect('/auth');
+		}
 	}).catch(function(err) {
 		console.log(err);
   		res.redirect('/404');
@@ -435,7 +454,7 @@ app.get('/auth', function(req,res){
 
 app.post('/auth', function(req,res){
 	//TODO authenticate every page and not make hard coded
-	res.clearCookie('');
+	res.clearCookie('accountType');
 	if (req.body.username == 'admin' && req.body.password == 'jeffshen') {
 		res.cookie('accountType', 'admin');
 	} else if (req.body.username == 'brother' && req.body.password == 'adphi') {

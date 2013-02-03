@@ -31,15 +31,19 @@ block content
               .rushee-info-item.rushee-email
                 span.rushee-info-type Email
                 span.rushee-info-data #{rushee.email}
-              .rushee-info-item.rushee-sponsors
-                span.rushee-info-type Sponsor(s)
-                - if (rushee.sponsors != null && rushee.sponsors.length > 0)
-                  span.rushee-info-data #{rushee.sponsors.join(', ')}
-                - else
-                  span.rushee-info-data.missing-sponsor NEED SPONSOR
-              .rushee-info-item.rushee-votes
-                span.rushee-info-type Voting score
-                span.rushee-info-data #{rushee.vote}
+              .rushee-info-item.rushee-year
+                span.rushee-info-type Year
+                span.rushee-info-data #{rushee.year}
+              //
+                .rushee-info-item.rushee-sponsors
+                  span.rushee-info-type Sponsor(s)
+                  - if (rushee.sponsors != null && rushee.sponsors.length > 0)
+                    span.rushee-info-data #{rushee.sponsors.join(', ')}
+                  - else
+                    span.rushee-info-data.missing-sponsor NEED SPONSOR
+                .rushee-info-item.rushee-votes
+                  span.rushee-info-type Voting score
+                  span.rushee-info-data #{rushee.vote}
  
 
  
