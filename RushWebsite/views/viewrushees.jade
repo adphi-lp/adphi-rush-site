@@ -2,7 +2,7 @@ extends layout
 
 block head
   title='View all Rushees'  
-  link(rel='stylesheet',href='/css/viewrushees.css')
+  link(rel='stylesheet',href=basepath+'/css/viewrushees.css')
  
 
 block content
@@ -17,11 +17,11 @@ block content
           -rushee.name = rushee.first+ ' ' +rushee.last;
         li.rushee-wrapper
           .rushee-content.clearfix
-            a.rushee-photo.lfloat(href='/vote?rusheeID='+rushee._id)
-              img.img-medium(src=rushee.photo,alt=rushee.name)
+            a.rushee-photo.lfloat(href=basepath+'/vote?rusheeID='+rushee._id)
+              img.img-medium(src=basepath+rushee.photo,alt=rushee.name)
             .rushee-info
               .rushee-info-item.rushee-name
-                a(href='/vote?rusheeID='+rushee._id) #{rushee.name}
+                a(href=basepath+'/vote?rusheeID='+rushee._id) #{rushee.name}
               .rushee-info-item.rushee-dorm
                 span.rushee-info-type Dorm
                 span.rushee-info-data #{rushee.dorm}

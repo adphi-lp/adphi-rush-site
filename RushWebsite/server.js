@@ -13,6 +13,7 @@ var tools = require('./tools');
 
 //constants
 var NULL_VOTE = {name:'None', value:0};
+var BASE_PATH = '';
 
 //to ensure that you can sort
 db.rushees.ensureIndex({first:1 , last:1});
@@ -26,7 +27,7 @@ app.use(express.bodyParser());
 app.use(express.cookieParser('ADPhiRush'));
 
 //set path to static things
-app.use('/img',express.static(__dirname + '/img'))
+app.use('/img',express.static(__dirname+ '/img'))
 app.use('/css',express.static(__dirname + '/css'))
 app.use('/js',express.static(__dirname + '/js'))
 
@@ -34,11 +35,11 @@ app.use('/js',express.static(__dirname + '/js'))
 app.set('views', __dirname + '/views');
 
 
-app.get('/search', function(req, res){
-	res.render('search.jade');
+app.get(BASE_PATH+'/search', function(req, res){
+	res.render('search.jade',{basepath:BASE_PATH});
 });
 
-app.get('/vote', function(req, res){
+app.get(BASE_PATH+'/vote', function(req, res){
 	//TODO implement sessions for brothers
 	var rusheeID = req.query.rusheeID;
 	var brotherID = req.query.brotherID;
@@ -292,21 +293,26 @@ app.get('/vote', function(req, res){
 			args.rushee.comments = [];
 		}
 		
+		//base path
+		args.basepath = BASE_PATH;
+		
 		var accountType = req.cookies.accountType;
 		if (accountType == 'brother') {
+			args.fullview = false;
 			res.render('vote.jade', args);
 		} else if (accountType == 'admin') {
-			res.render('voteadmin.jade', args);
+			args.fullview = true;
+			res.render('vote.jade', args);
 		} else {
-			res.redirect('/auth');
+			res.redirect(BASE_PATH+'/auth');
 		}
 	}).catch(function(err) {
 		console.log(err);
-  		res.redirect('/404');
+  		res.redirect(BASE_PATH+'/404');
 	});
 });
 
-app.post('/vote', function(req, res){
+app.post(BASE_PATH+'/vote', function(req, res){
 	var sponsor = (req.body.sponsor == 'Yes');
 	var vote = req.body.vote;
 	var commentText = req.body.comment;
@@ -345,31 +351,31 @@ app.post('/vote', function(req, res){
 		);
 	}
 		
-	res.redirect('/');	
+	res.redirect(BASE_PATH+'/');	
 });
 
-app.get('/viewrushees', function(req,res){
+app.get(BASE_PATH+'/viewrushees', function(req,res){
 	var rushees = new Array();
 	var cursor = db.rushees.find().sort({first: 1, last: 1});
 	
 	cursor.forEach(function(err, doc) {
 		if (doc ==  null) {
 			//finished reading, render the page
-			res.render('viewrushees.jade', {'rushees' : rushees});
+			res.render('viewrushees.jade', {rushees:rushees, basepath:BASE_PATH});
 		} else {
 			rushees.push(doc);
 		}
 	});
 });
 
-app.get('/viewbrothers', function(req,res){
+app.get(BASE_PATH+'/viewbrothers', function(req,res){
 	var brothers = new Array();
 	var cursor = db.brothers.find().sort({first: 1, last: 1});
 	
 	cursor.forEach(function(err, doc) {
 		if (doc ==  null) {
 			//finished reading, render the page
-			res.render('viewbrothers.jade', {'brothers' : brothers});
+			res.render('viewbrothers.jade', {brothers:brothers,basepath:BASE_PATH});
 		} else {
 			brothers.push(doc);
 		}
@@ -377,11 +383,11 @@ app.get('/viewbrothers', function(req,res){
 });
 	
 	
-app.get('/addbrother', function(req, res){
-	res.render('addbrother.jade');
+app.get(BASE_PATH+'/addbrother', function(req, res){
+	res.render('addbrother.jade',{basepath:BASE_PATH});
 });
 
-app.post('/addbrother', function(req,res) {
+app.post(BASE_PATH+'/addbrother', function(req,res) {
 	var brother = {
 		first: req.body.first,
 		last: req.body.last,
@@ -390,14 +396,14 @@ app.post('/addbrother', function(req,res) {
 		email: req.body.email
 	};
 	db.brothers.insert(brother);
-	res.render('addbrother.jade');
+	res.render('addbrother.jade',{basepath:BASE_PATH});
 });
 
-app.get('/addrushee', function(req,res) {
-	res.render('addrushee.jade');
+app.get(BASE_PATH+'/addrushee', function(req,res) {
+	res.render('addrushee.jade',{basepath:BASE_PATH});
 });
 
-app.post('/addrushee', function(req,res) {
+app.post(BASE_PATH+'/addrushee', function(req,res) {
 	var photo = req.files.photo;
 	var photoLen = 5, photoDefault = '/img/no_photo.jpg';
 	if (photo.size == 0) {
@@ -430,29 +436,29 @@ app.post('/addrushee', function(req,res) {
 	};
 
 	db.rushees.insert(rushee);
-	res.render('addrushee.jade');
+	res.render('addrushee.jade',{basepath:BASE_PATH});
 });
 
-app.get('/test', function(req,res) {
-	res.render('test.jade');
+app.get(BASE_PATH+'/test', function(req,res) {
+	res.render('test.jade',{basepath:BASE_PATH});
 });
 
-app.get('/', function(req, res){
+app.get(BASE_PATH+'/', function(req, res){
 	var accountType = req.cookies.accountType;
 	if (accountType == 'admin')
-		res.render('index.jade', {accountType : 'admin'});
+		res.render('index.jade', {accountType : 'admin', basepath:BASE_PATH});
 	else if (accountType == 'brother') {
-		res.redirect('/viewrushees');
+		res.redirect(BASE_PATH+'/viewrushees');
 	} else {
-		res.redirect('/auth');
+		res.redirect(BASE_PATH+'/auth');
 	}
 });
 
-app.get('/auth', function(req,res){
-	res.render('auth.jade');
+app.get(BASE_PATH+'/auth', function(req,res){
+	res.render('auth.jade',{basepath:BASE_PATH});
 });
 
-app.post('/auth', function(req,res){
+app.post(BASE_PATH+'/auth', function(req,res){
 	//TODO authenticate every page and not make hard coded
 	res.clearCookie('accountType');
 	if (req.body.username == 'admin' && req.body.password == 'jeffshen') {
@@ -461,11 +467,11 @@ app.post('/auth', function(req,res){
 		res.cookie('accountType', 'brother');
 	}
 	
-	res.redirect('/');
+	res.redirect(BASE_PATH+'/');
 });
 
 app.get('*', function(req, res){
-	res.render('404.jade');
+	res.render('404.jade',{basepath:BASE_PATH});
 });
 
 //listen on localhost:8000
