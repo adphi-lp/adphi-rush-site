@@ -22,14 +22,14 @@ db.voteTypes.ensureIndex({value:-1});
 //TODO Comment sorting, etc.
 
 //for parsing posts
-app.use(express.bodyParser());
+app.use(express.bodyParser({uploadDir:__dirname+'/uploads'}));
 //TODO: this is a really bad SECRET
 app.use(express.cookieParser('ADPhiRush'));
 
 //set path to static things
-app.use('/img',express.static(__dirname+ '/img'))
-app.use('/css',express.static(__dirname + '/css'))
-app.use('/js',express.static(__dirname + '/js'))
+app.use(BASE_PATH+'/img',express.static(__dirname+ '/img'))
+app.use(BASE_PATH+'/css',express.static(__dirname + '/css'))
+app.use(BASE_PATH+'/js',express.static(__dirname + '/js'))
 
 //set path to the views (template) directory
 app.set('views', __dirname + '/views');
@@ -599,11 +599,11 @@ app.get('*', function(req, res){
 //listen on localhost:8000
 // app.listen(8000,'localhost');
 var options = {
-key:fs.readFileSync(__dirname+'/cert/key.pem'),
-cert:fs.readFileSync(__dirname+'/cert/cert.pem')
+	key:fs.readFileSync(__dirname+'/cert/key.pem'),
+	cert:fs.readFileSync(__dirname+'/cert/cert.pem')
 };
 
-// https.createServer(options, app).listen(8000, '18.202.1.157');
-// https.createServer(options, app).listen(8000, 'localhost');
+//https.createServer(options, app).listen(8000, '18.202.1.157');
+https.createServer(options, app).listen(8000, 'localhost');
 // app.listen(8000,'18.202.1.157');
-app.listen(8000,'localhost');
+//app.listen(8000,'localhost');
