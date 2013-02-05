@@ -11,10 +11,7 @@ block content
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
-        -if (rushee.nick != '')
-          -rushee.name = rushee.first+' \"'+ rushee.nick + '\" '+rushee.last;
-        -else
-          -rushee.name = rushee.first+ ' ' +rushee.last;
+        -if (rushee.visible == false && accountType != 'admin') continue;
         li.rushee-wrapper
           .rushee-content.clearfix
             a.rushee-photo.lfloat(href=basepath+'/vote?rusheeID='+rushee._id)
@@ -44,6 +41,4 @@ block content
                 .rushee-info-item.rushee-votes
                   span.rushee-info-type Voting score
                   span.rushee-info-data #{rushee.vote}
- 
-
  

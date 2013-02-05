@@ -37,6 +37,10 @@ block content
         .rushee-add-item.rushee-photo
           span.rushee-add-type Photo
           input.rushee-add-data(type='file',name='photo')
+        -if (accountType == 'admin')
+          .rushee-add-item.rushee-visible
+            span.rushee-add-type Visible
+            input.rushee-add-data(name='visible',value=''+rushee.visible)
       .rushee-post
         input#save(type='submit',formmethod='post',formaction='#',value='Submit')
  

@@ -306,17 +306,8 @@ app.get(BASE_PATH+'/vote', function(req, res){
 		
 		//base path
 		args.basepath = BASE_PATH;
-		
-		var accountType = req.cookies.accountType;
-		if (accountType == 'brother') {
-			args.fullview = false;
-			res.render('vote.jade', args);
-		} else if (accountType == 'admin') {
-			args.fullview = true;
-			res.render('vote.jade', args);
-		} else {
-			res.redirect(BASE_PATH+'/auth');
-		}
+		args.accountType = accountType;
+		res.render('vote.jade', args);
 	}).catch(function(err) {
 		console.log(err);
   		res.redirect(BASE_PATH+'/404');
@@ -390,7 +381,11 @@ app.get(BASE_PATH+'/editrushee', function(req, res) {
 		}
 	}).seq(function(rushee){
 		if (rushee != null) {
-			var args = {rushee:rushee, basepath:BASE_PATH};
+			var args = {
+				rushee:rushee,
+				basepath:BASE_PATH,
+				accountType:accountType
+			};
 			res.render('editrushee.jade', args);
 		} else {
 			res.render('404.jade',{basepath:BASE_PATH});
@@ -428,7 +423,6 @@ app.post(BASE_PATH+'/editrushee', function(req, res) {
 			});
 		});
 	}
-	
 	var rushee = {
 		first: req.body.first,
 		last: req.body.last,
@@ -438,6 +432,12 @@ app.post(BASE_PATH+'/editrushee', function(req, res) {
 		email: req.body.email,
 		year: req.body.year,
 		photo: photoPath
+	};
+	
+	if (req.body.visible == 'true') {
+		rushee.visible = true;
+	} else if (req.body.visible == 'false'){
+		rushee.visible = false;
 	};
 
 	db.rushees.update({_id:rusheeID},{$set: rushee},function(err) {
@@ -461,8 +461,14 @@ app.get(BASE_PATH+'/viewrushees', function(req,res){
 	cursor.forEach(function(err, doc) {
 		if (doc ==  null) {
 			//finished reading, render the page
-			res.render('viewrushees.jade', {rushees:rushees, basepath:BASE_PATH});
+			var args = {
+				rushees:rushees,
+				basepath:BASE_PATH,
+				accountType:accountType
+			}
+			res.render('viewrushees.jade', args);
 		} else {
+			doc.name = tools.name(doc.first, doc.nick, doc.last);
 			rushees.push(doc);
 		}
 	});
@@ -604,6 +610,6 @@ var options = {
 };
 
 //https.createServer(options, app).listen(8000, '18.202.1.157');
-https.createServer(options, app).listen(8000, 'localhost');
+// https.createServer(options, app).listen(8000, 'localhost');
 // app.listen(8000,'18.202.1.157');
-//app.listen(8000,'localhost');
+app.listen(8000,'localhost');
