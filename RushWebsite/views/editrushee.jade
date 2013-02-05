@@ -1,0 +1,42 @@
+extends layout
+
+block head
+  title='Edit Rushee'
+
+block content
+  .rushee-wrapper
+    h1.title Edit a Rushee
+    .rushee-content.clearfix
+    form.rushee-add-content(enctype = 'multipart/form-data')
+      .rushee-add-info
+        .rushee-add-item.rushee-id
+          input.rushee-add-date(type='hidden',name='rusheeID',value=rushee._id)
+        .rushee-add-item.rushee-first-name
+          span.rushee-add-type First Name
+          input.rushee-add-data(name='first',required,value=rushee.first)
+        .rushee-add-item.rushee-last-name
+          span.rushee-add-type Last Name
+          input.rushee-add-data(name='last',required,value=rushee.last)
+        .rushee-add-item.rushee-nickname
+          span.rushee-add-type Nickname
+          input.rushee-add-data(name='nick',value=rushee.nick)
+        .rushee-add-item.rushee-dorm
+          span.rushee-add-type Dorm
+          input.rushee-add-data(name='dorm',value=rushee.dorm)
+        .rushee-add-item.rushee-phone
+          span.rushee-add-type Phone
+          input.rushee-add-data(name='phone',value=rushee.phone)
+        .rushee-add-item.rushee-email
+          span.rushee-add-type Email
+          input.rushee-add-data(name='email',value=rushee.email)
+        .rushee-add-item.rushee-year
+          span.rushee-add-type Year
+          input.rushee-add-data(name='year',value=rushee.year)
+        .rushee-add-item.rushee-photo-old
+          input.rushee-add-data(type='hidden',name='photoOld',value=rushee.photo)
+        .rushee-add-item.rushee-photo
+          span.rushee-add-type Photo
+          input.rushee-add-data(type='file',name='photo')
+      .rushee-post
+        input#save(type='submit',formmethod='post',formaction='#',value='Submit')
+ 

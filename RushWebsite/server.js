@@ -36,10 +36,21 @@ app.set('views', __dirname + '/views');
 
 
 app.get(BASE_PATH+'/search', function(req, res){
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
 	res.render('search.jade',{basepath:BASE_PATH});
 });
 
 app.get(BASE_PATH+'/vote', function(req, res){
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
+	
 	//TODO implement sessions for brothers
 	var rusheeID = req.query.rusheeID;
 	var brotherID = req.query.brotherID;
@@ -112,7 +123,7 @@ app.get(BASE_PATH+'/vote', function(req, res){
 			this(new Error('no rushee'));
 			return;
 		}
-		
+				
 		if (brother != null) {
 			brother.name = brother.first + ' ' + brother.last;
 		}
@@ -313,6 +324,12 @@ app.get(BASE_PATH+'/vote', function(req, res){
 });
 
 app.post(BASE_PATH+'/vote', function(req, res){
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
+	
 	var sponsor = (req.body.sponsor == 'Yes');
 	var vote = req.body.vote;
 	var commentText = req.body.comment;
@@ -351,10 +368,93 @@ app.post(BASE_PATH+'/vote', function(req, res){
 		);
 	}
 		
-	res.redirect(BASE_PATH+'/');	
+	res.redirect(BASE_PATH+'/vote?rusheeID='+rusheeID);	
+});
+
+app.get(BASE_PATH+'/votesummary', function(req, res) {
+	
+});
+
+app.get(BASE_PATH+'/editrushee', function(req, res) {
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
+	var rusheeID = db.ObjectId(req.query.rusheeID);
+	Seq().seq(function() {
+		if (rusheeID == null) {
+			this(null, null)
+		} else {
+			db.rushees.findOne({_id: rusheeID},this);
+		}
+	}).seq(function(rushee){
+		if (rushee != null) {
+			var args = {rushee:rushee, basepath:BASE_PATH};
+			res.render('editrushee.jade', args);
+		} else {
+			res.render('404.jade',{basepath:BASE_PATH});
+		}
+	}).catch(function(err){
+		console.log(err);
+		res.render('404.jade',{basepath:BASE_PATH});
+	});
+});
+
+app.post(BASE_PATH+'/editrushee', function(req, res) {
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
+	
+	var rusheeID = db.ObjectId(req.body.rusheeID);
+	var photo = req.files.photo;
+	var photoLen = 5, photoDefault = req.body.photoOld;
+	if (photo.size == 0) {
+		var photoPath = photoDefault;
+	} else {
+		name = photo.name;
+		var extension = name.substr(name.lastIndexOf('.')+1);
+		var photoPath = '/img/'+tools.randomString(5,'')+'.'+extension;
+	
+		fs.readFile(req.files.photo.path, function(err, data) {
+			newPath = __dirname + photoPath;
+			fs.writeFile(newPath, data, function(err) {
+				if (err != null) {
+					console.log("photopath: " + photoPath);
+					console.log(err);
+				}
+			});
+		});
+	}
+	
+	var rushee = {
+		first: req.body.first,
+		last: req.body.last,
+		nick: req.body.nick,
+		dorm: req.body.dorm,
+		phone: req.body.phone,
+		email: req.body.email,
+		year: req.body.year,
+		photo: photoPath
+	};
+
+	db.rushees.update({_id:rusheeID},{$set: rushee},function(err) {
+		if (!err) {
+			res.redirect(BASE_PATH+'/viewRushees');
+		} else {
+			console.log(err);
+		}
+	});
 });
 
 app.get(BASE_PATH+'/viewrushees', function(req,res){
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
 	var rushees = new Array();
 	var cursor = db.rushees.find().sort({first: 1, last: 1});
 	
@@ -369,6 +469,12 @@ app.get(BASE_PATH+'/viewrushees', function(req,res){
 });
 
 app.get(BASE_PATH+'/viewbrothers', function(req,res){
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
+	
 	var brothers = new Array();
 	var cursor = db.brothers.find().sort({first: 1, last: 1});
 	
@@ -384,10 +490,20 @@ app.get(BASE_PATH+'/viewbrothers', function(req,res){
 	
 	
 app.get(BASE_PATH+'/addbrother', function(req, res){
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
 	res.render('addbrother.jade',{basepath:BASE_PATH});
 });
 
 app.post(BASE_PATH+'/addbrother', function(req,res) {
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
 	var brother = {
 		first: req.body.first,
 		last: req.body.last,
@@ -400,10 +516,20 @@ app.post(BASE_PATH+'/addbrother', function(req,res) {
 });
 
 app.get(BASE_PATH+'/addrushee', function(req,res) {
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
 	res.render('addrushee.jade',{basepath:BASE_PATH});
 });
 
 app.post(BASE_PATH+'/addrushee', function(req,res) {
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
 	var photo = req.files.photo;
 	var photoLen = 5, photoDefault = '/img/no_photo.jpg';
 	if (photo.size == 0) {
@@ -437,10 +563,6 @@ app.post(BASE_PATH+'/addrushee', function(req,res) {
 
 	db.rushees.insert(rushee);
 	res.render('addrushee.jade',{basepath:BASE_PATH});
-});
-
-app.get(BASE_PATH+'/test', function(req,res) {
-	res.render('test.jade',{basepath:BASE_PATH});
 });
 
 app.get(BASE_PATH+'/', function(req, res){

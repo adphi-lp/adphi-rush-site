@@ -3,6 +3,8 @@ extends layout
 block head
   title='Voting'
   link(rel='stylesheet',href=basepath+'/css/vote.css')
+  script(type='text/javascript',src=basepath+'js/vendor/jquery-1.8.3.min.js')
+  script(type='text/javascript',src=basepath+'js/vote.js')
 
 block content
   .rushee-wrapper
@@ -33,7 +35,8 @@ block content
         .rushee-info-item.rushee-votes
           span.rushee-info-type Voting score
           span.rushee-info-data #{rushee.vote}
-
+        .rushee-edit
+          a(href=basepath+'/editrushee?rusheeID='+rushee._id) edit
         
   .brother-action-wrapper
     form.brother-action-content
@@ -95,22 +98,23 @@ block content
                       option(value='#{jaunts[i]}') #{jaunts[i]}
         .post-wrapper
           input#save(type='submit',formmethod='post',formaction=basepath+'/vote',value='Submit')
-          input#done(type='submit',formmethod='get',formaction=basepath+'/',value='Done')
-  -if (fullview)
-    .votes-wrapper
-      h2.title Votes
-      .votes-content
-        table.votes-table
-          tr.votes-header-row
-            th.votes-header-name Brother Name
-            -for (var i = 0; i < voteTypes.length; i++)
-              -var voteType = voteTypes[i];
-              th.votes-header-cell #{voteType.name}
-          -for (var i = 0; i < rushee.votes.length; i++)
+          input#done(type='submit',formmethod='get',formaction=basepath+'/',value='Back to rushees')
+             
+  .votes-wrapper
+    h2.title Votes
+    button.votes-button.spoiler-button(type='button') Show/hide
+    .votes-content.spoiler-content
+      table.votes-table
+        tr.votes-header-row
+          th.votes-header-name Brother Name
+          -for (var i = 0; i < voteTypes.length; i++)
+            -var voteType = voteTypes[i];
+            th.votes-header-cell #{voteType.name}
+         -for (var i = 0; i < rushee.votes.length; i++)
             -var vote = rushee.votes[i]
             -var bid = vote.voteType._id;
             tr.votes-row
-              td.votes-name #{vote.brother.name}
+            td.votes-name #{vote.brother.name}
               -for (var j = 0; j < voteTypes.length; j++)
                 -var voteType = voteTypes[j];
                 -var vid = voteType._id;
@@ -119,7 +123,7 @@ block content
                     strong X
                 -else
                   td.votes-cell
-   
+         
   .comment-thread-wrapper
     h2.title Comments
     ul.comment-thread-content

@@ -9,7 +9,7 @@
 	margin: 10px 0px 40px 0px;
 	padding: 10px 0px 10px 10px;
 	box-shadow: 0 0 10px 2px #888;
-	
+	position:relative;
 }
 
 .rushee-info{
@@ -22,6 +22,13 @@
 
 .rushee-info-type:after{
 	content:':\0000a0';
+}
+
+.rushee-edit{
+	font-size:12px;
+	position:absolute;
+	right:10px;
+	bottom:5px;
 }
 
 .brother-action-type{
@@ -85,6 +92,10 @@
 
 .votes-content{
 	padding-bottom: 20px;
+}
+
+.votes-button {
+	margin: 0px 0px 20px 20px;
 }
 
 .votes-table {
