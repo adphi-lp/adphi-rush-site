@@ -54,6 +54,7 @@ app.get(BASE_PATH+'/vote', function(req, res){
 	//TODO implement sessions for brothers
 	var rusheeID = req.query.rusheeID;
 	var brotherID = req.query.brotherID;
+	var submitted = req.query.submitted == 'true';
 	try {
 		rusheeID = db.ObjectId(rusheeID);
 	} catch (err) {
@@ -259,8 +260,37 @@ app.get(BASE_PATH+'/vote', function(req, res){
 		
 		//get votes
 		args.rushee.votes = votes;
+		
+		for (var i = 0; i < args.brothers.length; i++) {
+			var bro = args.brothers[i];
+			var voted = false;
+			for (var j = 0; j < args.rushee.votes.length; j++) {
+				if (bro._id.equals(args.rushee.votes[j].brother._id)) {
+					voted = true;
+				}
+			}
+			if (!voted) {
+				args.rushee.votes.push({
+					voteType: NULL_VOTE,
+					brother: bro
+				});
+			}
+		}
+		
 		args.rushee.votes.sort(function(a, b) {
-			if (a.brother.name < b.brother.name) {
+			if (a.voteType._id == undefined) {
+				if (b.voteType._id == undefined) {
+					return 0;
+				} else {
+					return 1;
+				}
+			} else if (b.voteType._id == undefined){
+				return -1;
+			} else if (a.voteType.value > b.voteType.value){
+				return -1;
+			} else if (a.voteType.value < b.voteType.value) {
+				return 1;
+			} else if (a.brother.name < b.brother.name) {
 				return -1;
 			} else if (a.brother.name > b.brother.name) {
 				return 1;
@@ -359,7 +389,7 @@ app.post(BASE_PATH+'/vote', function(req, res){
 		);
 	}
 		
-	res.redirect(BASE_PATH+'/vote?rusheeID='+rusheeID);	
+	res.redirect(BASE_PATH+'/vote?rusheeID='+rusheeID+'&brotherID='+brotherID+'&submitted=true');	
 });
 
 app.get(BASE_PATH+'/votesummary', function(req, res) {
