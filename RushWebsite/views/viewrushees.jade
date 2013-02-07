@@ -19,6 +19,8 @@ block content
             .rushee-info
               .rushee-info-item.rushee-name
                 a(href=basepath+'/vote?rusheeID='+rushee._id) #{rushee.name}
+                  -if (accountType == 'admin' && rushee.visible == false)
+                    |  (hidden)
               .rushee-info-item.rushee-dorm
                 span.rushee-info-type Dorm
                 span.rushee-info-data #{rushee.dorm}
