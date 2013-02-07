@@ -18,6 +18,7 @@ var BASE_PATH = '';
 //to ensure that you can sort
 db.rushees.ensureIndex({first:1 , last:1});
 db.brothers.ensureIndex({first:1 , last:1});
+db.brothers.ensureIndex({last:1 , first:1});
 db.voteTypes.ensureIndex({value:-1});
 //TODO Comment sorting, etc.
 
@@ -85,7 +86,7 @@ app.get(BASE_PATH+'/vote', function(req, res){
 		//get brother list
 		var that = this;
 		var brothers = [];
-		db.brothers.find().sort({first:1, last:1}).forEach(function(err, doc) {
+		db.brothers.find().sort({last:1, first:1}).forEach(function(err, doc) {
 			if (doc == null) {
 				that(null, brothers);
 			} else {
@@ -137,6 +138,7 @@ app.get(BASE_PATH+'/vote', function(req, res){
 		
 		for (var i = 0; i < brothers.length; i++) {
 			brothers[i].name = brothers[i].first + ' ' + brothers[i].last;
+			brothers[i].lastfirst = brothers[i].last + ', ' + brothers[i].first;
 		}
 		
 		this(null, brother, rushee, brothers, voteTypes, commentTypes, jaunts);
