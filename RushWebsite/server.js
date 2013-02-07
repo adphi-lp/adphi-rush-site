@@ -417,6 +417,7 @@ app.post(BASE_PATH+'/editrushee', function(req, res) {
 			newPath = __dirname + photoPath;
 			fs.writeFile(newPath, data, function(err) {
 				if (err != null) {
+					console.log('uploadpath: ' + req.files.photo.path);
 					console.log("photopath: " + photoPath);
 					console.log(err);
 				}
@@ -549,6 +550,7 @@ app.post(BASE_PATH+'/addrushee', function(req,res) {
 			newPath = __dirname + photoPath;
 			fs.writeFile(newPath, data, function(err) {
 				if (err != null) {
+					console.log('uploadpath: ' + req.files.photo.path);
 					console.log("photopath: " + photoPath);
 					console.log(err);
 				}
