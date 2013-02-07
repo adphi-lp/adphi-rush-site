@@ -40,6 +40,8 @@ block content
         
   .brother-action-wrapper
     form.brother-action-content
+      - if (submitted)
+        .submitted The data you entered has been submitted.
       input(type='hidden',name='rusheeID',value='#{rushee._id}')
       -if (brother == null)
         .brother-wrapper
@@ -81,7 +83,7 @@ block content
               label.vote-choice(for ='vote#{i}') #{voteType.name}
         .comment-wrapper
           .comment-content.clearfix
-            span.brother-action-type Comment
+            span.brother-action-type Comment (optional)
             .comment-textarea-wrapper
               textarea#comment-textarea(name='comment',rows=5,cols=60)
             .comment-type

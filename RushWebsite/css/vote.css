@@ -39,6 +39,10 @@
 	content:':\0000a0';
 }
 
+.submitted {
+	color:#FF0000
+}
+
 .brother-action-content{
 	/*background:rgba(215, 236, 255, 0.4);*/
 	box-shadow: 0 0 10px 2px #888;

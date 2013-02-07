@@ -336,7 +336,10 @@ app.get(BASE_PATH+'/vote', function(req, res){
 		
 		//base path
 		args.basepath = BASE_PATH;
+		//account type
 		args.accountType = accountType;
+		//submitted
+		args.submitted = submitted;
 		res.render('vote.jade', args);
 	}).catch(function(err) {
 		console.log(err);
