@@ -394,11 +394,7 @@ app.post(BASE_PATH+'/vote', function(req, res){
 		);
 	}
 		
-	res.redirect(BASE_PATH+'/vote?rusheeID='+rusheeID+'&brotherID='+brotherID+'&submitted=true');	
-});
-
-app.get(BASE_PATH+'/votesummary', function(req, res) {
-	
+	res.redirect(BASE_PATH+'/');	
 });
 
 app.get(BASE_PATH+'/editrushee', function(req, res) {
@@ -517,7 +513,7 @@ app.get(BASE_PATH+'/viewbrothers', function(req,res){
 		return;
 	}
 	
-	var brothers = new Array();
+	var brothers = [];
 	var cursor = db.brothers.find().sort({first: 1, last: 1});
 	
 	cursor.forEach(function(err, doc) {
@@ -530,6 +526,111 @@ app.get(BASE_PATH+'/viewbrothers', function(req,res){
 	});
 });
 	
+app.get(BASE_PATH+'/viewbrothervotes', function(req,res){
+	var accountType = req.cookies.accountType;
+	if (accountType != 'brother' && accountType != 'admin' ) {
+		res.redirect(BASE_PATH+'/auth');
+		return;
+	}
+	Seq().par(function() {
+		var brothers = [];
+		var that = this;
+		db.brothers.find().sort({first: 1, last: 1}).forEach(function(err, doc) {
+			if (doc ==  null) {
+				that(null, brothers);
+			} else {
+				doc.name = tools.name(doc.first, '', doc.last);
+				brothers.push(doc);
+			}
+		});
+	}).par(function() {
+		var rushees = [];
+		var that = this;
+		db.rushees.find().sort({first: 1, last: 1}).forEach(function(err, doc) {
+			if (doc == null) {
+				that(null, rushees);
+			} else {
+				doc.name = tools.name(doc.first, doc.nick, doc.last);
+				rushees.push(doc);
+			}
+		});
+	}).par(function() {
+		var that = this;
+		var voteTypes = [];
+		
+		db.voteTypes.find().sort({value:-1}).forEach(function(err, doc) {
+			if (doc == null) {
+				voteTypes.push(NULL_VOTE);
+				that(null, voteTypes);
+			} else {
+				voteTypes.push(doc);
+			}
+		});
+	}).par(function() {
+		var that = this;
+		var votes = [];
+		db.votes.find().forEach(function(err, doc) {
+			if (doc == null) {
+				that (null, votes);
+			} else {
+				votes.push(doc);
+			}
+		});
+	}).seq(function(brothers, rushees, voteTypes, votes) {
+		
+		for (var i = 0; i < brothers.length; i++) {
+			var brother = brothers[i];
+			brother.voteTypes = [];
+			for (var j = 0; j < voteTypes.length; j++) {
+				var voteType = {
+					_id: voteTypes[j]._id,
+					name: voteTypes[j].name,
+					value: voteTypes[j].value,
+					votes: [],
+					count: 0
+				};
+				brother.voteTypes.push(voteType);
+			} 
+			
+			brother.rushees = {};
+			for (var j = 0; j < rushees.length; j++) {
+				if (rushees[j].visible != false)
+					brother.rushees[rushees[j]._id] = rushees[j];
+			}
+		}
+		
+		for (var i = 0; i < votes.length; i++) {
+			var vote = votes[i];
+			for (var j = 0; j < rushees.length; j++) {
+				if (vote.rusheeID.equals(rushees[j]._id)) {
+					vote.rushee = rushees[j];
+				}
+			}
+			
+			
+			for (var j = 0; j < brothers.length; j++) {
+				if (vote.brotherID.equals(brothers[j]._id)) {
+					for (var k = 0; k < brothers[j].voteTypes.length; k++) {
+						if (brothers[j].voteTypes[k]._id == undefined)
+							continue;
+						if (vote.voteID.equals(brothers[j].voteTypes[k]._id)) {
+							brothers[j].voteTypes[k].votes.push(vote);
+							brothers[j].voteTypes[k].count++;
+							delete brothers[j].rushees[vote.rushee._id];
+						}
+					}
+				}
+			}
+		}
+		
+		res.render('viewbrothervotes.jade', {
+			voteTypes: voteTypes, brothers:brothers,basepath:BASE_PATH});
+
+	}).catch(function(err){
+		console.log(err);
+		res.render('404.jade', {basepath: BASE_PATH});
+	});
+});
 	
 app.get(BASE_PATH+'/addbrother', function(req, res){
 	var accountType = req.cookies.accountType;

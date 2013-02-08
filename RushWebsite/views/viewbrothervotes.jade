@@ -1,0 +1,32 @@
+extends layout
+
+block head
+  title='View all Brother Votes'  
+  link(rel='stylesheet',href=basepath+'/css/viewbrothersvote.css')
+
+block content
+  .brothers-wrapper
+    h1.brothers-title View all brothers votes
+    .votes-wrapper
+      h2.title Votes
+      .votes-content
+        table.votes-table
+          tr.votes-header-row
+            th.votes-header-name Brother Name
+            -for (var i = 0; i < voteTypes.length; i++)
+              -var voteType = voteTypes[i];
+              th.votes-header-cell #{voteType.name}
+           -for (var i = 0; i < brothers.length; i++)
+              -var brother = brothers[i];
+              tr.votes-row
+              td.votes-name #{brother.name}
+                -for (var j = 0; j < brother.voteTypes.length; j++)
+                  -var voteType = brother.voteTypes[j];
+
+                  -if (voteType._id == undefined)
+                    td.votes-cell
+                      -for (var rid in brother.rushees)
+                        .vote-rushee #{brother.rushees[rid].name} 
+                  -else
+                     td.votes-cell #{voteType.count}
+                     
