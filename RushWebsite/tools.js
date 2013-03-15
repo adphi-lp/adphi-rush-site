@@ -1,23 +1,33 @@
+'use strict';
 
-randomString = function(len, charSet) {
+function randomString(len, charSet) {
     charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var randomString = '';
+    var rString = '';
     for (var i = 0; i < len; i++) {
         var randomPoz = Math.floor(Math.random() * charSet.length);
-        randomString += charSet.substring(randomPoz,randomPoz+1);
+        rString += charSet.substring(randomPoz,randomPoz+1);
     }
-    return randomString;
+    return rString;
 }
 
-name = function(first, nick, last) {
-	if (nick != '') {
-		return first+' \"'+ nick +'\" '+ last;
-	} else {
+function name(first, nick, last) {
+	if (nick === '' || nick === null || nick === undefined) {
 		return first + ' ' + last;
+	} else {
+		return first+' \"'+ nick +'\" '+ last;
+	}
+}
+
+function lastfirst(first, nick, last) {
+	if (nick === '' || nick === null || nick === undefined) {
+		return last + ', ' + first;
+	} else {
+		return last + ', ' + first + ' "' + nick + '"';
 	}
 }
 
 module.exports = {
 	randomString : randomString,
-	name : name
+	name : name,
+	lastfirst : lastfirst
 };
