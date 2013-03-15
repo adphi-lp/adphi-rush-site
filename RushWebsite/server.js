@@ -1,3 +1,5 @@
+'use strict';
+
 //create an app server
 var express = require('express');
 var https = require('https');
@@ -7,7 +9,7 @@ var moment = require('moment');
 var app = express();
 var databaseURL = 'ADPhiRush';
 var collections = ['brothers', 'rushees', 'comments', 'sponsors',
-'votes', 'statuses', 'voteTypes', 'commentTypes', 'jaunts', 'vans']
+'votes', 'statuses', 'voteTypes', 'commentTypes', 'jaunts', 'vans'];
 var db = require('mongojs').connect(databaseURL, collections);
 var tools = require('./tools');
 
