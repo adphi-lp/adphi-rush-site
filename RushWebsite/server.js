@@ -1,27 +1,30 @@
 'use strict';
 
-//create an app server
+//constants
+var BASE_PATH = '';
+var DATABASE_URL = 'ADPhiRush';
+var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
+'votes', 'statuses', 'jaunts', 'vans'];
+
+//get modules
 var express = require('express');
 var https = require('https');
 var fs = require('fs');
 var Seq = require('seq');
 var moment = require('moment');
-var app = express();
-var databaseURL = 'ADPhiRush';
-var collections = ['brothers', 'rushees', 'comments', 'sponsors',
-'votes', 'statuses', 'voteTypes', 'commentTypes', 'jaunts', 'vans'];
-var db = require('mongojs').connect(databaseURL, collections);
+var rushdb = require('./rushdb');
 var tools = require('./tools');
 
-//constants
-var NULL_VOTE = {name:'None', value:0};
-var BASE_PATH = '';
+//create app and connect
+var app = express();
+rushdb.connect(DATABASE_URL, COLLECTIONS);
 
-//to ensure that you can sort
-db.rushees.ensureIndex({first:1 , last:1});
-db.brothers.ensureIndex({first:1 , last:1});
-db.brothers.ensureIndex({last:1 , first:1});
-db.voteTypes.ensureIndex({value:-1});
+//to ensure that you can sort fast
+rushdb.ensureIndex(rushees, {first: 1, last: 1});
+rushdb.ensureIndex(rushees, {last: 1, first: 1});
+rushdb.ensureIndex(brothers, {first: 1, last: 1});
+rushdb.ensureIndex(brothers, {last: 1, first: 1});
+
 //TODO Comment sorting, etc.
 
 //for parsing posts
@@ -30,9 +33,9 @@ app.use(express.bodyParser({uploadDir:__dirname+'/uploads'}));
 app.use(express.cookieParser('ADPhiRush'));
 
 //set path to static things
-app.use(BASE_PATH+'/img',express.static(__dirname+ '/img'))
-app.use(BASE_PATH+'/css',express.static(__dirname + '/css'))
-app.use(BASE_PATH+'/js',express.static(__dirname + '/js'))
+app.use(BASE_PATH+'/img',express.static(__dirname+ '/img'));
+app.use(BASE_PATH+'/css',express.static(__dirname + '/css'));
+app.use(BASE_PATH+'/js',express.static(__dirname + '/js'));
 
 //set path to the views (template) directory
 app.set('views', __dirname + '/views');
@@ -382,7 +385,7 @@ app.post(BASE_PATH+'/vote', function(req, res){
 		db.votes.update(
 			{brotherID: brotherID, rusheeID: rusheeID},
 			{$set : {brotherID: brotherID, rusheeID: rusheeID, voteID:vote}},
-			{upsert : true}
+				{upsert : true}
 		);
 	} else {
 		db.votes.remove(
