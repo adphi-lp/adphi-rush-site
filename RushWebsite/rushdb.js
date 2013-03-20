@@ -6,7 +6,7 @@ var mongojs = require('mongojs');
 var db = null;
 var tools = require('./tools');
 
-var VoteType = {
+var voteType = {
 	DEF : {name: 'Definite Yes', value : '2'},
 	YES : {name: 'Yes', value : '1'},
 	MET : {name: 'Met', value : '0'},
@@ -15,7 +15,7 @@ var VoteType = {
 	NULL : {name: 'None', value : '0'}
 };
 
-var CommentType = {
+var commentType = {
 	GENERAL : {name: 'General', color: '#000000'},
 	CONTACT : {name: 'Contact', color: '#FDD017'},
 	INTEREST : {name: 'Hobbies/Interest', color: '#000000'},
@@ -27,10 +27,8 @@ function connect(databaseURL) {
 	db = mongojs.connect(databaseURL, collections);
 }
 
-function ensureIndex() {
-	db.rushees.ensureIndex({first:1 , last:1});
-	db.brothers.ensureIndex({first:1 , last:1});
-	db.brothers.ensureIndex({last:1 , first:1});
+function ensureIndex(col, index) {
+	db[col].ensureIndex(index);
 }
 
 function augmentRushee(rushee) {
@@ -180,6 +178,21 @@ function find(col, query, sort, augment, callback) {
 	});
 }
 
+function insert(col, doc, callback) {
+	if (callback === undefined) {
+		db[col].insert(doc);
+	} else {
+		db[col].insert(doc, callback);
+	}
+}
+
+function update(col, query, commands, upsert, callback) {
+	if (callback === undefined) {
+		db[col].update(query, commands, upsert);
+	} else {
+		db[col].update(query, commands, upsert, callback);
+	}
+}
 
 function compareVote(a, b) {
 	if (a.voteType.value > b.voteType.value){
@@ -193,4 +206,18 @@ function compareVote(a, b) {
 	} else {
 		return 0;
 	} 
-});
+}
+
+module.exports = {
+	connect : connect,
+	ensureIndex : ensureIndex,
+	augmentRushee : augmentRushee, 
+	augmentBrother : augmentBrother,
+	joinProperty : joinProperty,
+	joinAssoc : joinAssoc,
+	joinAssocIndexed : joinAssocIndexed,
+	findOne : findOne,
+	find: find,
+	insert: insert,
+	update: update
+};
