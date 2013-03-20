@@ -64,3 +64,9 @@ function logout(res) {
 	res.clearCookie('accountType');
 }
 
+module.exports = {
+	checkAuth : checkAuth,
+	checkAdminAuth : checkAdminAuth,
+	login : login,
+	logout : logout
+}
