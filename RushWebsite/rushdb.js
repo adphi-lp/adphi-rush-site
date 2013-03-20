@@ -6,7 +6,7 @@ var mongojs = require('mongojs');
 var db = null;
 var tools = require('./tools');
 
-var voteType = {
+var VoteType = {
 	DEF : {name: 'Definite Yes', value : '2'},
 	YES : {name: 'Yes', value : '1'},
 	MET : {name: 'Met', value : '0'},
@@ -15,7 +15,7 @@ var voteType = {
 	NULL : {name: 'None', value : '0'}
 };
 
-var commentType = {
+var CommentType = {
 	GENERAL : {name: 'General', color: '#000000'},
 	CONTACT : {name: 'Contact', color: '#FDD017'},
 	INTEREST : {name: 'Hobbies/Interest', color: '#000000'},
@@ -155,97 +155,31 @@ function joinAssocIndexed(assocs, assocsIndexedName, assocsName,
  */
 //TODO: JOIN GROUPS
 
-function findRushee(rusheeID, callback) {
-	if (rusheeID === null || rusheeID === undefined) {
-		callback(null, rusheeID);
-	} else {
-		var query = {_id : rusheeID};
-		db.rushees.findOne(query, function(err, doc) {
-			if (err === undefined || err === null) {
-				augmentRushee(doc);
-				callback(null, doc);
-			} else {
-				callback(err, doc);
-			}
-		});
-	}
-}
-
-function findBrother(brotherID, callback) {
-	if (brotherID === null || brotherID === undefined) {
-		callback(null, brotherID);
-	} else {
-		var query = {_id : brotherID};
-		db.brothers.findOne(query, function(err, doc) {
-			if (err === undefined || err === null) {
-				augmentBrother(doc);
-				callback(null, doc);
-			} else {
-				callback(err);
-			}
-		});
-	}
-}
-
-/**
- * Finds all brothers from database and returns them in order
- * @param {Object} sortOrder the order to sort the brothers (e.g. {last:1, first:1})
- * @param {Object} callback
- */
-function findBrothers(sortOrder, callback) {
-	var brothers = [];
-	db.brothers.find().sort(sortOrder).forEach(function(err, doc) {
-		if (err !== null && err !== undefined) {
-			callback(err);
-		} else if (doc === null) {
-			callback(null, brothers);
+function findOne(col, query, augment, callback) {
+	db[col].findOne(query, function(err, doc) {
+		if (err === undefined || err === null) {
+			augment(doc);
+			callback(null, doc);
 		} else {
-			augmentBrother(doc);
-			brothers.push(doc);
+			callback(err, doc);
 		}
 	});
 }
 
-/**
- * Finds all rushees and returns them in order
- * @param {Object} sortOrder the order to sort the rushees (e.g. {last:1, first:1})
- * @param {Object} callback
- */
-function findRushees(sortOrder, callback) {
-	var rushees = [];
-	db.rushees.find().sort(sortOrder).forEach(function(err, doc) {
+function find(col, query, sort, augment, callback) {
+	var docs = [];
+	db[col].find(query).sort(sort).forEach(function(err, doc) {
 		if (err !== null && err !== undefined) {
 			callback(err);
 		} else if (doc === null) {
-			callback(null, rushees);
+			callback(null, docs);
 		} else {
-			augmentRushee(doc);
-			rushees.push(doc);
+			augment(doc);
+			docs.push(doc);
 		}
 	});
 }
 
-//TODO find(col, sortOrder, augment, callback)
-//TODO findOne(col, query, augment, callback);
-//TODO etc.
-
-/**
- * Finds all matching a given query
- * @param {Object} query the given query
- * @param {Object} callback
- */
-function find(query, callback) {
-	var votes = [];
-	db.votes.find(query).forEach(function(err, doc) {
-		if (err !== null && err !== undefined) {
-			callback(err);
-		} else if (doc === null) {
-			callback(null, votes);
-		} else {
-			votes.push(doc);
-		}
-	});
-}
 
 function compareVote(a, b) {
 	if (a.voteType.value > b.voteType.value){
