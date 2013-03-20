@@ -209,6 +209,8 @@ function compareVote(a, b) {
 }
 
 module.exports = {
+	voteType: voteType,
+	commentType : commentType,
 	connect : connect,
 	ensureIndex : ensureIndex,
 	augmentRushee : augmentRushee, 
