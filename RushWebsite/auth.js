@@ -65,6 +65,7 @@ function logout(res) {
 }
 
 module.exports = {
+	setRedirect : setRedirect,
 	checkAuth : checkAuth,
 	checkAdminAuth : checkAdminAuth,
 	login : login,
