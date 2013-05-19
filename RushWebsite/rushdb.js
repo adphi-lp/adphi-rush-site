@@ -1,29 +1,57 @@
 'use strict';
 
-var collections = ['brothers', 'rushees', 'comments', 'sponsors',
-'votes', 'statuses', 'jaunts', 'vans'];
 var mongojs = require('mongojs');
 var db = null;
 var tools = require('./tools');
+var moment = require('moment');
 
 var voteType = {
-	DEF : {name: 'Definite Yes', value : '2'},
-	YES : {name: 'Yes', value : '1'},
-	MET : {name: 'Met', value : '0'},
-	NO : {name: 'No', value : '-1'},
-	VETO : {name: 'Veto', value : '-8'},
-	NULL : {name: 'None', value : '0'}
+	DEF : {_id : 'DEF', name: 'Definite Yes', value : 2},
+	YES : {_id : 'YES', name: 'Yes', value : 1},
+	MET : {_id : 'MET', name: 'Met', value : 0},
+	NO : {_id : 'NO', name: 'No', value : -1},
+	VETO : {_id : 'VETO', name: 'Veto', value : -8},
+	NULL : {_id : 'NULL', name: 'None', value : 0}
 };
 
 var commentType = {
-	GENERAL : {name: 'General', color: '#000000'},
-	CONTACT : {name: 'Contact', color: '#FDD017'},
-	INTEREST : {name: 'Hobbies/Interest', color: '#000000'},
-	EVENT : {name: 'Event/Jaunt Interest', color: '#347C17'},
-	URGENT : {name: 'Urgent', color: '#FF0000'}
+	GENERAL : {_id : 'GENERAL', name: 'General', color: '#000000'},
+	CONTACT : {_id : 'CONTACT', name: 'Contact', color: '#FDD017'},
+	INTEREST : {_id : 'INTEREST', name: 'Hobbies/Interest', color: '#000000'},
+	EVENT : {_id : 'EVENT', name: 'Event/Jaunt Interest', color: '#347C17'},
+	URGENT : {_id : 'URGENT', name: 'Urgent', color: '#FF0000'}
 };
 
-function connect(databaseURL) {
+var statusType = {
+	IN : {_id: 'IN', name: 'In House'},
+	JAUNT : {_id: 'JAUNT', name: 'On a Jaunt'},
+	OUT : {_id: 'OUT', name: 'Out of House'},
+	NULL : {_id: 'NULL', name: 'Never seen'}
+};
+
+function getNullStatus(rushee) {
+	var status = {
+		type: statusType.NULL,
+		rushee : rushee,
+		rusheeID : rushee._id
+	};
+	
+	return status;
+}
+
+function getNullVote(rushee, brother) {
+	var vote = {
+		type : voteType.NULL,
+		rushee: rushee,
+		rusheeID : rushee._id,
+		brother : brother,
+		brotherID : brother._id
+	};
+	
+	return vote;
+}
+
+function connect(databaseURL, collections) {
 	db = mongojs.connect(databaseURL, collections);
 }
 
@@ -31,14 +59,20 @@ function ensureIndex(col, index) {
 	db[col].ensureIndex(index);
 }
 
-function augmentRushee(rushee) {
+function augRushee(rushee) {
 	rushee.name = tools.name(rushee.first, rushee.nick, rushee.last);
 	rushee.lastfirst = tools.lastfirst(rushee.first, rushee.nick, rushee.last);
 }
 
-function augmentBrother(brother) {
+function augBrother(brother) {
 	brother.name = tools.name(brother.first, brother.nick, brother.last);
 	brother.lastfirst = tools.lastfirst(brother.first, brother.nick, brother.last);
+}
+
+function augComment(comment) {
+	var time = moment(comment._id.getTimestamp());
+	comment.time = 'Posted at ' + time.format('h:mm:ss a') +
+		' on ' + time.format('dddd, MMMM Do YYYY');
 }
 
 /**
@@ -104,10 +138,10 @@ function joinAssoc(assocs, assocsName, listA, idNameA, elNameA, listB, idNameB, 
 /**
  * Joins associations between members of two lists to the elements of these lists.
  * Associations for each element are indexed by members of the other list.
- * To get the association, do elA[assocsIndexedName][elB._id][assocsName]
+ * To get the associations, do elA[assocsIndexedName][elB._id]
  * Joining is guaranteed to preserve order.
  */
-function joinAssocIndexed(assocs, assocsIndexedName, assocsName,
+function joinAssocIndexed(assocs, assocsIndexedName,
 	listA, idNameA, elNameA,
 	listB, idNameB, elNameB) {
 	//create list A hash and initialize
@@ -115,11 +149,10 @@ function joinAssocIndexed(assocs, assocsIndexedName, assocsName,
 	for (var i = 0; i < listA.length; i++) {
 		var elA = listA[i];
 		listAHash[elA._id] = elA;
-		
 		elA[assocsIndexedName] = {};
 		for (var j = 0; j < listB.length; j++) {
-			var elB = listB[i];
-			elA[assocsIndexedName][elB._id][assocsName] = [];
+			var elB = listB[j];
+			elA[assocsIndexedName][elB._id] = [];
 		}
 	}
 	
@@ -129,16 +162,16 @@ function joinAssocIndexed(assocs, assocsIndexedName, assocsName,
 		var elB = listB[i];
 		listBHash[elB._id] = elB;
 		elB[assocsIndexedName] = {};
-		for (var j = 0; j < listB.length; j++) {
-			var elA = listA[i];
-			elB[assocsIndexedName][elA._id][assocsName] = []; 
+		for (var j = 0; j < listA.length; j++) {
+			var elA = listA[j];
+			elB[assocsIndexedName][elA._id] = [];
 		}
 	}
 	
 	for (var i = 0; i < assocs.length; i++) {
 		var assoc = assocs[i];
-		var elA = listAHash[assoc[elNameA]];
-		var elB = listBHash[assoc[elNameB]];
+		var elA = listAHash[assoc[idNameA]];
+		var elB = listBHash[assoc[idNameB]];
 		//put elements into assoc
 		assoc[elNameA] = elA;
 		assoc[elNameB] = elB;
@@ -148,10 +181,12 @@ function joinAssocIndexed(assocs, assocsIndexedName, assocsName,
 	}
 }
 
+
+
 /**
  * 
  */
-//TODO: JOIN GROUPS
+//TODO: JOIN GROUPS (JAUNTS)
 
 function findOne(col, query, augment, callback) {
 	db[col].findOne(query, function(err, doc) {
@@ -186,38 +221,34 @@ function insert(col, doc, callback) {
 	}
 }
 
-function update(col, query, commands, upsert, callback) {
+function update(col, query, commands, options, callback) {
 	if (callback === undefined) {
-		db[col].update(query, commands, upsert);
+		db[col].update(query, commands, options);
 	} else {
-		db[col].update(query, commands, upsert, callback);
+		db[col].update(query, commands, options, callback);
 	}
-}
-
-function compareVote(a, b) {
-	if (a.voteType.value > b.voteType.value){
-		return -1;
-	} else if (a.voteType.value < b.voteType.value) {
-		return 1;
-	} else if (a.brother.name < b.brother.name) {
-		return -1;
-	} else if (a.brother.name > b.brother.name) {
-		return 1;
-	} else {
-		return 0;
-	} 
 }
 
 module.exports = {
 	voteType: voteType,
 	commentType : commentType,
+	statusType : statusType,
+	
+	getNullStatus: getNullStatus,
+	getNullVote: getNullVote,
+	
 	connect : connect,
+	
 	ensureIndex : ensureIndex,
-	augmentRushee : augmentRushee, 
-	augmentBrother : augmentBrother,
+	
+	augRushee : augRushee, 
+	augBrother : augBrother,
+	augComment : augComment,
+	
 	joinProperty : joinProperty,
 	joinAssoc : joinAssoc,
 	joinAssocIndexed : joinAssocIndexed,
+	
 	findOne : findOne,
 	find: find,
 	insert: insert,

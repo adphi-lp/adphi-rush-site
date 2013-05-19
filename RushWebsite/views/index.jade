@@ -4,14 +4,7 @@ block head
   title = 'Rush Home'
 
 block content
-  -if (accountType == 'brother')
-    h1 Brother links
-    h2
-      a(href=basepath+'/viewrushees') Go view rushees
-    //
-      h2
-        a(href=basepath+'/search') Go search for people (NOT READY YET)
-  -else if (accountType == 'admin')
+  -if (accountType.isAdmin())
     h1 Admin links
     h2
       a(href=basepath+'/addbrother') Go add brothers
@@ -24,6 +17,17 @@ block content
     h2
       a(href=basepath+'/viewrushees') Go view rushees
     h2
+      a(href=basepath+'/viewrusheevotes') Go view rushee votes
+    h2
       a(href=basepath+'/viewbrothers') Go view brothers
     h2
       a(href=basepath+'/viewbrothervotes') Go view brother votes
+    h2
+      a(href=basepath+'/frontdesk') Front Desk
+  -else if (accountType.isBrother())
+    h1 Brother links
+    h2
+      a(href=basepath+'/viewrushees') Go view rushees
+    //
+      h2
+        a(href=basepath+'/search') Go search for people (NOT READY YET)

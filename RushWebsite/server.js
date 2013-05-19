@@ -10,20 +10,24 @@ var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
 var express = require('express');
 var https = require('https');
 var fs = require('fs');
-var Seq = require('seq');
+// var Seq = require('seq');
+var async = require('async');
 var moment = require('moment');
 var rushdb = require('./rushdb');
 var tools = require('./tools');
+var auth = require('./auth');
+var toObjectID = require('mongojs').ObjectId;
 
 //create app and connect
 var app = express();
+auth.setRedirect(BASE_PATH + '/login');
 rushdb.connect(DATABASE_URL, COLLECTIONS);
 
 //to ensure that you can sort fast
-rushdb.ensureIndex(rushees, {first: 1, last: 1});
-rushdb.ensureIndex(rushees, {last: 1, first: 1});
-rushdb.ensureIndex(brothers, {first: 1, last: 1});
-rushdb.ensureIndex(brothers, {last: 1, first: 1});
+rushdb.ensureIndex('rushees', {first: 1, last: 1});
+rushdb.ensureIndex('rushees', {last: 1, first: 1});
+rushdb.ensureIndex('brothers', {first: 1, last: 1});
+rushdb.ensureIndex('brothers', {last: 1, first: 1});
 
 //TODO Comment sorting, etc.
 
@@ -33,426 +37,227 @@ app.use(express.bodyParser({uploadDir:__dirname+'/uploads'}));
 app.use(express.cookieParser('ADPhiRush'));
 
 //set path to static things
-app.use(BASE_PATH+'/img',express.static(__dirname+ '/img'));
+app.use(BASE_PATH+'/public/',express.static(__dirname+ '/public'));
 app.use(BASE_PATH+'/css',express.static(__dirname + '/css'));
 app.use(BASE_PATH+'/js',express.static(__dirname + '/js'));
 
 //set path to the views (template) directory
 app.set('views', __dirname + '/views');
 
-
-app.get(BASE_PATH+'/search', function(req, res){
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
+app.get(BASE_PATH+'/search', auth.checkAuth, function(req, res){
 	res.render('search.jade',{basepath:BASE_PATH});
 });
 
-app.get(BASE_PATH+'/vote', function(req, res){
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
+app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
+	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
+	var brotherID = req.query.bID === undefined ? null : toObjectID(req.query.bID);
 	
-	//TODO implement sessions for brothers
-	var rusheeID = req.query.rusheeID;
-	var brotherID = req.query.brotherID;
-	var submitted = req.query.submitted == 'true';
-	try {
-		rusheeID = db.ObjectId(rusheeID);
-	} catch (err) {
-		rusheeID = null;
-	}
-	
-	try {
-		brotherID = db.ObjectId(brotherID);
-	} catch (err) {
-		brotherID = null;
-	}
-	
-	Seq().par(function() {
-		//get brother
-		if (brotherID == null) {
-			this(null, null);
-		} else {
-			db.brothers.findOne({_id : brotherID}, this);
+	async.parallel({
+		brother: function(cb) {
+			if (brotherID === null) {
+				cb(null, null);
+			} else {
+				rushdb.findOne('brothers', {_id : brotherID}, rushdb.augBrother, cb);
+			}
+		},
+		rushee: function(cb) {
+			if (rusheeID === null) {
+				cb(null, null);
+			} else {
+				rushdb.findOne('rushees', {_id : rusheeID}, rushdb.augRushee, cb);
+			}
+		},
+		brothers: function(cb) {
+			rushdb.find('brothers', {}, {last: 1, first: 1}, rushdb.augBrother, cb);
+		},
+		jaunts: function(cb) {
+			rushdb.find('jaunts', {}, {}, function(){}, cb);
 		}
-	}).par(function() {
-		//get rushee
-		if (rusheeID == null) {
-			this(null, null);
-		} else {
-			db.rushees.findOne({_id : rusheeID}, this);
-		}
-	}).par(function() {
-		//get brother list
-		var that = this;
-		var brothers = [];
-		db.brothers.find().sort({last:1, first:1}).forEach(function(err, doc) {
-			if (doc == null) {
-				that(null, brothers);
-			} else {
-				brothers.push(doc);
-			}
-		});
-	}).par(function() {
-		//get vote types
-		var that = this;
-		var voteTypes = [];
-		db.voteTypes.find().sort({value:-1}).forEach(function(err, doc) {
-			if (doc == null) {
-				that(null, voteTypes);
-			} else {
-				voteTypes.push(doc);
-			}
-		});
-	}).par(function() {
-		//get comment types
-		var that = this;
-		var commentTypes = [];
-		db.commentTypes.find().forEach(function(err, doc) {
-			if (doc == null) {
-				that(null, commentTypes);
-			} else {
-				commentTypes.push(doc);
-			}
-		});
-	}).par(function() {
-		//get jaunts
-		var jaunts = ['None'];
-		this(null, jaunts);
-	}).seq(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
-		//do some error checking, form names
-		if (rushee == null) {
-			this(new Error('no rushee'));
+	},
+	function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		} else if (info.rushee === null) {
+			console.log(new Error('no rushee'));
+			res.redirect(BASE_PATH+'/404');
 			return;
 		}
+		
+		var rushee = info.rushee;
+		var brother = info.brother;
+		var brothers = info.brothers;
+		var jaunts = info.jaunts;
+		var brotherIDs = tools.map(brothers, function(b) {return b._id;});
+		var query = {rusheeID: rushee._id, brotherID : {$in : brotherIDs}};
+		
+		async.parallel({
+			statuses : function(cb) {
+				rushdb.find('statuses', {rusheeID : rushee._id}, {_id:-1}, function(){}, cb);
+			},
+			votes : function(cb) {
+				rushdb.find('votes', query, {_id:-1}, function(){}, cb);
+			},
+			comments : function(cb) {
+				rushdb.find('comments', query, {_id:-1}, rushdb.augComment, cb);
+			},
+			sponsors : function (cb) {
+				rushdb.find('sponsors', query, {_id: -1}, function(){}, cb);
+			}
+		},
+		function(err, args) {
+			if (err !== undefined && err !== null) {
+				console.log(err);
+				res.redirect(BASE_PATH + '/404');
+				return;				
+			}
+			
+			//join statuses, priorities, votes, comments, sponsors
+			rushdb.joinProperty(args.statuses, 'statuses', [rushee], 'rusheeID');
+			
+			rushdb.joinAssoc(args.votes, 'votes',
+				[rushee], 'rusheeID', 'rushee',
+				brothers, 'brotherID', 'brother');
 				
-		if (brother != null) {
-			brother.name = brother.first + ' ' + brother.last;
-		}
-		
-		if (rushee.nick != '') {
-			rushee.name = rushee.first+' \"'+rushee.nick+'\" '+ rushee.last;
-		} else {
-			rushee.name = rushee.first + ' ' + rushee.last;
-		}
-		
-		for (var i = 0; i < brothers.length; i++) {
-			brothers[i].name = brothers[i].first + ' ' + brothers[i].last;
-			brothers[i].lastfirst = brothers[i].last + ', ' + brothers[i].first;
-		}
-		
-		this(null, brother, rushee, brothers, voteTypes, commentTypes, jaunts);
-	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
-		//pass on variables
-		var args = {brother:brother, rushee:rushee, brothers:brothers, voteTypes:voteTypes,
-			commentTypes:commentTypes, jaunts:jaunts};
-		this(null, args);
-	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
-		//get all votes on rushee
-		var that = this;
-		var voteIDs = [];
-		var votes = [];
-		
-		db.votes.find({rusheeID: rushee._id}).forEach(function(err, doc){
-			if (doc == null) {
-				//TODO make this not run in O(votes * (voteTypes+brothers))
-				for (var i = 0; i < voteIDs.length; i++) {
-					var vote = {};
-					for (var j = 0; j < voteTypes.length; j++) {
-						if (voteIDs[i].voteID.equals(voteTypes[j]._id)) {
-							vote.voteType = voteTypes[j];
-						}
-					}
+			rushdb.joinAssoc(args.sponsors, 'sponsors',
+				[rushee], 'rusheeID', 'rushee',
+				brothers, 'brotherID', 'brother');
+			
+			rushdb.joinAssoc(args.comments, 'comments',
+				[rushee], 'rusheeID', 'rushee',
+				brothers, 'brotherID', 'brother');
+				
+			//calculate votes and score
+			rushee.vote = 0;
+			for (var i = 0; i < brothers.length; i++) {
+				//get latest vote
+				brothers[i].votes[0] = brothers[i].votes[0] || rushdb.getNullVote(rushee, brothers[i]);
+				
+				//get brother vote
+				if (brother !== null && brothers[i]._id.equals(brother._id)) {
+						brother.vote = brothers[i].votes[0];
+				}
+				
+				//count votes
+				rushee.vote += brothers[i].votes[0].type.value;
+			}
+			
+			//get votes and sort by type
+			rushee.votesByType = tools.map(brothers, function(b){
+				return b.votes[0];
+			});
+			
+			rushee.votesByType.sort(function(a, b) {
+				return b.type.value - a.type.value ||
+					tools.strCmp(a.brother.name.toLowerCase(), b.brother.name.toLowerCase());
+			});
+			
+			//get sponsors
+			rushee.sponsorsList = [];
+			for (var i = 0; i < brothers.length; i++) {
+				//get latest sponsor
+				brothers[i].sponsors[0] = brothers[i].sponsors[0] || false;
+				
+				if (brothers[i].sponsors[0]) {
+					//push to list
+					rushee.sponsorsList.push(brothers[i].name);
 					
-					for (var j = 0; j < brothers.length; j++) {
-						if (voteIDs[i].brotherID.equals(brothers[j]._id)) {
-							vote.brother = brothers[j];
-						}
+					//check if brother sponsor
+					if (brother !== null && brothers[i]._id.equals(brother._id)) {
+						brother.sponsor = true;
 					}
-					votes.push(vote);
 				}
-				that(null, votes);
-			} else {
-				voteIDs.push(doc);
 			}
+			//get default status
+			rushee.status = rushee.statuses[0] || rushdb.getNullStatus(rushee);
+			//calculate comments
+			rushee.comments = args.comments;
+			//add vote types and comment types, base path, and info
+			var v = rushdb.voteType;
+			args.voteTypes = [v.DEF, v.YES, v.MET, v.NO, v.VETO, v.NULL];
+			var c = rushdb.commentType;
+			args.commentTypes = [c.GENERAL, c.CONTACT, c.INTEREST, c.EVENT, c.URGENT];
+			args.basepath = BASE_PATH;
+			args.rushee = rushee;
+			args.brother = brother;
+			args.brothers = brothers;
+			args.jaunts = jaunts;
+			
+			res.render('vote.jade', args);
 		});
-	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
-		//get all comments on rushee
-		var that = this;
-		var commentIDs = [];
-		var comments = [];
-		db.comments.find({rusheeID: rushee._id}).sort({_id:-1}).forEach(function(err, doc){
-			if (doc == null) {
-				//TODO make this not run in O(comments * (brothers+types))
-				for (var i = 0; i < commentIDs.length; i++) {
-					var time = moment(commentIDs[i]._id.getTimestamp());
-					var comment = {
-						time:'Posted at ' + time.format('h:mm:ss a') 
-							+ ' on ' + time.format('dddd, MMMM Do YYYY'),
-						text:commentIDs[i].text
-					};
-					for (var j = 0; j < commentTypes.length; j++) {
-						if (commentIDs[i].type.equals(commentTypes[j]._id)) {
-							comment.type = commentTypes[j].name;
-							comment.color = commentTypes[j].color;
-						}
-					}
-					
-					for (var j = 0; j < brothers.length; j++) {
-						if (commentIDs[i].brotherID.equals(brothers[j]._id)) {
-							comment.name = brothers[j].name;
-						}
-					}
-					comments.push(comment);
-				}
-				that(null, comments);
-			} else {
-				commentIDs.push(doc);
-			}
-		});
-	}).par(function(brother, rushee, brothers, voteTypes, commentTypes, jaunts) {
-		//get all sponsors on rushee
-		var that = this;
-		var sponsorIDs = [];
-		var sponsors = [];
-		
-		// var callback = function() {
-			// Seq().extend(sponsorsID)
-				// .parEach(function(doc) {
-					// db.brothers.findOne({_id: doc.brotherID}, this.into(doc._id));
-				// }).seq(function() {
-					// for (var i = 0; i < sponsorsID.length; i++) {
-						// sponsors.push(this.vars[sponsorsID[i]._id]);
-					// }
-// 					
-					// that(null, sponsors);
-				// }).catch(function(err) {
-					// console.log(err);
-					// that(null, sponsors);
-				// });
-		// };
-		
-		db.sponsors.find({rusheeID: rushee._id}).forEach(function(err, doc){
-			if (doc == null) {
-				//TODO make this not run in O(brothers * sponsors)
-				for (var i = 0; i < sponsorIDs.length; i++) {
-					var sponsor = null;
-					for (var j = 0; j < brothers.length; j++) {
-						if (sponsorIDs[i].brotherID.equals(brothers[j]._id)) {
-							sponsor = brothers[j];
-						}
-					}
-					sponsors.push(sponsor);
-				}
-				that(null, sponsors);
-			} else {
-				sponsorIDs.push(doc)
-			}
-		});		
-	}).seq(function(args, votes, comments, sponsors) {
-		//done, calculate, and render the page
-		args.voteTypes.push(NULL_VOTE);
-		
-		//calculate vote score
-		var vote = 0;
-		for (var i = 0; i < votes.length; i++) {
-			vote += votes[i].voteType.value;
-		}
-		args.rushee.vote = vote;
-		
-		//get votes
-		args.rushee.votes = votes;
-		
-		for (var i = 0; i < args.brothers.length; i++) {
-			var bro = args.brothers[i];
-			var voted = false;
-			for (var j = 0; j < args.rushee.votes.length; j++) {
-				if (bro._id.equals(args.rushee.votes[j].brother._id)) {
-					voted = true;
-				}
-			}
-			if (!voted) {
-				args.rushee.votes.push({
-					voteType: NULL_VOTE,
-					brother: bro
-				});
-			}
-		}
-		
-		args.rushee.votes.sort(function(a, b) {
-			if (a.voteType._id == undefined) {
-				if (b.voteType._id == undefined) {
-					return 0;
-				} else {
-					return 1;
-				}
-			} else if (b.voteType._id == undefined){
-				return -1;
-			} else if (a.voteType.value > b.voteType.value){
-				return -1;
-			} else if (a.voteType.value < b.voteType.value) {
-				return 1;
-			} else if (a.brother.name < b.brother.name) {
-				return -1;
-			} else if (a.brother.name > b.brother.name) {
-				return 1;
-			} else {
-				return 0;
-			} 
-		});
-		
-		//is brother a sponsor?
-		if (args.brother != null) {
-			args.brother.sponsor = false;
-			for (var i = 0; i < sponsors.length; i++) {
-				if (sponsors[i]._id.equals(args.brother._id)) {
-					args.brother.sponsor = true;
-				}
-			}
-		}
-		
-		//calculate brother vote
-		if (args.brother != null) {
-			args.brother.vote = NULL_VOTE;
-			for (var i = 0; i < votes.length; i++) {
-				if (votes[i].brother._id.equals(args.brother._id)) {
-					args.brother.vote = votes[i].voteType;
-				}
-			}
-		}
-		
-		//calculate sponsors
-		args.rushee.sponsors = [];
-		if (sponsors != null) {
-			for (var i = 0; i < sponsors.length; i++) {
-				args.rushee.sponsors.push(sponsors[i].name);
-			}
-		}
-		
-		//calculate comments
-		if (comments != null) {
-			args.rushee.comments = comments;
-		} else {
-			args.rushee.comments = [];
-		}
-		
-		//base path
-		args.basepath = BASE_PATH;
-		//account type
-		args.accountType = accountType;
-		//submitted
-		args.submitted = submitted;
-		res.render('vote.jade', args);
-	}).catch(function(err) {
-		console.log(err);
-  		res.redirect(BASE_PATH+'/404');
-	});
+	});	
 });
 
-app.post(BASE_PATH+'/vote', function(req, res){
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
-	
+app.post(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 	var sponsor = (req.body.sponsor == 'Yes');
-	var vote = req.body.vote;
+	var voteType = rushdb.voteType[req.body.vote];
 	var commentText = req.body.comment;
-	var commentType = db.ObjectId(req.body.commentType);
+	var commentType = rushdb.commentType[req.body.commentType.toUpperCase()];
 	var commentJaunt = req.body.commentJaunt;
-	var rusheeID = db.ObjectId(req.body.rusheeID);
-	var brotherID = db.ObjectId(req.body.brotherID);
-	if (sponsor) {
-		db.sponsors.update(
-			{brotherID: brotherID, rusheeID: rusheeID},
-			{$set : {brotherID: brotherID, rusheeID: rusheeID}},
-			{upsert : true}
-		);
-	} else {
-		db.sponsors.remove(
-			{brotherID: brotherID, rusheeID: rusheeID}
-		);
+	var rusheeID = toObjectID(req.body.rID);
+	var brotherID = toObjectID(req.body.bID);
+	
+	rushdb.insert('sponsors', {brotherID: brotherID, rusheeID: rusheeID, sponsor : sponsor});
+	rushdb.insert('votes', {brotherID: brotherID, rusheeID: rusheeID, type: voteType});
+	if (commentText !== '') {
+		var comment = {
+			brotherID: brotherID,
+			rusheeID: rusheeID,
+			type: commentType,
+			text: commentText,
+			jaunt: commentJaunt
+		};
+		rushdb.insert('comments', comment);
 	}
 	
-	if (vote != 'undefined' && vote != 'null') {
-		vote = db.ObjectId(vote);
-		db.votes.update(
-			{brotherID: brotherID, rusheeID: rusheeID},
-			{$set : {brotherID: brotherID, rusheeID: rusheeID, voteID:vote}},
-				{upsert : true}
-		);
-	} else {
-		db.votes.remove(
-			{brotherID: brotherID, rusheeID: rusheeID}
-		);
-	}
-	
-	if (commentText != '') {
-		db.comments.insert(
-			{brotherID: brotherID, rusheeID: rusheeID, text: commentText, type: commentType}
-		);
-	}
-		
 	res.redirect(BASE_PATH+'/');	
 });
 
-app.get(BASE_PATH+'/editrushee', function(req, res) {
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
-	var rusheeID = db.ObjectId(req.query.rusheeID);
-	Seq().seq(function() {
-		if (rusheeID == null) {
-			this(null, null)
-		} else {
-			db.rushees.findOne({_id: rusheeID},this);
+app.get(BASE_PATH+'/editrushee', auth.checkAuth,  function(req, res) {
+	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
+	
+	async.waterfall([
+		function(cb) {
+			if (rusheeID === null) {
+				cb(null, null);
+			} else {
+				rushdb.findOne('rushees', {_id: rusheeID}, rushdb.augRushee, cb);
+			}
+		},
+		function(rushee, cb) {
+			if (rushee !== null) {
+				var accountType = auth.getAccountType(req, res);
+				var args = {
+					rushee:rushee,
+					accountType: accountType,
+					basepath:BASE_PATH
+				};
+				res.render('editrushee.jade', args);
+			} else {
+				res.render('404.jade',{basepath:BASE_PATH});
+			}
 		}
-	}).seq(function(rushee){
-		if (rushee != null) {
-			var args = {
-				rushee:rushee,
-				basepath:BASE_PATH,
-				accountType:accountType
-			};
-			res.render('editrushee.jade', args);
-		} else {
-			res.render('404.jade',{basepath:BASE_PATH});
-		}
-	}).catch(function(err){
+	],
+	function (err) {
 		console.log(err);
 		res.render('404.jade',{basepath:BASE_PATH});
 	});
 });
 
-app.post(BASE_PATH+'/editrushee', function(req, res) {
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
-	
-	var rusheeID = db.ObjectId(req.body.rusheeID);
+app.post(BASE_PATH+'/editrushee', auth.checkAuth, function(req, res) {
+	var rusheeID = toObjectID(req.body.rusheeID);
 	var photo = req.files.photo;
-	var photoLen = 5, photoDefault = req.body.photoOld;
-	if (photo.size == 0) {
-		var photoPath = photoDefault;
-	} else {
-		name = photo.name;
+	var photoLen = 10, photoPath = req.body.photoOld;
+	if (photo.size !== 0) {
+		var name = photo.name;
 		var extension = name.substr(name.lastIndexOf('.')+1);
-		var photoPath = '/img/'+tools.randomString(5,'')+'.'+extension;
+		photoPath = '/public/img/'+tools.randomString(photoLen,'')+'.'+extension;
 	
 		fs.readFile(req.files.photo.path, function(err, data) {
-			newPath = __dirname + photoPath;
+			var newPath = __dirname + photoPath;
 			fs.writeFile(newPath, data, function(err) {
-				if (err != null) {
+				if (err !== null && err !== undefined) {
 					console.log('uploadpath: ' + req.files.photo.path);
 					console.log("photopath: " + photoPath);
 					console.log(err);
@@ -468,190 +273,267 @@ app.post(BASE_PATH+'/editrushee', function(req, res) {
 		phone: req.body.phone,
 		email: req.body.email,
 		year: req.body.year,
+		visible: req.body.visible === 'on',
+		priority: req.body.priority === 'on',
 		photo: photoPath
 	};
 	
-	if (req.body.visible == 'true') {
-		rushee.visible = true;
-	} else if (req.body.visible == 'false'){
-		rushee.visible = false;
-	};
-
-	db.rushees.update({_id:rusheeID},{$set: rushee},function(err) {
-		if (!err) {
+	rushdb.update('rushees', {_id:rusheeID}, {$set: rushee}, {}, function(err) {
+		if (err === null || err === undefined) {
 			res.redirect(BASE_PATH+'/viewRushees');
 		} else {
 			console.log(err);
+			res.redirect(BASE_PATH+'/editRushees');
 		}
 	});
 });
 
-app.get(BASE_PATH+'/viewrushees', function(req,res){
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
-	var rushees = new Array();
-	var cursor = db.rushees.find().sort({first: 1, last: 1});
-	
-	cursor.forEach(function(err, doc) {
-		if (doc ==  null) {
-			//finished reading, render the page
-			var args = {
-				rushees:rushees,
-				basepath:BASE_PATH,
-				accountType:accountType
-			}
-			res.render('viewrushees.jade', args);
-		} else {
-			doc.name = tools.name(doc.first, doc.nick, doc.last);
-			rushees.push(doc);
+app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
+	async.parallel({
+		brothers : function(cb) {
+			rushdb.find('brothers', {}, {first: 1, last: 1}, rushdb.augBrother, cb);
+		},
+		rushees : function(cb) {
+			rushdb.find('rushees', {}, {first : 1, last: 1}, rushdb.augRushee, cb);
+		},
+		statuses : function(cb) {
+			rushdb.find('statuses', {}, {_id: -1}, function(){}, cb);
 		}
+	},
+	function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		} else if (info.rushee === null) {
+			console.log(new Error('no rushee'));
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		//var brothers = info.brothers;
+		var rushees = info.rushees;
+		var statuses = info.statuses;
+		//var brotherIDs = tools.map(brothers, function(b) {return b._id;});
+		//var rusheeIDs = tools.map(rushees, function(r) {return r._id;});
+		//var query = {rusheeID: {$in : rusheeIDs}, brotherID : {$in : brotherIDs}}; //TODO: BIDWORTHINESS
+		
+		rushdb.joinProperty(statuses, 'statuses', rushees, 'rusheeID');
+		for (var i = 0; i < rushees.length; i++) {
+			rushees[i].status = rushees[i].statuses[0] || rushdb.getNullStatus(rushees[i]);
+		}
+				
+		info.inhouse = req.query.inhouse;
+		info.priority = req.query.priority;
+		info.basepath = BASE_PATH;
+		info.accountType = auth.getAccountType(req, res);
+		res.render('viewrushees.jade', info);
+		// async.parallel({
+			// votes : function(cb) {
+				// rushdb.find('votes', query, {_id:-1}, function(){}, cb);
+			// }
+		// },
+		// function(err, args) {
+			// if (err !== undefined && err !== null) {
+				// console.log(err);
+				// res.redirect(BASE_PATH + '/404');
+				// return;				
+			// }
+			// rushdb.joinAssocIndexed(args.votes, 'votesBy',
+				// rushees, 'rusheeID', 'rushee',
+				// brothers, 'brotherID', 'brother');
+// 			
+			// var v = rushdb.voteType;
+			// args.voteTypes = [v.DEF, v.YES, v.MET, v.NO, v.VETO, v.NULL];
+			// args.brothers = brothers;
+			// args.rushees = rushees;
+			// args.basepath = BASE_PATH;
+			// res.render('viewrushees.jade', args);
+		// });
 	});
 });
 
-app.get(BASE_PATH+'/viewbrothers', function(req,res){
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
-	
-	var brothers = [];
-	var cursor = db.brothers.find().sort({first: 1, last: 1});
-	
-	cursor.forEach(function(err, doc) {
-		if (doc ==  null) {
-			//finished reading, render the page
-			res.render('viewbrothers.jade', {brothers:brothers,basepath:BASE_PATH});
-		} else {
-			brothers.push(doc);
+app.get(BASE_PATH+'/viewrusheevotes', auth.checkAuth, function(req, res) {
+	async.parallel({
+		brothers : function(cb) {
+			rushdb.find('brothers', {}, {first: 1, last: 1}, rushdb.augBrother, cb);
+		},
+		rushees : function(cb) {
+			rushdb.find('rushees', {}, {first : 1, last: 1}, rushdb.augRushee, cb);
+		},
+		statuses : function(cb) {
+			rushdb.find('statuses', {}, {_id: -1}, function(){}, cb);
 		}
-	});
-});
-	
-app.get(BASE_PATH+'/viewbrothervotes', function(req,res){
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
-	Seq().par(function() {
-		var brothers = [];
-		var that = this;
-		db.brothers.find().sort({first: 1, last: 1}).forEach(function(err, doc) {
-			if (doc ==  null) {
-				that(null, brothers);
-			} else {
-				doc.name = tools.name(doc.first, '', doc.last);
-				brothers.push(doc);
-			}
-		});
-	}).par(function() {
-		var rushees = [];
-		var that = this;
-		db.rushees.find().sort({first: 1, last: 1}).forEach(function(err, doc) {
-			if (doc == null) {
-				that(null, rushees);
-			} else {
-				doc.name = tools.name(doc.first, doc.nick, doc.last);
-				rushees.push(doc);
-			}
-		});
-	}).par(function() {
-		var that = this;
-		var voteTypes = [];
+	},
+	function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
 		
-		db.voteTypes.find().sort({value:-1}).forEach(function(err, doc) {
-			if (doc == null) {
-				voteTypes.push(NULL_VOTE);
-				that(null, voteTypes);
-			} else {
-				voteTypes.push(doc);
-			}
-		});
-	}).par(function() {
-		var that = this;
-		var votes = [];
-		db.votes.find().forEach(function(err, doc) {
-			if (doc == null) {
-				that (null, votes);
-			} else {
-				votes.push(doc);
-			}
-		});
-	}).seq(function(brothers, rushees, voteTypes, votes) {
+		var brothers = info.brothers;
+		var rushees = info.rushees;
+		var statuses = info.statuses;
+		var brotherIDs = tools.map(brothers, function(b) {return b._id;});
+		var rusheeIDs = tools.map(rushees, function(r) {return r._id;});
+		var query = {rusheeID: {$in : rusheeIDs}, brotherID : {$in : brotherIDs}};
 		
-		for (var i = 0; i < brothers.length; i++) {
-			var brother = brothers[i];
-			brother.voteTypes = [];
-			for (var j = 0; j < voteTypes.length; j++) {
-				var voteType = {
-					_id: voteTypes[j]._id,
-					name: voteTypes[j].name,
-					value: voteTypes[j].value,
-					votes: [],
-					count: 0
-				};
-				brother.voteTypes.push(voteType);
-			} 
+		rushdb.joinProperty(statuses, 'statuses', rushees, 'rusheeID');
+		for (var i = 0; i < rushees.length; i++) {
+			rushees[i].status = rushees[i].statuses[0] || rushdb.getNullStatus(rushees[i]);
+		}
+		
+		async.parallel({
+			votes : function(cb) {
+				rushdb.find('votes', query, {_id:-1}, function(){}, cb);
+			}
+		},
+		function(err, args) {
+			if (err !== undefined && err !== null) {
+				console.log(err);
+				res.redirect(BASE_PATH + '/404');
+				return;				
+			}
+			rushdb.joinAssocIndexed(args.votes, 'votesBy',
+				rushees, 'rusheeID', 'rushee',
+				brothers, 'brotherID', 'brother');
 			
-			brother.rushees = {};
-			for (var j = 0; j < rushees.length; j++) {
-				if (rushees[j].visible != false)
-					brother.rushees[rushees[j]._id] = rushees[j];
-			}
-		}
-		
-		for (var i = 0; i < votes.length; i++) {
-			var vote = votes[i];
-			for (var j = 0; j < rushees.length; j++) {
-				if (vote.rusheeID.equals(rushees[j]._id)) {
-					vote.rushee = rushees[j];
+			//default vote -> rushee.voteBy
+			for (var i = 0; i < rushees.length; i++) {
+				var r = rushees[i];
+				r.voteBy = {};
+				for (var j = 0; j < brothers.length; j++) {
+					var b = brothers[j];
+					r.voteBy[b._id] = r.votesBy[b._id][0] || rushdb.getNullVote(r, b);
 				}
 			}
 			
+			//aggregate -> brother.votesByType, calculate vote score
+			for (var i = 0; i < rushees.length; i++) {
+				var r = rushees[i];
+				r.votesByType = {};
+				r.voteScore = 0;
+				for (var j in rushdb.voteType) {
+					r.votesByType[rushdb.voteType[j]._id] = [];
+				}
+				for (var b in r.voteBy) {
+					var vote = r.voteBy[b];
+					r.votesByType[vote.type._id].push(vote);
+					r.voteScore += vote.type.value;
+				}
+			}
 			
-			for (var j = 0; j < brothers.length; j++) {
-				if (vote.brotherID.equals(brothers[j]._id)) {
-					for (var k = 0; k < brothers[j].voteTypes.length; k++) {
-						if (brothers[j].voteTypes[k]._id == undefined)
-							continue;
-						if (vote.voteID.equals(brothers[j].voteTypes[k]._id)) {
-							brothers[j].voteTypes[k].votes.push(vote);
-							brothers[j].voteTypes[k].count++;
-							delete brothers[j].rushees[vote.rushee._id];
-						}
+			rushees.sort(function(a, b) {
+				return b.voteScore - a.voteScore;
+			});
+			
+			var v = rushdb.voteType;
+			args.voteTypes = [v.DEF, v.YES, v.MET, v.NO, v.VETO, v.NULL];
+			args.brothers = brothers;
+			args.rushees = rushees;
+			args.basepath = BASE_PATH;
+			res.render('viewrusheevotes.jade', args);
+		});
+	});
+});
+
+app.get(BASE_PATH+'/viewbrothers', auth.checkAuth, function(req,res){
+	rushdb.find('brothers', {}, {first: 1, last: 1}, rushdb.augBrother, function(err, docs) {
+		if (err === null || err === undefined) {
+			res.render('viewbrothers.jade', {brothers:docs, basepath:BASE_PATH});
+		} else {
+			res.redirect(BASE_PATH+'/404');
+		}
+	});
+});
+
+app.get(BASE_PATH+'/viewbrothervotes', auth.checkAuth, function(req,res){
+	async.parallel({
+		brothers : function(cb) {
+			rushdb.find('brothers', {}, {first: 1, last: 1}, rushdb.augBrother, cb);
+		},
+		rushees : function(cb) {
+			rushdb.find('rushees', {}, {first : 1, last: 1}, rushdb.augRushee, cb);
+		},
+		statuses : function(cb) {
+			rushdb.find('statuses', {}, {_id: -1}, function(){}, cb);
+		}
+	},
+	function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		var brothers = info.brothers;
+		var rushees = info.rushees;
+		var statuses = info.statuses;
+		var brotherIDs = tools.map(brothers, function(b) {return b._id;});
+		var rusheeIDs = tools.map(rushees, function(r) {return r._id;});
+		var query = {rusheeID: {$in : rusheeIDs}, brotherID : {$in : brotherIDs}};
+		
+		rushdb.joinProperty(statuses, 'statuses', rushees, 'rusheeID');
+		for (var i = 0; i < rushees.length; i++) {
+			rushees[i].status = rushees[i].statuses[0] || rushdb.getNullStatus(rushees[i]);
+		}
+		async.parallel({
+			votes : function(cb) {
+				rushdb.find('votes', query, {_id:-1}, function(){}, cb);
+			}
+		},
+		function(err, args) {
+			if (err !== undefined && err !== null) {
+				console.log(err);
+				res.redirect(BASE_PATH + '/404');
+				return;				
+			}
+			rushdb.joinAssocIndexed(args.votes, 'votesBy',
+				rushees, 'rusheeID', 'rushee',
+				brothers, 'brotherID', 'brother');
+				
+				
+			//default vote -> brother.voteBy
+			for (var i = 0; i < brothers.length; i++) {
+				var b = brothers[i];
+				b.voteBy = {};
+				for (var j = 0; j < rushees.length; j++) {
+					var r = rushees[j];
+					b.voteBy[r._id] = b.votesBy[r._id][0] || rushdb.getNullVote(r, b);
+				}
+			}
+				
+			//aggregate -> brother.votesByType
+			for (var i = 0; i < brothers.length; i++) {
+				var b = brothers[i];
+				b.votesByType = {};
+				for (var j in rushdb.voteType) {
+					b.votesByType[rushdb.voteType[j]._id] = [];
+				}
+				for (var r in b.voteBy) {
+					var vote = b.voteBy[r];
+					if (vote.rushee.visible) {
+						b.votesByType[vote.type._id].push(vote);
 					}
 				}
 			}
-		}
-		
-		res.render('viewbrothervotes.jade', {
-			voteTypes: voteTypes, brothers:brothers,basepath:BASE_PATH});
-
-	}).catch(function(err){
-		console.log(err);
-		res.render('404.jade', {basepath: BASE_PATH});
+			//find brother votes
+			var v = rushdb.voteType;
+			args.voteTypes = [v.DEF, v.YES, v.MET, v.NO, v.VETO, v.NULL];
+			args.brothers = brothers;
+			args.rushees = rushees;
+			args.basepath = BASE_PATH;
+			res.render('viewbrothervotes.jade', args);
+		});
 	});
 });
 	
-app.get(BASE_PATH+'/addbrother', function(req, res){
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
+app.get(BASE_PATH+'/addbrother', auth.checkAdminAuth, function(req, res){
 	res.render('addbrother.jade',{basepath:BASE_PATH});
 });
 
-app.post(BASE_PATH+'/addbrother', function(req,res) {
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
+app.post(BASE_PATH+'/addbrother', auth.checkAdminAuth, function(req,res) {
 	var brother = {
 		first: req.body.first,
 		last: req.body.last,
@@ -659,38 +541,26 @@ app.post(BASE_PATH+'/addbrother', function(req,res) {
 		phone: req.body.phone,
 		email: req.body.email
 	};
-	db.brothers.insert(brother);
+	rushdb.insert('brothers', brother);
 	res.render('addbrother.jade',{basepath:BASE_PATH});
 });
 
-app.get(BASE_PATH+'/addrushee', function(req,res) {
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
+app.get(BASE_PATH+'/addrushee', auth.checkAdminAuth, function(req,res) {
 	res.render('addrushee.jade',{basepath:BASE_PATH});
 });
 
-app.post(BASE_PATH+'/addrushee', function(req,res) {
-	var accountType = req.cookies.accountType;
-	if (accountType != 'brother' && accountType != 'admin' ) {
-		res.redirect(BASE_PATH+'/auth');
-		return;
-	}
+app.post(BASE_PATH+'/addrushee', auth.checkAdminAuth, function(req,res) {
 	var photo = req.files.photo;
-	var photoLen = 5, photoDefault = '/img/no_photo.jpg';
-	if (photo.size == 0) {
-		var photoPath = photoDefault;
-	} else {
-		name = photo.name;
+	var photoLen = 10, photoPath = '/img/no_photo.jpg';
+	if (photo.size !== 0) {
+		var name = photo.name;
 		var extension = name.substr(name.lastIndexOf('.')+1);
-		var photoPath = '/img/'+tools.randomString(5,'')+'.'+extension;
+		photoPath = '/public/img/'+tools.randomString(photoLen,'')+'.'+extension;
 	
 		fs.readFile(req.files.photo.path, function(err, data) {
-			newPath = __dirname + photoPath;
+			var newPath = __dirname + photoPath;
 			fs.writeFile(newPath, data, function(err) {
-				if (err != null) {
+				if (err !== null) {
 					console.log('uploadpath: ' + req.files.photo.path);
 					console.log("photopath: " + photoPath);
 					console.log(err);
@@ -707,38 +577,83 @@ app.post(BASE_PATH+'/addrushee', function(req,res) {
 		phone: req.body.phone,
 		email: req.body.email,
 		year: req.body.year,
-		photo: photoPath
+		photo: photoPath,
+		visible: true,
+		priority: false
 	};
 
-	db.rushees.insert(rushee);
+	rushdb.insert('rushees', rushee);
 	res.render('addrushee.jade',{basepath:BASE_PATH});
 });
 
-app.get(BASE_PATH+'/', function(req, res){
-	var accountType = req.cookies.accountType;
-	if (accountType == 'admin')
-		res.render('index.jade', {accountType : 'admin', basepath:BASE_PATH});
-	else if (accountType == 'brother') {
+app.get(BASE_PATH+'/', auth.checkFrontDeskAuth, function(req, res){
+	var accountType = auth.getAccountType(req, res);
+	if (accountType == auth.accountType.ADMIN) {
+		res.render('index.jade', {accountType: accountType, basepath: BASE_PATH});
+	} else if (accountType == auth.accountType.BROTHER) {
 		res.redirect(BASE_PATH+'/viewrushees');
+	} else if (accountType == auth.accountType.FRONTDESK) {
+		res.redirect(BASE_PATH+'/frontdesk');
 	} else {
-		res.redirect(BASE_PATH+'/auth');
+		res.redirect(BASE_PATH+'/login');
 	}
 });
 
-app.get(BASE_PATH+'/auth', function(req,res){
+app.get(BASE_PATH+'/login', function(req,res){
+	auth.logout(res);
 	res.render('auth.jade',{basepath:BASE_PATH});
 });
 
-app.post(BASE_PATH+'/auth', function(req,res){
-	//TODO authenticate every page and not make hard coded
-	res.clearCookie('accountType');
-	if (req.body.username == 'admin' && req.body.password == 'jeffshen') {
-		res.cookie('accountType', 'admin');
-	} else if (req.body.username == 'brother' && req.body.password == 'adphi') {
-		res.cookie('accountType', 'brother');
-	}
+app.post(BASE_PATH+'/login', function(req,res){
+	auth.login(req.body.username, req.body.password, res);
 	
 	res.redirect(BASE_PATH+'/');
+});
+
+app.get(BASE_PATH+'/frontdesk', function(req, res) {
+	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
+	if (rusheeID === null) {
+		rushdb.find('rushees', {}, {first: 1, last: 1}, rushdb.augRushee, function(err, docs) {
+			if (err === null || err === undefined) {
+				var accountType = auth.getAccountType(req, res);
+				res.render('viewall.jade', {rushees: docs, accountType: accountType, basepath:BASE_PATH});
+			} else {
+				res.redirect(BASE_PATH+'/404');
+			}
+		});
+	} else {
+		rushdb.findOne('rushees', {_id : rusheeID}, rushdb.augRushee, function(err, doc) {
+			if (err === null || err === undefined) {
+				res.render('view.jade', {rushee: doc, basepath:BASE_PATH});
+			} else {
+				res.redirect(BASE_PATH+'/404');
+			}
+		});
+	}
+});
+
+app.post(BASE_PATH+'/inhouse', auth.checkFrontDeskAuth, function(req, res) {
+	var rusheeID = toObjectID(req.body.rID);
+	
+	//GOING IN
+	rushdb.insert('statuses', {rusheeID: rusheeID, type : rushdb.statusType.IN});
+	res.redirect(BASE_PATH+'/frontdesk');
+});
+
+app.post(BASE_PATH+'/outhouse', auth.checkFrontDeskAuth, function(req, res) {
+	var rusheeID = toObjectID(req.body.rID);
+	
+	//GOING OUT
+	rushdb.insert('statuses', {rusheeID: rusheeID, type : rushdb.statusType.OUT});
+	res.redirect(BASE_PATH+'/frontdesk');
+});
+
+app.post(BASE_PATH+'/onjaunt', auth.checkFrontDeskAuth, function(req, res) {
+	var rusheeID = toObjectID(req.body.rID);
+	
+	//ON JAUNT
+	rushdb.insert('statuses', {rusheeID: rusheeID, type : rushdb.statusType.JAUNT});
+	res.redirect(BASE_PATH+'/frontdesk');
 });
 
 app.get('*', function(req, res){
@@ -747,12 +662,12 @@ app.get('*', function(req, res){
 
 //listen on localhost:8000
 // app.listen(8000,'localhost');
-var options = {
-	key:fs.readFileSync(__dirname+'/cert/key.pem'),
-	cert:fs.readFileSync(__dirname+'/cert/cert.pem')
-};
+//var options = {
+//	key:fs.readFileSync(__dirname+'/cert/key.pem'),
+//	cert:fs.readFileSync(__dirname+'/cert/cert.pem')
+//};
 
 //https.createServer(options, app).listen(8000, '18.202.1.157');
 // https.createServer(options, app).listen(8000, 'localhost');
 // app.listen(8000,'18.202.1.157');
-app.listen(8000,'localhost');
+app.listen(8888,'localhost');

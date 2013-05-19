@@ -8,18 +8,36 @@ block head
 block content
   .rushees-wrapper
     h1.rushees-title View all rushees
+    form.rushees-toggles
+      -if (inhouse === 'on')
+        input#inhouse(type='checkbox', name = 'inhouse', checked)
+      -else
+        input#inhouse(type='checkbox', name = 'inhouse')
+      label.toggle-choice(for='inhouse') In
+      -if (priority === 'on')
+        input#priority(type='checkbox', name = 'priority', checked)
+      -else
+        input#priority(type='checkbox', name = 'priority')
+      label.toggle-choice(for='priority') Priority
+      input(type='submit',formmethod='get',formaction=basepath+'/viewrushees', value='Filter')
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
-        -if (rushee.visible == false && accountType != 'admin') continue;
+        -if (rushee.visible === false && !accountType.isAdmin()) continue;
+        -if (inhouse === 'on' && rushee.status.type._id !== 'IN') continue;
+        -if (priority === 'on' && rushee.priority !== true) continue; 
         li.rushee-wrapper
           .rushee-content.clearfix
-            a.rushee-photo.lfloat(href=basepath+'/vote?rusheeID='+rushee._id)
-              img.img-medium(src=basepath+rushee.photo,alt=rushee.name)
+            rushee-photo-and-status.lfloat
+              a.rushee-photo(href=basepath+'/vote?rID='+rushee._id)
+                img.img-medium(src=basepath+rushee.photo,alt=rushee.name)
+              .rushee-status #{rushee.status.type.name}
+              -if (rushee.priority)
+                .rushee-priority Priority
             .rushee-info
               .rushee-info-item.rushee-name
-                a(href=basepath+'/vote?rusheeID='+rushee._id) #{rushee.name}
-                  -if (accountType == 'admin' && rushee.visible == false)
+                a(href=basepath+'/vote?rID='+rushee._id) #{rushee.name}
+                  -if (accountType.isAdmin() && rushee.visible === false)
                     |  (hidden)
               .rushee-info-item.rushee-dorm
                 span.rushee-info-type Dorm

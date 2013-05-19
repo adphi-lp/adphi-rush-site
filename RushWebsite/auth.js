@@ -3,26 +3,44 @@
 var loginPage = null;
 
 var accountType = {
-	USER: {
-		name: 'user',
-		isUser : function() {return true;},
+	BROTHER: {
+		name: 'brother',
+		isFrontDesk : function() {return true;},
+		isBrother : function() {return true;},
+		isAdmin : function() {return false;}
+	},
+	
+	FRONTDESK: {
+		name: 'frontdesk',
+		isFrontDesk : function() {return true;},
+		isBrother : function() {return false;},
 		isAdmin : function() {return false;}
 	},
 	
 	ADMIN: {
 		name :'admin',
-		isUser : function() {return true;},
+		isFrontDesk : function() {return true;},
+		isBrother : function() {return true;},
 		isAdmin : function() {return true;}
+	},
+	
+	NULL: {
+		name :'none',
+		isFrontDesk : function() {return false;},
+		isBrother : function() {return false;},
+		isAdmin : function() {return false;}
 	}
 };
 
 function getAccountType(req, res) {
-	if (res.cookies.accountType === accountType.ADMIN) {
+	if (req.cookies.accountType === accountType.ADMIN.name) {
 		return accountType.ADMIN;
-	} else if (res.cookies.accountType === accountType.USER){
-		return accountType.USER;
+	} else if (req.cookies.accountType === accountType.BROTHER.name){
+		return accountType.BROTHER;
+	} else if (req.cookies.accountType === accountType.FRONTDESK.name){
+		return accountType.FRONTDESK;
 	} else {
-		return null;
+		return accountType.NULL	;
 	}
 }
 
@@ -30,8 +48,8 @@ function setRedirect(page) {
 	loginPage = page;
 }
 
-function checkAuth(res, req, next) {
-	if (!getAccountType(req, res).isUser()) {
+function checkAuth(req, res, next) {
+	if (!getAccountType(req, res).isBrother()) {
 		res.redirect(loginPage);
 		return;
 	}
@@ -39,7 +57,16 @@ function checkAuth(res, req, next) {
 	next();
 }
 
-function checkAdminAuth(res, req, next) {
+function checkFrontDeskAuth(req, res, next) {
+	if (!getAccountType(req, res).isFrontDesk()) {
+		res.redirect(loginPage);
+		return;
+	}
+	
+	next();
+}
+
+function checkAdminAuth(req, res, next) {
 	if (!getAccountType(req,res).isAdmin()) {
 		res.redirect(loginPage);
 		return;
@@ -47,12 +74,16 @@ function checkAdminAuth(res, req, next) {
 	
 	next();
 }
+
 function login(username, password, res) {
 	if (username.toLowerCase() === 'admin' && password.toLowerCase() === 'jeffshen') {
-		res.cookie('accountType', accountType.ADMIN);
+		res.cookie('accountType', accountType.ADMIN.name);
 		return true;
 	} else if (username.toLowerCase() === 'brother' && password.toLowerCase() === 'henryleeb') {
-		res.cookie('accountType', accountType.USER);
+		res.cookie('accountType', accountType.BROTHER.name);
+		return true;
+	} else if (username.toLowerCase() === 'frontdesk' && password.toLowerCase() === 'splash') {
+		res.cookie('accountType', accountType.FRONTDESK.name);
 		return true;
 	} else {
 		res.clearCookie('accountType');
@@ -65,8 +96,11 @@ function logout(res) {
 }
 
 module.exports = {
+	accountType: accountType,
 	setRedirect : setRedirect,
+	getAccountType: getAccountType,
 	checkAuth : checkAuth,
+	checkFrontDeskAuth : checkFrontDeskAuth,
 	checkAdminAuth : checkAdminAuth,
 	login : login,
 	logout : logout

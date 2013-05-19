@@ -31,16 +31,31 @@ block content
           input.rushee-add-data(name='email',value=rushee.email)
         .rushee-add-item.rushee-year
           span.rushee-add-type Year
-          input.rushee-add-data(name='year',value=rushee.year)
+          select.rushee-add-data(name='year')
+            -years = ['Freshman', 'Sophomore', 'Junior', 'Senior']
+            -for (var i = 0; i < years.length; i++)
+              -if (rushee.year === years[i])
+                option(value='#{years[i]}') #{years[i]}
+              -else
+                option(value='#{years[i]}') #{years[i]}
         .rushee-add-item.rushee-photo-old
           input.rushee-add-data(type='hidden',name='photoOld',value=rushee.photo)
         .rushee-add-item.rushee-photo
           span.rushee-add-type Photo
           input.rushee-add-data(type='file',name='photo')
-        -if (accountType == 'admin')
+        -if (accountType.isAdmin())
           .rushee-add-item.rushee-visible
             span.rushee-add-type Visible
-            input.rushee-add-data(name='visible',value=''+rushee.visible)
+            -if (rushee.visible)
+              input(type='checkbox',name='visible', checked)
+            -else
+              input(type='checkbox',name='visible')
+          .rushee-add-item.rushee-priority
+            span.rushee-add-type Priority
+            -if (rushee.priority)
+              input(type='checkbox',name='priority', checked)
+            -else
+              input(type='checkbox',name='priority')
       .rushee-post
         input#save(type='submit',formmethod='post',formaction='#',value='Submit')
  
