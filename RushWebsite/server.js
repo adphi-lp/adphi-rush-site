@@ -551,7 +551,7 @@ app.get(BASE_PATH+'/addrushee', auth.checkAdminAuth, function(req,res) {
 
 app.post(BASE_PATH+'/addrushee', auth.checkAdminAuth, function(req,res) {
 	var photo = req.files.photo;
-	var photoLen = 10, photoPath = '/img/no_photo.jpg';
+	var photoLen = 10, photoPath = '/public/img/no_photo.jpg';
 	if (photo.size !== 0) {
 		var name = photo.name;
 		var extension = name.substr(name.lastIndexOf('.')+1);
