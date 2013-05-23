@@ -181,12 +181,44 @@ function joinAssocIndexed(assocs, assocsIndexedName,
 	}
 }
 
-
-
 /**
- * 
+ * Joins members to a group = (group attributes, lists of members).
+ * Joining is guaranteed to preserve order.
+ * Members: list of tuples (list, idName, elName) 
  */
-//TODO: JOIN GROUPS (JAUNTS)
+function joinGroup(groups, groupsName, members) {
+	//create hashes and initialize
+	var hashes = [];
+	for (var i = 0; i < members.length; i++) {
+		var list = members[i][0];
+		for (var j = 0; j < list.length; j++) {
+			var el = list[j];
+			hashes[el._id] = el;
+			el[groupsName] = [];
+		}
+	}
+	
+	//go through each group
+	for (var i = 0; i < groups.length; i++) {
+		var group = groups[i];
+		//go through each member list
+		for (var j = 0; j < members.length; j++) {
+			var idName = members[j][1];
+			var elName = members[j][2];
+			//get group list of ids
+			var list = group[idName];
+			//make new element list for members
+			group[elName] = [];
+			//go through group list of ids
+			for (var k = 0; k < list.length; k++) {
+				var id = list[k];
+				var el = hashes[j][id];
+				group[elName].push(el);
+				el[groupsName].push(group);
+			}
+		}
+	}
+}
 
 function findOne(col, query, augment, callback) {
 	db[col].findOne(query, function(err, doc) {
