@@ -192,23 +192,27 @@ app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 app.post(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 	var sponsor = (req.body.sponsor == 'Yes');
 	var voteType = rushdb.voteType[req.body.vote];
-	var commentText = req.body.comment;
-	var commentType = rushdb.commentType[req.body.commentType.toUpperCase()];
-	var commentJaunt = req.body.commentJaunt;
 	var rusheeID = toObjectID(req.body.rID);
 	var brotherID = toObjectID(req.body.bID);
 	
 	rushdb.insert('sponsors', {brotherID: brotherID, rusheeID: rusheeID, sponsor : sponsor});
 	rushdb.insert('votes', {brotherID: brotherID, rusheeID: rusheeID, type: voteType});
-	if (commentText !== '') {
-		var comment = {
-			brotherID: brotherID,
-			rusheeID: rusheeID,
-			type: commentType,
-			text: commentText,
-			jaunt: commentJaunt
-		};
-		rushdb.insert('comments', comment);
+	
+	for (var i = 0; i < 2; i++) {
+		var commentText = req.body['comment'+i];
+		var commentType = rushdb.commentType[req.body['commentType'+i].toUpperCase()];
+		var commentJaunt = req.body['commentJaunt'+i];
+		
+		if (commentText !== '') {
+			var comment = {
+				brotherID: brotherID,
+				rusheeID: rusheeID,
+				type: commentType,
+				text: commentText,
+				jaunt: commentJaunt
+			};
+			rushdb.insert('comments', comment);
+		}
 	}
 	
 	res.redirect(BASE_PATH+'/');	
@@ -322,7 +326,7 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 		for (var i = 0; i < rushees.length; i++) {
 			rushees[i].status = rushees[i].statuses[0] || rushdb.getNullStatus(rushees[i]);
 		}
-				
+
 		info.inhouse = req.query.inhouse;
 		info.priority = req.query.priority;
 		info.basepath = BASE_PATH;

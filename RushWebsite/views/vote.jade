@@ -83,17 +83,18 @@ block content
               -else
                 input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType._id}')
               label.vote-choice(for ='vote#{i}') #{voteType.name}
-        .comment-wrapper
-          .comment-content.clearfix
-            span.brother-action-type Comment (optional)
-            .comment-textarea-wrapper
-              textarea#comment-textarea(name='comment',rows=5,cols=60)
-            .comment-type
-              .comment-type.lfloat
-                span.brother-action-type Type
-                select#comment-type(name='commentType')
-                  -for (var i = 0; i < commentTypes.length; i++)
-                    option(value='#{commentTypes[i]._id}') #{commentTypes[i].name}
+        .action-comment-wrapper
+          -for (var j = 0; j < 2; j++)
+            .action-comment-content.clearfix
+              span.brother-action-type Comment (optional)
+              .action-comment-textarea-wrapper
+                textarea#comment-textarea(name='comment#{j}',rows=5,cols=40)
+              .action-comment-type
+                .action-comment-type.lfloat
+                  span.brother-action-type Type
+                  select(name='commentType#{j}')
+                    -for (var i = 0; i < commentTypes.length; i++)
+                      option(value='#{commentTypes[i]._id}') #{commentTypes[i].name}
               //
                 .comment-jaunt.rfloat
                   span.brother-action-type Jaunt
@@ -137,7 +138,7 @@ block content
           .comment-content
             .comment-header
               span.comment-header-element.comment-name #{comment.brother.name}
-              span.comment-header-element.type(style='color:#{comment.type.color};') #{comment.type.name}
+              span.comment-header-element.comment-type(style='color:#{comment.type.color};') #{comment.type.name}
             .comment-text #{comment.text}
             .comment-time #{comment.time}
 

@@ -2,8 +2,8 @@
 	margin:0 auto;
 	width:800px;
 	/*box-shadow: 0 0 10px 2px #888;*/
-
 }
+
 .rushee-wrapper{
 	background-color:rgba(215, 236, 255, 0.4);
 	margin: 10px 0px 40px 0px;
@@ -43,21 +43,22 @@
 	color:#FF0000
 }
 
-.brother-action-content{
-	/*background:rgba(215, 236, 255, 0.4);*/
-	box-shadow: 0 0 10px 2px #888;
-    padding:20px;
-}
-
 .brother-action-content .comment-wrapper{
 	border:none;
-	background: none
+	background: none;
 }
 
 .brother-action-wrapper{
 	background-color:rgba(215, 236, 255, 0.4);
+	box-shadow: 0 0 10px 2px #888;
+    padding:20px;
 }
 
+.action-comment-content{
+	display:inline-block;
+	margin: 20px 20px 20px 20px;
+	vertical-align:text-top;
+}
 
 .comment-header-element{
 	margin: 0em 0em 0em 0.5em
