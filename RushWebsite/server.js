@@ -16,6 +16,7 @@ var moment = require('moment');
 var rushdb = require('./rushdb');
 var tools = require('./tools');
 var auth = require('./auth');
+var search = require('./search');
 var toObjectID = require('mongojs').ObjectId;
 
 //create app and connect
@@ -327,8 +328,16 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 			rushees[i].status = rushees[i].statuses[0] || rushdb.getNullStatus(rushees[i]);
 		}
 
+		var q = req.query.q;
+		if (q !== null && q !== undefined) {
+			info.rushees = search.get(rushees, q);
+			info.q = q;
+		} else {
+			info.q = '';
+		}
 		info.inhouse = req.query.inhouse;
 		info.priority = req.query.priority;
+		info.search = req.query.q;
 		info.basepath = BASE_PATH;
 		info.accountType = auth.getAccountType(req, res);
 		res.render('viewrushees.jade', info);

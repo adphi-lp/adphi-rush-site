@@ -8,7 +8,8 @@ block head
 block content
   .rushees-wrapper
     h1.rushees-title View all rushees
-    form.rushees-toggles
+    form.rushees-search
+      input#search(type='text', name = 'q', value = '#{q}')
       -if (inhouse === 'on')
         input#inhouse(type='checkbox', name = 'inhouse', checked)
       -else
@@ -19,7 +20,7 @@ block content
       -else
         input#priority(type='checkbox', name = 'priority')
       label.toggle-choice(for='priority') Priority
-      input(type='submit',formmethod='get',formaction=basepath+'/viewrushees', value='Filter')
+      input(type='submit',formmethod='get',formaction=basepath+'/viewrushees', value='Search')
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
