@@ -16,19 +16,20 @@ block content
             -for (var i = 0; i < voteTypes.length; i++)
               -var voteType = voteTypes[i];
               th.votes-header-cell #{voteType.name}
+            th.votes-header-cell Vote Score
+            
             -for (var i = 0; i < brothers.length; i++)
               -var b = brothers[i];
               tr.votes-row
               td.votes-name #{b.name}
                 -for (var j = 0; j < voteTypes.length; j++)
                   -var voteType = voteTypes[j];
-                  -var list = b.votesByType[voteType._id]
+                  -var voteCount = b.countVotesByType[voteType._id]
                   td.votes-cell
                     -if (voteType._id === 'NULL')
-                      -for (var vote in list)
-                        -if (list[vote].rushee.status.type._id === 'IN')
-                          .vote-rushee #{list[vote].rushee.name}
+                      -for (var r in inHouseRushees)
+                        -if (inHouseRushees[r].voteBy[b._id].type._id === 'NULL')
+                          .vote-rushee #{inHouseRushees[r].name}
                     -else
-                      | #{list.length}
-
-                     
+                      | #{voteCount}
+              td.votes-cell #{b.voteScore}     

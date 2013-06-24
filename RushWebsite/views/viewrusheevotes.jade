@@ -25,10 +25,10 @@ block content
                 a.rushee-name(href=basepath+'/vote?rID='+r._id) #{r.name}
                 -for (var j = 0; j < voteTypes.length; j++)
                   -var voteType = voteTypes[j];
-                  -var list = r.votesByType[voteType._id]
-                  -if (voteType.value >= 0 || list.length === 0)
-                    td.votes-cell #{list.length}
+                  -var voteCount = r.countVotesByType[voteType._id]
+                  -if (voteType.value >= 0 || voteCount === 0)
+                    td.votes-cell #{voteCount}
                   -else
-                    td.votes-cell(style='color:red; font-weight:bold') #{list.length}
+                    td.votes-cell(style='color:red; font-weight:bold') #{voteCount}
               td.votes-cell #{r.voteScore}
                      

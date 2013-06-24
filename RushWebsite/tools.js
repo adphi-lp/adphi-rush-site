@@ -46,11 +46,15 @@ function strCmp(str1, str2) {
 	}
 }
 
+function strCmpNoCase(str1, str2) {
+	return strCmp(str1.toLowerCase(), str2.toLowerCase());
+}
 
 module.exports = {
 	randomString : randomString,
 	name : name,
 	lastfirst : lastfirst,
 	strCmp: strCmp,
+	strCmpNoCase : strCmpNoCase,
 	map : map
 };

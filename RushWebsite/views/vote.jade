@@ -33,19 +33,19 @@ block content
         .rushee-info-item.rushee-sponsors
           span.rushee-info-type Sponsor(s)
           - if (rushee.sponsors.length > 0)
-            span.rushee-info-data #{rushee.sponsorsList.join(', ')}
+            span.rushee-info-data #{rushee.sponsorsNameList.join(', ')}
           - else
             span.rushee-info-data.missing-sponsor NEED SPONSOR
         .rushee-info-item.rushee-votes
           span.rushee-info-type Voting score
-          span.rushee-info-data #{rushee.vote}
+          span.rushee-info-data #{rushee.voteScore}
         .rushee-edit
           a(href=basepath+'/editrushee?rID='+rushee._id) edit
         
   .brother-action-wrapper
     form.brother-action-content
       input(type='hidden',name='rID',value='#{rushee._id}')
-      -if (brother == null)
+      -if (brother === null)
         .brother-wrapper
           span.brother-action-type Name
           select.brother-list#brothers(name='bID')
@@ -61,7 +61,7 @@ block content
         .sponsor-wrapper
           .sponsor-content
             span.brother-action-type Sponsor
-            -if (brother.sponsor)
+            -if (brother.sponsorBy[rushee._id].sponsor)
               input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes',checked)
               label.sponsor-choice(for='sponsorYes') Yes
               input.span-space#sponsorNo(type='radio',name='sponsor',value='No')
@@ -76,7 +76,7 @@ block content
             span.brother-action-type Vote
             - for (var i = 0; i < voteTypes.length; i++)
               - var voteType = voteTypes[i];
-              - var bid = brother.vote.type._id;
+              - var bid = rushee.voteBy[brother._id].type._id;
               - var vid = voteType._id;
               - if (bid === vid)
                 input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType._id}',checked)
@@ -115,8 +115,8 @@ block content
           -for (var i = 0; i < voteTypes.length; i++)
             -var voteType = voteTypes[i];
             th.votes-header-cell #{voteType.name}
-         -for (var i = 0; i < rushee.votesByType.length; i++)
-            -var vote = rushee.votesByType[i]
+         -for (var i = 0; i < rushee.sortedVotes.length; i++)
+            -var vote = rushee.sortedVotes[i]
             -var bid = vote.type._id;
             tr.votes-row
             td.votes-name #{vote.brother.name}
