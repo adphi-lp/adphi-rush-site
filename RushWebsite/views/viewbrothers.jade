@@ -13,7 +13,8 @@ block content
         li.brother-wrapper
           .brother-content.clearfix
             .brother-info
-              .brother-info-item.brother-name #{brother.first} #{brother.last}
+              .brother-info-item.brother-name
+                a(href='viewbrother?bID='+brother._id) #{brother.name}
               .brother-info-item.brother-class
                 span.brother-info-type Pledge Class
                 span.brother-info-data #{brother.class}
@@ -23,3 +24,12 @@ block content
               .brother-info-item.brother-email
                 span.brother-info-type Email
                 span.brother-info-data #{brother.email}
+              .brother-info-item.brother-sponsors
+                span.brother-info-type Sponsoring
+                - if (brother.sponsorsNameList.length > 0)
+                  span.brother-info-data #{brother.sponsorsNameList.join(', ')}
+                - else
+                  span.brother-info-data.missing-sponsor None
+              .brother-info-item.brother-votes
+                span.brother-info-type Vote score
+                span.brother-info-data #{brother.voteScore}

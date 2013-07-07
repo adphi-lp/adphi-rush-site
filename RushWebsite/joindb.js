@@ -25,13 +25,13 @@ function ensureIndex(col, index) {
 function joinProperty(props, propName, list, idName) {
 	//Create hash and initialize
 	var listHash = {};
-	for (var i = 0; i < list.length; i++) {
+	for (var i = 0, l = list.length; i < l; i++) {
 		var el = list[i];
 		listHash[el._id] = el;
 		el[propName] = [];
 	}
 	
-	for (var i = 0; i < props.length; i++) {
+	for (var i = 0, l = props.length; i < l; i++) {
 		var prop = props[i];
 		//get element, push property
 		listHash[prop[idName]][propName].push(prop);
@@ -46,7 +46,7 @@ function joinProperty(props, propName, list, idName) {
 function joinAssoc(assocs, assocsName, listA, idNameA, elNameA, listB, idNameB, elNameB) {
 	//create list A hash and initialize
 	var listAHash = {};
-	for (var i = 0; i < listA.length; i++) {
+	for (var i = 0, l = listA.length; i < l; i++) {
 		var elA = listA[i];
 		listAHash[elA._id] = elA;
 		elA[assocsName] = [];
@@ -54,13 +54,13 @@ function joinAssoc(assocs, assocsName, listA, idNameA, elNameA, listB, idNameB, 
 	
 	//create list B hash and initialize
 	var listBHash = {};
-	for (var i = 0; i < listB.length; i++) {
+	for (var i = 0, l = listB.length; i < l; i++) {
 		var elB = listB[i];
 		listBHash[elB._id] = elB;
 		elB[assocsName] = [];
 	}
 	
-	for (var i = 0; i < assocs.length; i++) {
+	for (var i = 0, l = assocs.length; i < l; i++) {
 		var assoc = assocs[i];
 		var elA = listAHash[assoc[idNameA]];
 		var elB = listBHash[assoc[idNameB]];
@@ -84,7 +84,7 @@ function joinAssocIndexed(assocs, assocsIndexedName,
 	listB, idNameB, elNameB) {
 	//create list A hash and initialize
 	var listAHash = {};
-	for (var i = 0; i < listA.length; i++) {
+	for (var i = 0, l = listA.length; i < l; i++) {
 		var elA = listA[i];
 		listAHash[elA._id] = elA;
 		elA[assocsIndexedName] = {};
@@ -92,13 +92,13 @@ function joinAssocIndexed(assocs, assocsIndexedName,
 	
 	//create list B hash and initialize
 	var listBHash = {};
-	for (var i = 0; i < listB.length; i++) {
+	for (var i = 0, l = listB.length; i < l; i++) {
 		var elB = listB[i];
 		listBHash[elB._id] = elB;
 		elB[assocsIndexedName] = {};
 	}
 	
-	for (var i = 0; i < assocs.length; i++) {
+	for (var i = 0, l = assocs.length; i < l; i++) {
 		var assoc = assocs[i];
 		var elA = listAHash[assoc[idNameA]];
 		var elB = listBHash[assoc[idNameB]];

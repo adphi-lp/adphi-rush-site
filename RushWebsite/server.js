@@ -194,6 +194,32 @@ app.get(BASE_PATH+'/viewrusheevotes', auth.checkAuth, function(req, res) {
 	});
 });
 
+app.get(BASE_PATH+'/viewbrother', auth.checkAuth, function(req, res){
+	var brotherID = req.query.bID === undefined ? null : toObjectID(req.query.bID);
+	
+	var time = process.hrtime();
+	var arrangeBrother = function(info, render) {
+		rushdb.arrangeBrother(brotherID, info, render);
+	};
+	
+	rushdb.get(arrangeBrother, {}, function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
+		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
+		info.jaunts = {};
+		info.basepath = BASE_PATH;
+		res.render('viewbrother.jade', info);
+		time = process.hrtime(time);
+		console.log('viewbrother took %d seconds and %d nanoseconds', time[0], time[1]);
+	});
+});
+
+
 app.get(BASE_PATH+'/viewbrothers', auth.checkAuth, function(req,res){
 	rushdb.get(rushdb.arrange, {}, function(err, info) {
 		if (err !== undefined && err !== null) {

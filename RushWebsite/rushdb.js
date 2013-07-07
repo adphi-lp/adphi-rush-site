@@ -127,7 +127,7 @@ function augComment(comment) {
  * 
  */
 function makeStatuses(rushees, statuses) {
-	for (var i = 0; i < statuses.length; i++) {
+	for (var i = 0, l = statuses.length; i < l; i++) {
 		statuses[i].type = StatusType[statuses[i].typeID];
 	}
 	
@@ -139,7 +139,7 @@ function makeStatuses(rushees, statuses) {
  * rushee.status.
  */
 function makeStatus(rushees) {
-	for (var i = 0; i < rushees.length; i++) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
 		var r = rushees[i];
 		r.status = r.statuses[0] || getNullStatus(r);
 	}
@@ -147,7 +147,7 @@ function makeStatus(rushees) {
 
 function makeInHouseRushees(info, rushees) {
 	info.inHouseRushees = [];
-	for (var i = 0; i < rushees.length; i++) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
 		if (rushees[i].status.type._id === 'IN') {
 			info.inHouseRushees.push(rushees[i]);
 		}
@@ -180,10 +180,10 @@ function makeSponsorsBy(rushees, brothers, sponsors) {
  * USE SPARINGLY
  */
 function makeSponsorBy(rushees, brothers, sponsors) {
-	for (var i = 0; i < rushees.length; i++) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
 		var r = rushees[i];
 		r.sponsorBy = {};
-		for (var j = 0; j < brothers.length; j++) {
+		for (var j = 0, m = brothers.length; j < m; j++) {
 			var b = brothers[j];
 			r.sponsorBy[b._id] = r.sponsorsBy[b._id][0] || getNullSponsor(r, b);
 		}
@@ -194,7 +194,7 @@ function makeSponsorBy(rushees, brothers, sponsors) {
  * 
  */
 function makeSponsorsList(rushees, fieldName) {
-	for (var i = 0; i < rushees.length; i++) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
 		var r = rushees[i];
 		r.sponsorsList = [];
 		for (var b in r.sponsorsBy) {
@@ -205,12 +205,23 @@ function makeSponsorsList(rushees, fieldName) {
 	}
 }
 
+function makeSponsorsNameList(rushees) {
+	var broToName = function(s) {
+		return s.name;
+	};
+	for (var i = 0, l = rushees.length; i < l; i++) {
+		var r = rushees[i];
+		r.sponsorsNameList = tools.map(r.sponsorsList, broToName);
+	}
+}
+
+
 /**
  * Joins the comments onto rushees and brothers under rushee.comments
  * and brother.comments.
  */
 function makeComments(rushees, brothers, comments) {
-	for (var i = 0; i < comments.length; i++) {
+	for (var i = 0, l = comments.length; i < l; i++) {
 		comments[i].type = CommentType[comments[i].typeID];
 	}
 	
@@ -224,7 +235,7 @@ function makeComments(rushees, brothers, comments) {
  * and brother.votesBy.
  */
 function makeVotesBy(rushees, brothers, votes) {
-	for (var i = 0; i < votes.length; i++) {
+	for (var i = 0, l = votes.length; i < l; i++) {
 		votes[i].type = VoteType[votes[i].typeID];
 	}
 	
@@ -241,10 +252,10 @@ function makeVotesBy(rushees, brothers, votes) {
  * @param {Object} votes
  */
 function makeVoteBy(rushees, brothers) {
-	for (var i = 0; i < rushees.length; i++) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
 		var r = rushees[i];
 		r.voteBy = {};
-		for (var j = 0; j < brothers.length; j++) {
+		for (var j = 0, m = brothers.length; j < m; j++) {
 			var b = brothers[j];
 			if (r.votesBy[b._id] === undefined) {
 				r.voteBy[b._id] = getNullVote(r, b);
@@ -261,7 +272,7 @@ function makeVoteBy(rushees, brothers) {
  * @param {Object} rushees
  */
 function makeVoteScore(rushees) {
-	for (var i = 0; i < rushees.length; i++) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
 		var r = rushees[i];
 		r.voteScore = 0;
 		for (var b in r.votesBy) {
@@ -278,7 +289,7 @@ function makeVoteScore(rushees) {
  * @param {Object} rushees
  */
 function makeVotesByType(rushees) {
-	for (var i = 0; i < rushees.length; i++) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
 		var r = rushees[i];
 		r.votesByType = {};
 		for (var j in VoteType) {
@@ -292,7 +303,7 @@ function makeVotesByType(rushees) {
 }
 
 function countVotesByType(rushees, brothers) {
-	for (var i = 0; i < rushees.length; i++) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
 		var r = rushees[i];
 		var total = brothers.length;
 		r.countVotesByType = {};
@@ -439,6 +450,7 @@ function getThird(info, nextStep) {
 	var sponsors = info.sponsors;
 	var comments = info.comments;
 	
+	var time = process.hrtime();
 	makeStatuses(rushees, statuses);
 	makeStatus(rushees);
 	makeInHouseRushees(info, rushees);
@@ -446,8 +458,13 @@ function getThird(info, nextStep) {
 	makeSponsors(rushees, brothers, sponsors);
 	makeSponsorsBy(rushees, brothers, sponsors);
 	makeSponsorsList(rushees, 'brother');
+	makeSponsorsList(brothers, 'rushee');
+	makeSponsorsNameList(rushees, 'brother');
+	makeSponsorsNameList(brothers, 'rushee');
 	
 	makeComments(rushees, brothers, comments);
+	time = process.hrtime(time);
+	console.log('make sponsors and comments took %d seconds and %d nanoseconds', time[0], time[1]);
 	
 	makeVotesBy(rushees, brothers, votes);
 	makeVoteScore(brothers);
@@ -470,7 +487,7 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 		return;
 	}
 	var rushees = info.rushees;
-	for (var r = 0; r < rushees.length; r++) {
+	for (var r = 0, l = rushees.length; r < l; r++) {
 		if (rusheeID.equals(rushees[r]._id)) {
 			info.rushee = rushees[r];
 		}
@@ -482,7 +499,7 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 	
 	var brothers = info.brothers;
 	if (brotherID !== null) {
-		for (var b = 0; b < brothers.length; b++) {
+		for (var b = 0, lb = brothers.length; b < lb; b++) {
 			if (brothers[b]._id.equals(brotherID)) {
 				info.brother = brothers[b];
 			}
@@ -494,9 +511,6 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 		makeSponsorBy([info.brother], [info.rushee]);
 	}
 	
-	info.rushee.sponsorsNameList = tools.map(info.rushee.sponsorsList, function(s) {
-		return s.name;
-	});
 	makeVoteBy([info.rushee], brothers);
 	
 	var voteCmp = function (a, b) {
@@ -509,6 +523,29 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 	});
 	info.rushee.sortedVotes.sort(voteCmp);
 	
+	render(null, info);
+}
+
+function arrangeBrother(brotherID, info, render) {
+	if (brotherID === null) {
+		render(new Error('no brotherID'));
+		return;
+	}
+	
+	var brothers = info.brothers;
+	if (brotherID !== null) {
+		for (var b = 0, lb = brothers.length; b < lb; b++) {
+			if (brothers[b]._id.equals(brotherID)) {
+				info.brother = brothers[b];
+			}
+		}
+	}
+	
+	if (info.brother === undefined) {
+		render(new Error('no brother'));
+		return;
+	}
+		
 	render(null, info);
 }
 
@@ -649,6 +686,7 @@ module.exports = {
 	
 	arrange : arrange,
 	arrangeVote : arrangeVote,
+	arrangeBrother : arrangeBrother,
 	arrangeVoteScore: arrangeVoteScore,
 	arrangeInHouseVotes : arrangeInHouseVotes,
 	

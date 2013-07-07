@@ -1,0 +1,48 @@
+extends layout
+
+block head
+  title='Voting'
+  link(rel='stylesheet',href=basepath+'/css/viewbrother.css')
+
+block content
+  .brother-wrapper
+    .brother-content.clearfix
+      .brother-info
+        .brother-info-item.brother-name
+          a(href='viewbrother?bID='+brother._id) #{brother.name}
+        .brother-info-item.brother-pledge-class
+          span.brother-info-type Pledge Class
+          span.brother-info-data #{brother['class']}
+        .brother-info-item.brother-phone
+          span.brother-info-type Phone
+          span.brother-info-data #{brother.phone}
+        .brother-info-item.brother-email
+          span.brother-info-type Email
+          span.brother-info-data #{brother.email}
+        .brother-info-item.brother-sponsors
+          span.brother-info-type Sponsoring
+          - if (brother.sponsorsNameList.length > 0)
+            span.brother-info-data #{brother.sponsorsNameList.join(', ')}
+          - else
+            span.brother-info-data.missing-sponsor None
+        .brother-info-item.brother-votes
+          span.brother-info-type Vote score
+          span.brother-info-data #{brother.voteScore}
+        .brother-edit
+          a(href=basepath+'/editbrother?rID='+brother._id) edit
+  
+  .comment-thread-wrapper
+    h2.title Comments
+    ul.comment-thread-content
+      - for (var i = 0; i < brother.comments.length; i++)	
+        -var comment = brother.comments[i];
+        li.comment-wrapper
+          .comment-content
+            .comment-header
+              span.comment-header-element.comment-name #{comment.rushee.name}
+              span.comment-header-element.comment-type(style='color:#{comment.type.color};') #{comment.type.name}
+            .comment-text #{comment.text}
+            .comment-time #{comment.time}
+
+
+ 

@@ -1,0 +1,163 @@
+.content-wrapper{
+	margin:0 auto;
+	width:800px;
+	/*box-shadow: 0 0 10px 2px #888;*/
+}
+
+.brother-wrapper{
+	background-color:rgba(215, 236, 255, 0.4);
+	margin: 10px 0px 40px 0px;
+	padding: 10px 0px 10px 10px;
+	box-shadow: 0 0 10px 2px #888;
+	position:relative;
+}
+
+
+.brother-info-type{
+	font-weight:bold;
+}
+
+.brother-info-type:after{
+	content:':\0000a0';
+}
+
+.brother-edit{
+	font-size:12px;
+	position:absolute;
+	right:10px;
+	bottom:5px;
+}
+
+.brother-action-type{
+	font-weight:bold;
+}
+
+.brother-action-type:after{
+	content:':\0000a0';
+}
+
+.submitted {
+	color:#FF0000
+}
+
+.brother-action-content .comment-wrapper{
+	border:none;
+	background: none;
+}
+
+.brother-action-wrapper{
+	background-color:rgba(215, 236, 255, 0.4);
+	box-shadow: 0 0 10px 2px #888;
+    padding:20px;
+}
+
+.action-comment-content{
+	display:inline-block;
+	margin: 20px 20px 20px 20px;
+	vertical-align:text-top;
+}
+
+.comment-header-element{
+	margin: 0em 0em 0em 0.5em
+}
+
+.comment-name{
+	font-weight:bold;
+	margin-left:0;
+}
+
+.brother-name{
+	font-size:xx-large;
+}
+
+/*
+.brother-wrapper .brother-action-type{
+	float:left;
+}
+.brother-wrapper .brother-info{
+	float:right;
+	width:75%;
+}*/
+
+.votes-wrapper {
+	margin:40px 0 40px 0;
+	box-shadow: 0 0 10px 2px #888;
+	background-color:rgba(215, 236, 255, 0.4);
+}
+
+.votes-wrapper .title {
+	padding: 10px 0 0 10px;
+}
+
+.votes-content{
+	padding-bottom: 20px;
+}
+
+.votes-button {
+	margin: 0px 0px 20px 20px;
+}
+
+.votes-table {
+	margin: 0 auto;
+	width: 600px;
+	border: 1px solid rgba(100, 130, 200, 0.4);
+	background-color: rgba(231, 231, 231, 0.4);
+	border-spacing:0;
+	border-collapse: collapse;
+}
+
+td,th {
+	border: 1px solid rgba(100, 130, 200, 0.4);
+}
+
+.votes-header-name {
+	text-align: left;
+}
+
+.votes-cell {
+	text-align: center;
+}
+
+.comment-thread-wrapper{
+	margin:40px 0 40px 0;
+	box-shadow: 0 0 10px 2px #888;
+	background-color:rgba(215, 236, 255, 0.4);
+
+}
+.comment-thread-content{
+	padding-bottom:20px;
+}
+
+.comment-thread-wrapper .title{
+	padding: 10px 0 0 10px;
+}
+
+.comment-thread-wrapper ul{
+	list-style: none;
+
+}
+
+.comment-wrapper{
+	margin: 0 auto;
+	margin-bottom:20px;
+	padding:20px;
+	/*border-bottom: 1px solid #aaa;*/
+	position:relative;
+	background:rgba(231, 231, 231, 0.4);
+	width:600px;
+	border-radius: 20px
+}
+
+.comment-time{
+	font-size:12px;
+	position:absolute;
+	right:10px;
+	bottom:5px;
+}
+
+
+
+.post-wrapper{
+	margin-top:20px;
+}
+

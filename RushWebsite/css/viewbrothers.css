@@ -2,11 +2,7 @@ body{
     font-family: "Helvetica";
 }
 
-.rushee-info{
-	margin-left:100px;
-}  
-
-.rushees-wrapper{
+.brothers-wrapper{
     margin:0 auto;
     width:400px;
     /*margin: 20px;*/
@@ -14,32 +10,29 @@ body{
     padding:20px;
 }
 
-.rushee-wrapper{
+.brother-wrapper{
     border-bottom: 1px solid #aaa;
  
     padding:20px;
 }
 
-.rushee-wrapper:hover{
+.brother-wrapper:hover{
     background:rgba(215, 236, 255, 0.7);
 }
 
-.rushee-info-type{
+.brother-info-type{
     padding:5px;
     color:grey;
 }
 
 
-.rushee-info-type:after{
+.brother-info-type:after{
     content:':\0000a0';
 }
 
-.rushee-name{
+.brother-name{
     padding:5px;
     font-size:20px;
-}
-.missing-sponsor{
-	font-weight:bold; color:red;
 }
 
 ul

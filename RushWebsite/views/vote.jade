@@ -32,7 +32,7 @@ block content
           span.rushee-info-data #{rushee.year}
         .rushee-info-item.rushee-sponsors
           span.rushee-info-type Sponsor(s)
-          - if (rushee.sponsors.length > 0)
+          - if (rushee.sponsorsNameList.length > 0)
             span.rushee-info-data #{rushee.sponsorsNameList.join(', ')}
           - else
             span.rushee-info-data.missing-sponsor NEED SPONSOR
