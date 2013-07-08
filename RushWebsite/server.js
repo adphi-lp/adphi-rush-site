@@ -2,6 +2,7 @@
 
 //constants
 var BASE_PATH = '';
+//var BASE_PATH = '/rushsite20';
 var DATABASE_URL = 'ADPhiRush';
 
 //get modules
@@ -219,6 +220,23 @@ app.get(BASE_PATH+'/viewbrother', auth.checkAuth, function(req, res){
 	});
 });
 
+app.get(BASE_PATH+'/viewhistory', function(req, res) {
+	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
+	var brotherID = req.query.bID === undefined ? null : toObjectID(req.query.bID);
+	
+	rushdb.get(rushdb.arrange, {}, function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
+		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
+		info.jaunts = {};
+		info.basepath = BASE_PATH;
+		res.render('viewhistory.jade', info);
+	});
+});
 
 app.get(BASE_PATH+'/viewbrothers', auth.checkAuth, function(req,res){
 	rushdb.get(rushdb.arrange, {}, function(err, info) {

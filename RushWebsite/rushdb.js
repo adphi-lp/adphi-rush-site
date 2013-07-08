@@ -122,6 +122,13 @@ function augComment(comment) {
 		' on ' + time.format('dddd, MMMM Do YYYY');
 }
 
+function augVote(vote) {
+	var time = moment(vote._id.getTimestamp());
+	vote.time = time.format('h:mm:ss a') +
+		' on ' + time.format('dddd, MMMM Do YYYY');
+}
+
+
 /**
  * Joins the statuses onto rushees under rushees.statuses.
  * 
@@ -185,7 +192,11 @@ function makeSponsorBy(rushees, brothers, sponsors) {
 		r.sponsorBy = {};
 		for (var j = 0, m = brothers.length; j < m; j++) {
 			var b = brothers[j];
-			r.sponsorBy[b._id] = r.sponsorsBy[b._id][0] || getNullSponsor(r, b);
+			if (r.sponsorsBy[b._id] === undefined) {
+				r.sponsorBy[b._id] = getNullSponsor(r, b);
+			} else {
+				r.sponsorBy[b._id] = r.sponsorsBy[b._id][0];
+			}
 		}
 	}
 }
@@ -335,10 +346,6 @@ function getRushee(rusheeID, render) {
 	});
 }
 
-function findOne(col, query, augment, callback) {
-	joindb.findOne(col, query, augment, callback);
-}
-
 function get(arrange, options, render) {
 	var firstStep = getFirstBrothersLast;
 	var secondStep = getSecond;
@@ -431,7 +438,7 @@ function getSecond(info, nextStep) {
 			joindb.find('statuses', queryRushees, {_id:-1}, function(){}, cb);
 		},
 		votes : function(cb) {
-			joindb.find('votes', queryBoth, {_id:-1}, function(){}, cb);
+			joindb.find('votes', queryBoth, {_id:-1}, augVote, cb);
 		},
 		comments : function(cb) {
 			joindb.find('comments', queryBoth, {_id:-1}, augComment, cb);
@@ -654,14 +661,6 @@ function updateRushee(rusheeID, rushee, callback) {
 	joindb.update('rushees', {_id : rusheeID}, {$set : rushee}, {}, callback);	
 }
 
-function update(col, query, commands, options, callback) {
-	joindb.update(col, query, commands, options, callback);	
-}
-
-function insert(col, doc, callback) {
-	joindb.insert(col, doc, callback);
-}
-
 module.exports = {
 	VoteType: VoteType,
 	CommentType : CommentType,
@@ -699,7 +698,4 @@ module.exports = {
 	insertComment : insertComment,
 	insertRushee : insertRushee,
 	insertBrother : insertBrother,
-	
-	update : update,
-	insert : insert
 };

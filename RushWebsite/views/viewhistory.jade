@@ -1,0 +1,27 @@
+extends layout
+
+block head
+  title='Voting History'
+  link(rel='stylesheet',href=basepath+'/css/viewhistory.css')
+
+block content
+  .history-wrapper
+    h2.title Voting History
+    ul.history-content
+      - for (var i = 0; i < votes.length; i++)	
+        -var vote = votes[i];
+        li.vote-wrapper
+          .vote-content
+            .vote-text
+              span.vote-brother
+                a(href='viewbrother?bID='+vote.brother._id) #{vote.brother.name}
+              span  voted 
+              span.vote-type #{vote.type.name}
+              span  on 
+              span.vote-rushee
+                a(href='vote?rID='+vote.rushee._id) #{vote.rushee.name}
+            .vote-time #{vote.time}
+
+
+
+ 

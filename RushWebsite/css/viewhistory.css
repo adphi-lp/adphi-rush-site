@@ -1,0 +1,56 @@
+body{
+    font-family: "Helvetica";
+}
+
+.content-wrapper{
+	margin:0 auto;
+	width:800px;
+	/*box-shadow: 0 0 10px 2px #888;*/
+}
+
+.history-wrapper .title{
+	padding: 10px 0 0 10px;
+}
+
+.history-wrapper{
+	margin:40px 0 40px 0;
+	box-shadow: 0 0 10px 2px #888;
+	background-color:rgba(215, 236, 255, 0.4);
+
+}
+.history-content{
+	padding-bottom:20px;
+}
+
+.history-wrapper .title{
+	padding: 10px 0 0 10px;
+}
+
+.history-wrapper ul{
+	list-style: none;
+
+}
+
+.vote-wrapper{
+	margin: 0 auto;
+	margin-bottom:20px;
+	padding:20px;
+	/*border-bottom: 1px solid #aaa;*/
+	position:relative;
+	background:rgba(231, 231, 231, 0.4);
+	width:600px;
+	border-radius: 20px
+}
+
+
+.vote-brother, .vote-rushee, .vote-type{
+	font-weight:bold;
+	margin-left:0;
+}
+
+.vote-time{
+	font-size:12px;
+	position:absolute;
+	right:10px;
+	bottom:5px;
+}
