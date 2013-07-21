@@ -1,0 +1,67 @@
+'use strict';
+
+var tools = require('./tools');
+var moment = require('moment');
+
+var joindb;
+
+var CommentType = {
+	GENERAL : {_id : 'GENERAL', name: 'General', color: '#000000'},
+	CONTACT : {_id : 'CONTACT', name: 'Contact', color: '#FDD017'},
+	INTEREST : {_id : 'INTEREST', name: 'Hobbies/Interest', color: '#000000'},
+	EVENT : {_id : 'EVENT', name: 'Event/Jaunt Interest', color: '#347C17'},
+	URGENT : {_id : 'URGENT', name: 'Urgent', color: '#FF0000'}
+};
+
+var SORTED_COMMENT_TYPES = [
+	CommentType.GENERAL,
+	CommentType.CONTACT,
+	CommentType.INTEREST,
+	CommentType.EVENT,
+	CommentType.URGENT
+];
+
+function importJoin(db) {
+	joindb = db;
+}
+
+function augComment(comment) {
+	var time = moment(comment._id.getTimestamp());
+	comment.time = 'Posted at ' + time.format('h:mm:ss a') +
+		' on ' + time.format('dddd, MMMM Do YYYY');
+}
+ 
+/**
+ * Joins the comments onto rushees and brothers under rushee.comments
+ * and brother.comments.
+ */
+function makeComments(rushees, brothers, comments) {
+	for (var i = 0, l = comments.length; i < l; i++) {
+		comments[i].type = CommentType[comments[i].typeID];
+	}
+	
+	joindb.joinAssoc(comments, 'comments',
+		rushees, 'rusheeID', 'rushee',
+		brothers, 'brotherID', 'brother');
+}
+
+function insertComment(rusheeID, brotherID, typeID, text) {
+	var comment = {
+		brotherID: brotherID,
+		rusheeID: rusheeID,
+		typeID: typeID,
+		text: text
+	};
+	joindb.insert('comments', comment);
+}
+
+module.exports = {
+	CommentType : CommentType,
+	SORTED_COMMENT_TYPES : SORTED_COMMENT_TYPES,
+	
+	importJoin : importJoin,
+	
+	augComment : augComment,
+	makeComments : makeComments,
+	insertComment : insertComment
+};

@@ -23,8 +23,6 @@ var app = express();
 auth.setRedirect(BASE_PATH + '/login');
 rushdb.connect(DATABASE_URL);
 
-//TODO Comment sorting, etc.
-
 //for parsing posts
 app.use(express.bodyParser({uploadDir:__dirname+'/uploads'}));
 //TODO: this is a really bad SECRET
@@ -48,6 +46,41 @@ app.get(BASE_PATH+'/search', auth.checkAuth, function(req, res){
 	res.render('search.jade',{basepath:BASE_PATH});
 });
 
+app.get(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){//TODO
+	var jauntID = req.query.jID === undefined ? null : toObjectID(req.query.jID);
+	
+	var time = process.hrtime();
+	
+	rushdb.get(rushdb.arrange, {}, function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
+		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
+		info.basepath = BASE_PATH;
+		res.render('jaunt.jade', info);
+		time = process.hrtime(time);
+		console.log('vote took %d seconds and %d nanoseconds', time[0], time[1]);
+	});
+});
+
+
+app.post(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){//TODO
+	var name = req.body.jName;
+	var time = Date.parse(req.body.jTime);
+	
+	var jaunt = {
+		name : name,
+		time : time,
+		vIDs : []
+	};
+	rushdb.insertJaunt(jaunt);
+	res.redirect(BASE_PATH+'/jaunt');
+});
+
 app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
 	var brotherID = req.query.bID === undefined ? null : toObjectID(req.query.bID);
@@ -66,7 +99,6 @@ app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 		
 		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
 		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
-		info.jaunts = {};
 		info.basepath = BASE_PATH;
 		res.render('vote.jade', info);
 		time = process.hrtime(time);
@@ -212,7 +244,6 @@ app.get(BASE_PATH+'/viewbrother', auth.checkAuth, function(req, res){
 		
 		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
 		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
-		info.jaunts = {};
 		info.basepath = BASE_PATH;
 		res.render('viewbrother.jade', info);
 		time = process.hrtime(time);
@@ -232,7 +263,6 @@ app.get(BASE_PATH+'/viewhistory', function(req, res) {
 		}
 		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
 		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
-		info.jaunts = {};
 		info.basepath = BASE_PATH;
 		res.render('viewhistory.jade', info);
 	});

@@ -5,43 +5,13 @@ var joindb = require('./joindb');
 var tools = require('./tools');
 var moment = require('moment');
 var async = require('async');
+var sponsordb = require('./sponsordb');
+var votedb = require('./votedb');
+var jauntdb = require('./jauntdb');
+var commentdb = require('./commentdb');
 
 var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
 'votes', 'statuses', 'jaunts', 'vans'];
-
-var VoteType = {
-	DEF : {_id : 'DEF', name: 'Definite Yes', value : 2, index : 0},
-	YES : {_id : 'YES', name: 'Yes', value : 1, index: 1},
-	MET : {_id : 'MET', name: 'Met', value : 0, index: 2},
-	NO : {_id : 'NO', name: 'No', value : -1, index: 3},
-	VETO : {_id : 'VETO', name: 'Veto', value : -8, index: 4},
-	NULL : {_id : 'NULL', name: 'None', value : 0, index: 5}
-};
-
-var SORTED_VOTE_TYPES = [
-	VoteType.DEF,
-	VoteType.YES,
-	VoteType.MET,
-	VoteType.NO,
-	VoteType.VETO,
-	VoteType.NULL
-];
-
-var CommentType = {
-	GENERAL : {_id : 'GENERAL', name: 'General', color: '#000000'},
-	CONTACT : {_id : 'CONTACT', name: 'Contact', color: '#FDD017'},
-	INTEREST : {_id : 'INTEREST', name: 'Hobbies/Interest', color: '#000000'},
-	EVENT : {_id : 'EVENT', name: 'Event/Jaunt Interest', color: '#347C17'},
-	URGENT : {_id : 'URGENT', name: 'Urgent', color: '#FF0000'}
-};
-
-var SORTED_COMMENT_TYPES = [
-	CommentType.GENERAL,
-	CommentType.CONTACT,
-	CommentType.INTEREST,
-	CommentType.EVENT,
-	CommentType.URGENT
-];
 
 var StatusType = {
 	IN : {_id: 'IN', name: 'In House'},
@@ -60,44 +30,16 @@ function getNullStatus(rushee) {
 	return status;
 }
 
-function getNullVote(rushee, brother) {
-	var vote = {
-		type : VoteType.NULL,
-		rushee: rushee,
-		rusheeID : rushee._id,
-		brother : brother,
-		brotherID : brother._id
-	};
-	
-	return vote;
-}
-
-function getNullStatus(rushee) {
-	var status = {
-		type : StatusType.NULL,
-		rushee : rushee,
-		rusheeID : rushee._id
-	};
-	return status;
-}
-
-function getNullSponsor(rushee, brother) {
-	var sponsor = {
-		sponsor : false,
-		rushee : rushee,
-		rusheeID : rushee._id,
-		brother : brother,
-		brotherID : brother._id
-	};
-	return sponsor;
-}
-
 /**
  * Connect to databaseURL and initialize the database.
  * @param {Object} databaseURL
  */
 function connect(databaseURL) {
 	joindb.connect(databaseURL, COLLECTIONS);
+	sponsordb.importJoin(joindb);
+	votedb.importJoin(joindb);
+	jauntdb.importJoin(joindb);
+	commentdb.importJoin(joindb);
 	
 	//to ensure that you can sort fast
 	joindb.ensureIndex('rushees', {sfirst: 1, slast: 1});
@@ -115,19 +57,6 @@ function augBrother(brother) {
 	brother.name = tools.name(brother.first, brother.nick, brother.last);
 	brother.lastfirst = tools.lastfirst(brother.first, brother.nick, brother.last);
 }
-
-function augComment(comment) {
-	var time = moment(comment._id.getTimestamp());
-	comment.time = 'Posted at ' + time.format('h:mm:ss a') +
-		' on ' + time.format('dddd, MMMM Do YYYY');
-}
-
-function augVote(vote) {
-	var time = moment(vote._id.getTimestamp());
-	vote.time = time.format('h:mm:ss a') +
-		' on ' + time.format('dddd, MMMM Do YYYY');
-}
-
 
 /**
  * Joins the statuses onto rushees under rushees.statuses.
@@ -158,171 +87,6 @@ function makeInHouseRushees(info, rushees) {
 		if (rushees[i].status.type._id === 'IN') {
 			info.inHouseRushees.push(rushees[i]);
 		}
-	}
-}
-
-/**
- * Joins the sponsors onto rushees and brothers under rushee.sponsors
- * and sponsor.comments.
- */
-function makeSponsors(rushees, brothers, sponsors) {
-	joindb.joinAssoc(sponsors, 'sponsors',
-		rushees, 'rusheeID', 'rushee',
-		brothers, 'brotherID', 'brother');
-}
-
-/**
- * Joins the sponsors onto rushees and brothers under rushee.sponsorsBy
- * and sponsor.comments.
- */
-function makeSponsorsBy(rushees, brothers, sponsors) {
-	joindb.joinAssocIndexed(sponsors, 'sponsorsBy',
-		rushees, 'rusheeID', 'rushee',
-		brothers, 'brotherID', 'brother');
-}
-
-/**
- * Gets the default sponsorship from rushees.sponsorsBy[brother._id]
- * and puts it in rushees.sponsorBy[brother._id]
- * USE SPARINGLY
- */
-function makeSponsorBy(rushees, brothers, sponsors) {
-	for (var i = 0, l = rushees.length; i < l; i++) {
-		var r = rushees[i];
-		r.sponsorBy = {};
-		for (var j = 0, m = brothers.length; j < m; j++) {
-			var b = brothers[j];
-			if (r.sponsorsBy[b._id] === undefined) {
-				r.sponsorBy[b._id] = getNullSponsor(r, b);
-			} else {
-				r.sponsorBy[b._id] = r.sponsorsBy[b._id][0];
-			}
-		}
-	}
-}
-
-/**
- * 
- */
-function makeSponsorsList(rushees, fieldName) {
-	for (var i = 0, l = rushees.length; i < l; i++) {
-		var r = rushees[i];
-		r.sponsorsList = [];
-		for (var b in r.sponsorsBy) {
-			if (r.sponsorsBy[b][0].sponsor) {
-				r.sponsorsList.push(r.sponsorsBy[b][0][fieldName]);
-			}
-		}
-	}
-}
-
-function makeSponsorsNameList(rushees) {
-	var broToName = function(s) {
-		return s.name;
-	};
-	for (var i = 0, l = rushees.length; i < l; i++) {
-		var r = rushees[i];
-		r.sponsorsNameList = tools.map(r.sponsorsList, broToName);
-	}
-}
-
-
-/**
- * Joins the comments onto rushees and brothers under rushee.comments
- * and brother.comments.
- */
-function makeComments(rushees, brothers, comments) {
-	for (var i = 0, l = comments.length; i < l; i++) {
-		comments[i].type = CommentType[comments[i].typeID];
-	}
-	
-	joindb.joinAssoc(comments, 'comments',
-		rushees, 'rusheeID', 'rushee',
-		brothers, 'brotherID', 'brother');
-}
-
-/**
- * Joins the votes onto rushees and brothers under rushee.votesBy
- * and brother.votesBy.
- */
-function makeVotesBy(rushees, brothers, votes) {
-	for (var i = 0, l = votes.length; i < l; i++) {
-		votes[i].type = VoteType[votes[i].typeID];
-	}
-	
-	joindb.joinAssocIndexed(votes, 'votesBy',
-		rushees, 'rusheeID', 'rushee',
-		brothers, 'brotherID', 'brother');
-}
-
-/**
- * Gets the default vote from rushee.votesBy[brother._id] and puts it into
- * rushee.voteBy[brother._id]. USE SPARINGLY (this loops through rushees*brothers)
- * @param {Object} rushees
- * @param {Object} brothers
- * @param {Object} votes
- */
-function makeVoteBy(rushees, brothers) {
-	for (var i = 0, l = rushees.length; i < l; i++) {
-		var r = rushees[i];
-		r.voteBy = {};
-		for (var j = 0, m = brothers.length; j < m; j++) {
-			var b = brothers[j];
-			if (r.votesBy[b._id] === undefined) {
-				r.voteBy[b._id] = getNullVote(r, b);
-			} else {
-				r.voteBy[b._id] = r.votesBy[b._id][0];
-			}
-		}
-	}
-}
-
-/**
- * Gets the vote score for each rushee from rushee.votesBy[brother._id]
- * and puts it into rushee.voteScore.
- * @param {Object} rushees
- */
-function makeVoteScore(rushees) {
-	for (var i = 0, l = rushees.length; i < l; i++) {
-		var r = rushees[i];
-		r.voteScore = 0;
-		for (var b in r.votesBy) {
-			var vote = r.votesBy[b][0];
-			r.voteScore += vote.type.value;
-			//TODO Disregard hidden rushees when calculating
-		}
-	}
-}
-
-/**
- * Aggregates the votes in rushee.voteBy by type into
- * rushee.votesByType[type._id].
- * @param {Object} rushees
- */
-function makeVotesByType(rushees) {
-	for (var i = 0, l = rushees.length; i < l; i++) {
-		var r = rushees[i];
-		r.votesByType = {};
-		for (var j in VoteType) {
-			r.votesByType[j] = [];
-		}
-		for (var b in r.votesBy) {
-			var vote = r.votesBy[b][0];
-			r.votesByType[vote.type._id].push(vote);
-		}
-	}
-}
-
-function countVotesByType(rushees, brothers) {
-	for (var i = 0, l = rushees.length; i < l; i++) {
-		var r = rushees[i];
-		var total = brothers.length;
-		r.countVotesByType = {};
-		for (var j in VoteType) {
-			r.countVotesByType[j] = r.votesByType[j].length;
-			total -= r.votesByType[j].length;
-		}
-		r.countVotesByType.NULL += total;
 	}
 }
 
@@ -438,13 +202,19 @@ function getSecond(info, nextStep) {
 			joindb.find('statuses', queryRushees, {_id:-1}, function(){}, cb);
 		},
 		votes : function(cb) {
-			joindb.find('votes', queryBoth, {_id:-1}, augVote, cb);
+			joindb.find('votes', queryBoth, {_id:-1}, votedb.augVote, cb);
 		},
 		comments : function(cb) {
-			joindb.find('comments', queryBoth, {_id:-1}, augComment, cb);
+			joindb.find('comments', queryBoth, {_id:-1}, commentdb.augComment, cb);
 		},
 		sponsors : function (cb) {
 			joindb.find('sponsors', queryBoth, {_id: -1}, function(){}, cb);
+		},//TODO
+		vans : function(cb) {
+			joindb.find('vans', {}, {_id: -1}, function(){}, cb);
+		},
+		jaunts : function(cb) {
+			joindb.find('jaunts', {}, {_id: -1}, function(){}, cb);
 		}
 	}, nextStep);
 }
@@ -456,30 +226,34 @@ function getThird(info, nextStep) {
 	var votes = info.votes;
 	var sponsors = info.sponsors;
 	var comments = info.comments;
+	info.vans = jauntdb.filterVans(rushees, brothers, info.vans);
+	var vans = info.vans;
+	info.jaunts = jauntdb.filterJaunts(vans, info.jaunts);
+	var jaunts = info.jaunts;
 	
-	var time = process.hrtime();
 	makeStatuses(rushees, statuses);
 	makeStatus(rushees);
 	makeInHouseRushees(info, rushees);
 	
-	makeSponsors(rushees, brothers, sponsors);
-	makeSponsorsBy(rushees, brothers, sponsors);
-	makeSponsorsList(rushees, 'brother');
-	makeSponsorsList(brothers, 'rushee');
-	makeSponsorsNameList(rushees, 'brother');
-	makeSponsorsNameList(brothers, 'rushee');
+	sponsordb.makeSponsors(rushees, brothers, sponsors);
+	sponsordb.makeSponsorsBy(rushees, brothers, sponsors);
+	sponsordb.makeSponsorsList(rushees, 'brother');
+	sponsordb.makeSponsorsList(brothers, 'rushee');
+	sponsordb.makeSponsorsNameList(rushees, 'brother');
+	sponsordb.makeSponsorsNameList(brothers, 'rushee');
 	
-	makeComments(rushees, brothers, comments);
-	time = process.hrtime(time);
-	console.log('make sponsors and comments took %d seconds and %d nanoseconds', time[0], time[1]);
+	commentdb.makeComments(rushees, brothers, comments);
 	
-	makeVotesBy(rushees, brothers, votes);
-	makeVoteScore(brothers);
-	makeVoteScore(rushees);
-	makeVotesByType(brothers);
-	makeVotesByType(rushees);
-	countVotesByType(rushees, brothers);
-	countVotesByType(brothers, rushees);
+	votedb.makeVotesBy(rushees, brothers, votes);
+	votedb.makeVoteScore(brothers);
+	votedb.makeVoteScore(rushees);
+	votedb.makeVotesByType(brothers);
+	votedb.makeVotesByType(rushees);
+	votedb.countVotesByType(rushees, brothers);
+	votedb.countVotesByType(brothers, rushees);
+	
+	jauntdb.makeVans(rushees, brothers, vans);
+	jauntdb.makeJaunts(vans, jaunts);
 	
 	nextStep(null, info);
 }
@@ -515,10 +289,10 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 	if (info.brother === undefined) {
 		info.brother = null;
 	} else {
-		makeSponsorBy([info.brother], [info.rushee]);
+		sponsordb.makeSponsorBy([info.brother], [info.rushee]);
 	}
 	
-	makeVoteBy([info.rushee], brothers);
+	votedb.makeVoteBy([info.rushee], brothers);
 	
 	var voteCmp = function (a, b) {
 		return a.type.index - b.type.index ||
@@ -571,7 +345,7 @@ function arrangeVoteScore(info, render) {
 }
 
 function arrangeInHouseVotes(info, render) {
-	makeVoteBy(info.inHouseRushees, info.brothers);
+	votedb.makeVoteBy(info.inHouseRushees, info.brothers);
 	
 	arrangeVoteScore(info, render);
 }
@@ -582,34 +356,6 @@ function insertStatus(rusheeID, typeID) {
 		typeID : typeID
 	};
 	joindb.insert('statuses', entry);
-}
-
-function insertSponsor(rusheeID, brotherID, sponsor) {
-	var entry = {
-		brotherID: brotherID,
-		rusheeID: rusheeID,
-		sponsor : sponsor
-	};
-	joindb.insert('sponsors', entry);
-}
-
-function insertVote(rusheeID, brotherID, typeID) {
-	var entry = {
-		brotherID: brotherID,
-		rusheeID: rusheeID,
-		typeID: typeID
-	};
-	joindb.insert('votes', entry);
-}
-
-function insertComment(rusheeID, brotherID, typeID, text) {
-	var comment = {
-		brotherID: brotherID,
-		rusheeID: rusheeID,
-		typeID: typeID,
-		text: text
-	};
-	joindb.insert('comments', comment);
 }
 
 function loadTestInsertRushees() {
@@ -662,16 +408,14 @@ function updateRushee(rusheeID, rushee, callback) {
 }
 
 module.exports = {
-	VoteType: VoteType,
-	CommentType : CommentType,
+	VoteType: votedb.VoteType,
+	CommentType : commentdb.CommentType,
 	StatusType : StatusType,
 	
-	SORTED_VOTE_TYPES : SORTED_VOTE_TYPES,
-	SORTED_COMMENT_TYPES : SORTED_COMMENT_TYPES,
+	SORTED_VOTE_TYPES : votedb.SORTED_VOTE_TYPES,
+	SORTED_COMMENT_TYPES : commentdb.SORTED_COMMENT_TYPES,
 	
 	getNullStatus: getNullStatus,
-	getNullVote: getNullVote,
-	getNullSponsor : getNullSponsor,
 	
 	getRushee : getRushee,
 	
@@ -679,7 +423,7 @@ module.exports = {
 	
 	augRushee : augRushee, 
 	augBrother : augBrother,
-	augComment : augComment,
+	augComment : commentdb.augComment,
 		
 	get : get,
 	
@@ -693,9 +437,22 @@ module.exports = {
 	loadTestInsertBrothers : loadTestInsertBrothers,
 	
 	insertStatus : insertStatus,
-	insertSponsor: insertSponsor,
-	insertVote : insertVote,
-	insertComment : insertComment,
+	insertSponsor: sponsordb.insertSponsor,
+	insertVote : votedb.insertVote,
+	insertComment : commentdb.insertComment,
 	insertRushee : insertRushee,
 	insertBrother : insertBrother,
+	
+	updateRushee : updateRushee,
+	
+	pushBrotherToVan : jauntdb.pushBrotherToVan,
+	pushRusheeToVan : jauntdb.pushRusheeToVan,
+	pushVanToJaunt : jauntdb.pushVanToJaunt,
+	pullBrotherFromVan : jauntdb.pullBrotherFromVan,
+	pullRusheeFromVan : jauntdb.pullRusheeFromVan,
+	pullVanFromJaunt : jauntdb.pullVanFromJaunt,
+	updateVan : jauntdb.updateVan,
+	insertJaunt : jauntdb.insertJaunt,
+	updateJaunt : jauntdb.updateJaunt,
+	removeJaunt : jauntdb.removeJaunt
 };

@@ -117,6 +117,42 @@ function joinAssocIndexed(assocs, assocsIndexedName,
 	}
 }
 
+function filterGroup(groups, members) {
+	//create hashes and initialize
+	var hashes = [];
+	for (var i = 0; i < members.length; i++) {
+		var list = members[i][0];
+		hashes.push({});
+		for (var j = 0; j < list.length; j++) {
+			var el = list[j];
+			hashes[i][el._id] = el;
+		}
+	}
+	var retGroups = [];
+	//go through each group
+	for (var i = 0; i < groups.length; i++) {
+		var group = groups[i];
+		//go through each member list
+		var add = true;
+		for (var j = 0; j < members.length; j++) {
+			var idName = members[j][1];
+			//get group list of ids
+			var list = group[idName];
+			//go through group list of ids
+			for (var k = 0; k < list.length; k++) {
+				var id = list[k];
+				if (hashes[j][id] === undefined) {
+					add = false;
+				}
+			}
+		}
+		if (add) {
+			retGroups.push(group);
+		}
+	}
+	return retGroups;
+}
+
 /**
  * Joins members to a group = (group attributes, lists of members).
  * Joining is guaranteed to preserve order.
@@ -127,9 +163,10 @@ function joinGroup(groups, groupsName, members) {
 	var hashes = [];
 	for (var i = 0; i < members.length; i++) {
 		var list = members[i][0];
+		hashes.push({});
 		for (var j = 0; j < list.length; j++) {
 			var el = list[j];
-			hashes[el._id] = el;
+			hashes[i][el._id] = el;
 			el[groupsName] = [];
 		}
 	}
@@ -197,6 +234,14 @@ function update(col, query, commands, options, callback) {
 	}
 }
 
+function remove(col, query, justOne, callback) {
+	if (callback === undefined) {
+		db[col].remove(query, justOne);
+	} else {
+		db[col].remove(query, justOne, callback);
+	}
+}
+
 module.exports = {
 	connect : connect,
 	
@@ -205,9 +250,12 @@ module.exports = {
 	joinProperty : joinProperty,
 	joinAssoc : joinAssoc,
 	joinAssocIndexed : joinAssocIndexed,
+	joinGroup : joinGroup,
+	filterGroup: filterGroup,
 	
 	findOne : findOne,
 	find: find,
 	insert: insert,
-	update: update
+	update: update,
+	remove : remove
 };
