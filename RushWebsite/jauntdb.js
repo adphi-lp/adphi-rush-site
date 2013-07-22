@@ -36,31 +36,35 @@ function makeJaunts(vans, jaunts) {
 
 
 function pushBrotherToVan(brotherID, vanID, callback) {
-	joindb.update('vans', {$push : {'bIDs' : brotherID}}, {}, callback);
+	joindb.update('vans', {_id : vanID}, {$push : {'bIDs' : brotherID}}, {}, callback);
 }
 
 function pushRusheeToVan(rusheeID, vanID, callback) {
-	joindb.update('vans', {$push : {'rIDs' : rusheeID}}, {}, callback);
+	joindb.update('vans', {_id : vanID}, {$push : {'rIDs' : rusheeID}}, {}, callback);
 }
 
 function pushVanToJaunt(vanID, jauntID, callback) {
-	joindb.update('jaunts', {$push : {'vIDs' : vanID}}, {}, callback);
+	joindb.update('jaunts', {_id : jauntID}, {$push : {'vIDs' : vanID}}, {}, callback);
 }
 
 function pullBrotherFromVan(brotherID, vanID, callback) {
-	joindb.update('vans', {$pull : {'bIDs' : brotherID}}, {}, callback);
+	joindb.update('vans', {_id : vanID}, {$pull : {'bIDs' : brotherID}}, {}, callback);
 }
 
 function pullRusheeFromVan(rusheeID, vanID, callback) {
-	joindb.update('vans', {$pull : {'rIDs' : rusheeID}}, {}, callback);
+	joindb.update('vans', {_id : vanID}, {$pull : {'rIDs' : rusheeID}}, {}, callback);
 }
 
 function pullVanFromJaunt(vanID, jauntID, callback) {
-	joindb.update('jaunts', {$pull : {'vIDs' : vanID}}, {}, callback);
+	joindb.update('jaunts', {_id : jauntID}, {$pull : {'vIDs' : vanID}}, {}, callback);
+}
+
+function insertVan(van, callback) {
+	joindb.insert('vans', van, callback);
 }
 
 function updateVan(vanID, van, callback) {
-	joindb.update('vans', {$set : van}, {}, callback);
+	joindb.update('vans', {_id : vanID}, {$set : van}, {}, callback);
 }
 
 function insertJaunt(jaunt, callback) {
@@ -68,7 +72,7 @@ function insertJaunt(jaunt, callback) {
 }
 
 function updateJaunt(jauntID, jaunt, callback) {
-	joindb.update('jaunts', {$set : jaunt}, {}, callback);
+	joindb.update('jaunts', {_id : jauntID}, {$set : jaunt}, {}, callback);
 }
 
 function removeJaunt(jauntID, callback) {
@@ -88,6 +92,7 @@ module.exports = {
 	pullRusheeFromVan : pullRusheeFromVan,
 	pullVanFromJaunt : pullVanFromJaunt,
 	updateVan : updateVan,
+	insertVan : insertVan,
 	insertJaunt : insertJaunt,
 	updateJaunt : updateJaunt,
 	removeJaunt : removeJaunt

@@ -262,6 +262,26 @@ function arrange(info, render) {
 	render(null, info);
 }
 
+function arrangeJaunt(jauntID, info, render) {
+	if (jauntID === null) {
+		render(new Error('no jauntID'));
+		return;
+	}
+	
+	var jaunts = info.jaunts;
+	for (var j = 0, l = jaunts.length; j < l; j++) {
+		if (jauntID.equals(jaunts[j]._id)) {
+			info.jaunt = jaunts[j];
+		}
+	}
+	
+	if (info.jaunt === undefined) {
+		render(new Error('no jaunt'));
+		return;
+	}
+	render(null, info);
+}
+
 function arrangeVote(rusheeID, brotherID, info, render) {
 	if (rusheeID === null) {
 		render(new Error('no rusheeID'));
@@ -432,6 +452,7 @@ module.exports = {
 	arrangeBrother : arrangeBrother,
 	arrangeVoteScore: arrangeVoteScore,
 	arrangeInHouseVotes : arrangeInHouseVotes,
+	arrangeJaunt : arrangeJaunt,
 	
 	loadTestInsertRushees : loadTestInsertRushees,
 	loadTestInsertBrothers : loadTestInsertBrothers,
@@ -451,6 +472,7 @@ module.exports = {
 	pullBrotherFromVan : jauntdb.pullBrotherFromVan,
 	pullRusheeFromVan : jauntdb.pullRusheeFromVan,
 	pullVanFromJaunt : jauntdb.pullVanFromJaunt,
+	insertVan : jauntdb.insertVan,
 	updateVan : jauntdb.updateVan,
 	insertJaunt : jauntdb.insertJaunt,
 	updateJaunt : jauntdb.updateJaunt,

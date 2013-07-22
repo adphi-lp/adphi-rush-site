@@ -46,12 +46,16 @@ app.get(BASE_PATH+'/search', auth.checkAuth, function(req, res){
 	res.render('search.jade',{basepath:BASE_PATH});
 });
 
-app.get(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){//TODO
+app.get(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){
 	var jauntID = req.query.jID === undefined ? null : toObjectID(req.query.jID);
 	
 	var time = process.hrtime();
 	
-	rushdb.get(rushdb.arrange, {}, function(err, info) {
+	var arrangeJaunt = function(info, render) {
+		rushdb.arrangeJaunt(jauntID, info, render);
+	};
+	
+	rushdb.get(arrangeJaunt, {}, function(err, info) {
 		if (err !== undefined && err !== null) {
 			console.log(err);
 			res.redirect(BASE_PATH+'/404');
@@ -67,8 +71,57 @@ app.get(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){//TODO
 	});
 });
 
+app.post(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){
+	var name = req.body.vName;
+	var driver = req.body.vDriver;
+	var id = toObjectID(req.body.jID);
+	
+	var van = {
+		name : name,
+		driver : driver,
+		rIDs : [],
+		bIDs : []
+	};
+	
+	rushdb.insertVan(van, function(err, docs) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		var vID = docs[0]._id;
+		rushdb.pushVanToJaunt(vID, id, function(err2, doc2) {
+			console.log(err2);
+			console.log(doc2);
+		});
+	});
+	
+	res.redirect(BASE_PATH+'/jaunt?jID=' + id);
+});
 
-app.post(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){//TODO
+
+app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){//TODO
+	var time = process.hrtime();
+	
+	rushdb.get(rushdb.arrange, {}, function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
+		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
+		info.basepath = BASE_PATH;
+		res.render('jaunts.jade', info);
+		time = process.hrtime(time);
+		console.log('vote took %d seconds and %d nanoseconds', time[0], time[1]);
+	});
+});
+
+
+app.post(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){//TODO
 	var name = req.body.jName;
 	var time = Date.parse(req.body.jTime);
 	
@@ -78,7 +131,7 @@ app.post(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){//TODO
 		vIDs : []
 	};
 	rushdb.insertJaunt(jaunt);
-	res.redirect(BASE_PATH+'/jaunt');
+	res.redirect(BASE_PATH+'/jaunts');
 });
 
 app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
