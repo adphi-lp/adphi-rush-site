@@ -34,17 +34,17 @@ function makeJaunts(vans, jaunts) {
 		[[vans, 'vIDs', 'vans']]);
 }
 
-
+//bit of a misnomer but w/e.
 function pushBrotherToVan(brotherID, vanID, callback) {
-	joindb.update('vans', {_id : vanID}, {$push : {'bIDs' : brotherID}}, {}, callback);
+	joindb.update('vans', {_id : vanID}, {$addToSet : {'bIDs' : brotherID}}, {}, callback);
 }
 
 function pushRusheeToVan(rusheeID, vanID, callback) {
-	joindb.update('vans', {_id : vanID}, {$push : {'rIDs' : rusheeID}}, {}, callback);
+	joindb.update('vans', {_id : vanID}, {$addToSet : {'rIDs' : rusheeID}}, {}, callback);
 }
 
 function pushVanToJaunt(vanID, jauntID, callback) {
-	joindb.update('jaunts', {_id : jauntID}, {$push : {'vIDs' : vanID}}, {}, callback);
+	joindb.update('jaunts', {_id : jauntID}, {$addToSet : {'vIDs' : vanID}}, {}, callback);
 }
 
 function pullBrotherFromVan(brotherID, vanID, callback) {

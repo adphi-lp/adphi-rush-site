@@ -84,23 +84,31 @@ app.post(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){
 	};
 	
 	rushdb.insertVan(van, function(err, docs) {
-		if (err !== undefined && err !== null) {
-			console.log(err);
-			res.redirect(BASE_PATH+'/404');
-			return;
-		}
-		
 		var vID = docs[0]._id;
-		rushdb.pushVanToJaunt(vID, id, function(err2, doc2) {
-			console.log(err2);
-			console.log(doc2);
-		});
+		rushdb.pushVanToJaunt(vID, id);
 	});
 	
 	res.redirect(BASE_PATH+'/jaunt?jID=' + id);
 });
 
 
+app.post(BASE_PATH+'/pushRusheeToVan', auth.checkAuth, function(req, res){
+	var rid = toObjectID(req.body.rID);
+	var vid = toObjectID(req.body.vID);
+	
+	rushdb.pushRusheeToVan(rid, vid);
+	
+	res.redirect(BASE_PATH+'/jaunts');
+});
+
+app.post(BASE_PATH+'/pushBrotherToVan', auth.checkAuth, function(req, res){
+	var bid = toObjectID(req.body.bID);
+	var vid = toObjectID(req.body.vID);
+	
+	rushdb.pushBrotherToVan(bid, vid);
+	
+	res.redirect(BASE_PATH+'/jaunts');
+});
 app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){//TODO
 	var time = process.hrtime();
 	
@@ -152,6 +160,7 @@ app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 		
 		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
 		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
+		info.accountType = auth.getAccountType(req, res);
 		info.basepath = BASE_PATH;
 		res.render('vote.jade', info);
 		time = process.hrtime(time);
@@ -297,6 +306,7 @@ app.get(BASE_PATH+'/viewbrother', auth.checkAuth, function(req, res){
 		
 		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
 		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
+		info.accountType = auth.getAccountType(req, res);
 		info.basepath = BASE_PATH;
 		res.render('viewbrother.jade', info);
 		time = process.hrtime(time);

@@ -18,6 +18,8 @@ block content
       .rushee-info
         .rushee-info-item.rushee-name
           a(href='vote?rID='+rushee._id) #{rushee.name}
+            -if (accountType.isAdmin() && rushee.visible === false)
+              |  (hidden)
         .rushee-info-item.rushee-dorm
           span.rushee-info-type Dorm
           span.rushee-info-data #{rushee.dorm}
@@ -41,7 +43,21 @@ block content
           span.rushee-info-data #{rushee.voteScore}
         .rushee-edit
           a(href=basepath+'/editrushee?rID='+rushee._id) edit
-        
+          
+  -if (accountType.isAdmin())
+    .brother-action-wrapper
+      form.brother-action-content(method='post',action=basepath+'/pushRusheeToVan')
+        span.brother-action-type Add to van
+        input(type='hidden',name='rID',value='#{rushee._id}')     
+        select.jaunt-van-list(name='vID')
+          -for (var i = 0; i < jaunts.length; i++)
+            -var jaunt 	= jaunts[i];
+            -for (var j = 0; j < jaunt.vans.length; j++)
+              -var van = jaunt.vans[j]
+              option(value='#{van._id}') #{jaunt.name + ': ' + van.name}
+        .post-wrapper
+          input#save(type='submit',value='Submit')
+
   .brother-action-wrapper
     form.brother-action-content
       input(type='hidden',name='rID',value='#{rushee._id}')

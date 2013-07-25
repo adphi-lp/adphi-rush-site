@@ -52,6 +52,7 @@
 	background-color:rgba(215, 236, 255, 0.4);
 	box-shadow: 0 0 10px 2px #888;
     padding:20px;
+    margin: 40px 0px 40px 0px;
 }
 
 .action-comment-content{

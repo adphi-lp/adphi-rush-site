@@ -29,7 +29,21 @@ block content
           span.brother-info-type Vote score
           span.brother-info-data #{brother.voteScore}
         .brother-edit
-          a(href=basepath+'/editbrother?rID='+brother._id) edit
+          a(href=basepath+'/editbrother?bID='+brother._id) edit
+  
+  -if (accountType.isAdmin())
+    .brother-action-wrapper
+      form.brother-action-content(method='post',action=basepath+'/pushBrotherToVan')
+        span.brother-action-type Add to van
+        input(type='hidden',name='bID',value='#{brother._id}')     
+        select.jaunt-van-list(name='vID')
+          -for (var i = 0; i < jaunts.length; i++)
+            -var jaunt 	= jaunts[i];
+            -for (var j = 0; j < jaunt.vans.length; j++)
+              -var van = jaunt.vans[j]
+              option(value='#{van._id}') #{jaunt.name + ': ' + van.name}
+        .post-wrapper
+          input#save(type='submit',value='Submit')
   
   .comment-thread-wrapper
     h2.title Comments
