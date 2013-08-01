@@ -74,6 +74,10 @@
 	font-size:xx-large;
 }
 
+.rushee-status{
+	font-weight:bold;
+}
+
 .missing-sponsor{
 	font-weight:bold; color:red;
 }

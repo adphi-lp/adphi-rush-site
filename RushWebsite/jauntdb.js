@@ -67,6 +67,10 @@ function updateVan(vanID, van, callback) {
 	joindb.update('vans', {_id : vanID}, {$set : van}, {}, callback);
 }
 
+function removeVan(vanID, callback) {
+	joindb.remove('vans', {_id : vanID}, false, callback);
+}
+
 function insertJaunt(jaunt, callback) {
 	joindb.insert('jaunts', jaunt, callback);
 }
@@ -81,18 +85,25 @@ function removeJaunt(jauntID, callback) {
 
 module.exports = {
 	importJoin : importJoin,
+	
 	filterVans : filterVans,
 	filterJaunts : filterJaunts,
+	
 	makeVans : makeVans,
 	makeJaunts : makeJaunts,
+	
 	pushBrotherToVan : pushBrotherToVan,
 	pushRusheeToVan : pushRusheeToVan,
 	pushVanToJaunt : pushVanToJaunt,
+	
 	pullBrotherFromVan : pullBrotherFromVan,
 	pullRusheeFromVan : pullRusheeFromVan,
 	pullVanFromJaunt : pullVanFromJaunt,
-	updateVan : updateVan,
+	
 	insertVan : insertVan,
+	updateVan : updateVan,
+	removeVan : removeVan,
+	
 	insertJaunt : insertJaunt,
 	updateJaunt : updateJaunt,
 	removeJaunt : removeJaunt

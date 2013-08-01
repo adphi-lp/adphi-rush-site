@@ -12,7 +12,7 @@ block content
       rushee-photo-and-status.lfloat
         a.rushee-photo(href=basepath+'/vote?rID='+rushee._id)
           img.img-large(src=basepath+rushee.photo,alt=rushee.name)
-        .rushee-status #{rushee.status.type.name}
+        .rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
         -if (rushee.priority)
           .rushee-priority Priority
       .rushee-info

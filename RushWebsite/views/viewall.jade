@@ -2,16 +2,48 @@ extends layout
 
 block head
   title='Front Desk'  
-  link(rel='stylesheet',href=basepath+'/css/viewrushees.css')
+  link(rel='stylesheet',href=basepath+'/css/viewall.css')
  
 
 block content
   .rushees-wrapper
     h1.rushees-title Front Desk
+    form.rushees-search
+      .search-bar
+        input#search(type='text', name = 'q', value = '#{q}')
+        input(type='submit',formmethod='get',formaction=basepath+'/frontdesk', value='Search')
+      .search-options
+        -if (inhouse === 'on')
+          input#inhouse(type='checkbox', name = 'inhouse', checked)
+        -else
+          input#inhouse(type='checkbox', name = 'inhouse')
+        label.toggle-choice(for='inhouse') In
+      
+        -if (outhouse === 'on')
+          input#outhouse(type='checkbox', name = 'outhouse', checked)
+        -else
+          input#inhouse(type='checkbox', name = 'outhouse')
+        label.toggle-choice(for='outhouse') Out
+      
+        -if (onjaunt === 'on')
+          input#onjaunt(type='checkbox', name = 'onjaunt', checked)
+        -else
+          input#onjaunt(type='checkbox', name = 'onjaunt')
+        label.toggle-choice(for='onjaunt') Jaunt
+      
+        -if (newrushee === 'on')
+          input#newrushee(type='checkbox', name = 'newrushee', checked)
+        -else
+          input#newrushee(type='checkbox', name = 'newrushee')
+        label.toggle-choice(for='newrushee') New
+      
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
         -if (rushee.visible === false && !accountType.isAdmin()) continue;
+        -if (inhouse === 'on' && rushee.status.type._id !== 'IN') continue;
+        -if (outhouse === 'on' && rushee.status.type._id !== 'OUT') continue;
+        -if (onjaunt === 'on' && rushee.status.type._id !== 'JAUNT') continue;
         li.rushee-wrapper
           .rushee-content.clearfix
             .rushee-info
@@ -19,6 +51,8 @@ block content
                 a(href=basepath+'/frontdesk?rID='+rushee._id) #{rushee.name}
                   -if (accountType.isAdmin() && rushee.visible === false)
                     |  (hidden)
+              .rushee-info-item
+                span.rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
               .rushee-info-item.rushee-dorm
                 span.rushee-info-type Dorm
                 span.rushee-info-data #{rushee.dorm}

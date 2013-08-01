@@ -14,10 +14,10 @@ var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
 'votes', 'statuses', 'jaunts', 'vans'];
 
 var StatusType = {
-	IN : {_id: 'IN', name: 'In House'},
-	JAUNT : {_id: 'JAUNT', name: 'On a Jaunt'},
-	OUT : {_id: 'OUT', name: 'Out of House'},
-	NULL : {_id: 'NULL', name: 'Never seen'}
+	IN : {_id: 'IN', name: 'In House', color: '#00FF00'},
+	JAUNT : {_id: 'JAUNT', name: 'On a Jaunt', color: '#0000FF'},
+	OUT : {_id: 'OUT', name: 'Out of House', color: '#000000'},
+	NULL : {_id: 'NULL', name: 'Never seen', color: '#000000'}
 };
 
 function getNullStatus(rushee) {
@@ -116,7 +116,9 @@ function get(arrange, options, render) {
 	var thirdStep = getThird;
 	if (options.brothersFirst === true) {
 		firstStep = getFirstBrothersFirst;
-	}
+	} else if (options.rusheesRecent === true) {
+		firstStep = getFirstRusheesRecent;
+	}	
 
 	var time = process.hrtime();
 	
@@ -166,6 +168,15 @@ function getFirstBrothersLast(nextStep) {
 	var options = {
 		brothers : {sort : {slast : 1, sfirst : 1}},
 		rushees : {sort : {sfirst: 1, slast : 1}}
+	};
+	
+	getFirst(options, nextStep);
+}
+
+function getFirstRusheesRecent(nextStep) {
+	var options = {
+		brothers : {sort : {slast : 1, sfirst : 1}},
+		rushees : {sort : {_id : -1}}
 	};
 	
 	getFirst(options, nextStep);

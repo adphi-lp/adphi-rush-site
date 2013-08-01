@@ -248,9 +248,9 @@ app.post(BASE_PATH+'/editrushee', auth.checkAuth, function(req, res) {
 	rushdb.updateRushee(rusheeID, rushee, function(err) {
 		if (err !== null && err !== undefined) {
 			console.log(err);
-			res.redirect(BASE_PATH+'/editRushees');
+			res.redirect(BASE_PATH+'/editrushees');
 		} else {
-			res.redirect(BASE_PATH+'/viewRushees');
+			res.redirect(BASE_PATH+'/viewrushees');
 		}
 	});
 });
@@ -264,15 +264,22 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 		}
 		
 		var q = req.query.q;
-		if (q !== null && q !== undefined) {
+		if (q === null || q === undefined) {
+			info.rushees = [];
+			info.q = '';
+		} else if (q !== "") {
 			info.rushees = search.get(info.rushees, q);
 			info.q = q;
 		} else {
-			info.q = '';
+			info.q = q;
 		}
 		
 		info.inhouse = req.query.inhouse;
 		info.priority = req.query.priority;
+		info.newrushee = req.query.newrushee;
+		info.outhouse = req.query.outhouse;
+		info.onjaunt = req.query.onjaunt;
+		
 		info.search = req.query.q;
 		info.basepath = BASE_PATH;
 		info.accountType = auth.getAccountType(req, res);
@@ -360,7 +367,7 @@ app.get(BASE_PATH+'/viewbrothervotes', auth.checkAuth, function(req,res){
 		res.render('viewbrothervotes.jade', info);
 	});
 });
-	
+
 app.get(BASE_PATH+'/addbrother', auth.checkAdminAuth, function(req, res){
 	res.render('addbrother.jade',{basepath:BASE_PATH});
 });
@@ -452,8 +459,23 @@ app.get(BASE_PATH+'/frontdesk', function(req, res) {
 				res.redirect(BASE_PATH+'/404');
 				return;
 			}
+			var q = req.query.q;
+			if (q === null || q === undefined) {
+				info.rushees = [];
+				info.q = '';
+			} else if (q !== "") {
+				info.rushees = search.get(info.rushees, q);
+				info.q = q;
+			} else {
+				info.q = q;
+			}
 			info.accountType = auth.getAccountType(req, res);
+			info.search = req.query.q;
 			info.basepath = BASE_PATH;
+			info.newrushee = req.query.newrushee;
+			info.outhouse = req.query.outhouse;
+			info.onjaunt = req.query.onjaunt;
+			info.inhouse = req.query.inhouse;
 			res.render('viewall.jade', info);
 		});
 	} else {
