@@ -14,12 +14,12 @@ block content
           .vote-content
             .vote-text
               span.vote-brother
-                a(href='viewbrother?bID='+vote.brother._id) #{vote.brother.name}
+                a(href=basepath+'/viewbrother?bID='+vote.brother._id) #{vote.brother.name}
               span  voted 
               span.vote-type #{vote.type.name}
               span  on 
               span.vote-rushee
-                a(href='vote?rID='+vote.rushee._id) #{vote.rushee.name}
+                a(href=basepath+'/vote?rID='+vote.rushee._id) #{vote.rushee.name}
             .vote-time #{vote.time}
 
 

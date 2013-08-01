@@ -1,8 +1,7 @@
 'use strict';
 
 //constants
-var BASE_PATH = '';
-//var BASE_PATH = '/rushsite20';
+var BASE_PATH = '/rushsite20';
 var DATABASE_URL = 'ADPhiRush';
 
 //get modules
@@ -67,7 +66,7 @@ app.get(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){
 		info.basepath = BASE_PATH;
 		res.render('jaunt.jade', info);
 		time = process.hrtime(time);
-		console.log('vote took %d seconds and %d nanoseconds', time[0], time[1]);
+		console.log('/jaunt took %d seconds and %d nanoseconds', time[0], time[1]);
 	});
 });
 
@@ -124,7 +123,7 @@ app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){//TODO
 		info.basepath = BASE_PATH;
 		res.render('jaunts.jade', info);
 		time = process.hrtime(time);
-		console.log('vote took %d seconds and %d nanoseconds', time[0], time[1]);
+		console.log('/jaunts took %d seconds and %d nanoseconds', time[0], time[1]);
 	});
 });
 
@@ -164,7 +163,7 @@ app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 		info.basepath = BASE_PATH;
 		res.render('vote.jade', info);
 		time = process.hrtime(time);
-		console.log('vote took %d seconds and %d nanoseconds', time[0], time[1]);
+		console.log('/vote took %d seconds and %d nanoseconds', time[0], time[1]);
 	});
 });
 
@@ -180,10 +179,15 @@ app.post(BASE_PATH+'/vote', auth.checkAuth, function(req, res) {
 	for (var i = 0; i < 2; i++) {
 		var commentText = req.body['comment'+i];
 		var commentID = req.body['commentType'+i].toUpperCase();
-		var commentJaunt = req.body['commentJaunt'+i]; //TODO, ignore for now
+		var commentJaunt = req.body['commentJaunt'+i];
 		
 		if (commentText !== '') {
-			rushdb.insertComment(rusheeID, brotherID, commentID, commentText);
+			if (commentJaunt === 'null') {
+				rushdb.insertComment(rusheeID, brotherID, commentID, commentText);
+			} else {
+				var jauntID = toObjectID(commentJaunt);
+				rushdb.insertComment(rusheeID, brotherID, commentID, commentText, jauntID);
+			}
 		}
 	}
 	

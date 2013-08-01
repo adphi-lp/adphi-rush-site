@@ -67,7 +67,7 @@ function makeStatuses(rushees, statuses) {
 		statuses[i].type = StatusType[statuses[i].typeID];
 	}
 	
-	joindb.joinProperty(statuses, 'statuses', rushees, 'rusheeID');
+	joindb.joinProperty(statuses, 'statuses', rushees, 'rusheeID', 'rushee');
 }
 
 /**
@@ -242,7 +242,7 @@ function getThird(info, nextStep) {
 	sponsordb.makeSponsorsNameList(rushees, 'brother');
 	sponsordb.makeSponsorsNameList(brothers, 'rushee');
 	
-	commentdb.makeComments(rushees, brothers, comments);
+	commentdb.makeComments(rushees, brothers, jaunts, comments);
 	
 	votedb.makeVotesBy(rushees, brothers, votes);
 	votedb.makeVoteScore(brothers);

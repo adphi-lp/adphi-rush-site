@@ -35,7 +35,7 @@ function augComment(comment) {
  * Joins the comments onto rushees and brothers under rushee.comments
  * and brother.comments.
  */
-function makeComments(rushees, brothers, comments) {
+function makeComments(rushees, brothers, jaunts, comments) {
 	for (var i = 0, l = comments.length; i < l; i++) {
 		comments[i].type = CommentType[comments[i].typeID];
 	}
@@ -43,15 +43,17 @@ function makeComments(rushees, brothers, comments) {
 	joindb.joinAssoc(comments, 'comments',
 		rushees, 'rusheeID', 'rushee',
 		brothers, 'brotherID', 'brother');
+	joindb.joinPropertyIf(comments, 'comments', jaunts, 'jauntID', 'jaunt');
 }
 
-function insertComment(rusheeID, brotherID, typeID, text) {
+function insertComment(rusheeID, brotherID, typeID, text, jauntID) {
 	var comment = {
 		brotherID: brotherID,
 		rusheeID: rusheeID,
 		typeID: typeID,
 		text: text
 	};
+	if (jauntID !== undefined) comment.jauntID = jauntID;
 	joindb.insert('comments', comment);
 }
 

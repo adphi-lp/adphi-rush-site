@@ -22,7 +22,7 @@ function ensureIndex(col, index) {
  * @param {Object} list the list of elements to be joined to. Must have an _id field.
  * @param {Object} elIDName the name of the id field in a property
  */
-function joinProperty(props, propName, list, idName) {
+function joinProperty(props, propName, list, idName, elName) {
 	//Create hash and initialize
 	var listHash = {};
 	for (var i = 0, l = list.length; i < l; i++) {
@@ -33,11 +33,45 @@ function joinProperty(props, propName, list, idName) {
 	
 	for (var i = 0, l = props.length; i < l; i++) {
 		var prop = props[i];
-		//get element, push property
-		listHash[prop[idName]][propName].push(prop);
+		var el = listHash[prop[idName]];
+		//put elements into property
+		prop[elName] = el;
+		//push property
+		el[propName].push(prop);
 	}
 } 
 
+/**
+ * Joins properties (e.g. time-stamped status) to elements in a list (e.g. rushees or brothers).
+ * The joined properties are added under a list with a given name for each element.
+ * The property is only joined if it contains idName.
+ * Joining is guaranteed to preserve order.
+ * @param {Object} props the properties to join
+ * @param {Object} propName the name of the property collection
+ * @param {Object} list the list of elements to be joined to. Must have an _id field.
+ * @param {Object} idName the name of the id field in a property
+ */
+function joinPropertyIf(props, propName, list, idName, elName) {
+	//Create hash and initialize
+	var listHash = {};
+	for (var i = 0, l = list.length; i < l; i++) {
+		var el = list[i];
+		listHash[el._id] = el;
+		el[propName] = [];
+	}
+	
+	for (var i = 0, l = props.length; i < l; i++) {
+		var prop = props[i];
+		if (prop[idName] === undefined) {
+			continue;
+		}
+		var el = listHash[prop[idName]];
+		//put elements into property
+		prop[elName] = el;
+		//push property
+		el[propName].push(prop);
+	}
+}
 
 /**
  * Joins associations between members of two lists to the elements of these lists.
@@ -248,6 +282,7 @@ module.exports = {
 	ensureIndex : ensureIndex,
 
 	joinProperty : joinProperty,
+	joinPropertyIf : joinPropertyIf,
 	joinAssoc : joinAssoc,
 	joinAssocIndexed : joinAssocIndexed,
 	joinGroup : joinGroup,

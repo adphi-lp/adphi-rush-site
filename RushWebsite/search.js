@@ -11,6 +11,14 @@ function get(rushees, query) {
 	return results;
 }
 
+function split(query) {
+	return query.split(' ');
+}
+
+function rank(rushee, query) {
+	
+}
+
 function match(rushee, query) {
 	return rushee.name.toUpperCase().indexOf(query.toUpperCase()) !== -1;
 }

@@ -26,7 +26,8 @@ block content
                     -var rushee = van.rushees[j];
                     .jaunt-rushee-wrapper
                       .jaunt-rushee-content
-                        .jaunt-rushee-name #{rushee.name}
+                        .jaunt-rushee-name
+                          a(href=basepath+'/vote?rID='+rushee._id) #{rushee.name}
               .jaunt-brother-thread-wrapper
                 .jaunt-brother-thread-header
                   h4.jaunt-brother-thread-title Brothers
@@ -35,7 +36,8 @@ block content
                     -var brother = van.brothers[j];
                     .jaunt-brother-wrapper
                       .jaunt-brother-content
-                        .jaunt-brother-name #{brother.name}
+                        .jaunt-brother-name
+                          a(href=basepath+'/viewbrother?bID='+brother._id) #{brother.name}
   .van-action-wrapper
     h2.title Add a van
     form.van-action-content(method='post',action='#')
@@ -48,3 +50,20 @@ block content
         input.van-action-input(type='text',required,name = 'vDriver')
       .van-post
         input#save(type='submit',value='Submit')
+                 
+  .comment-thread-wrapper
+    h2.title Related Comments
+    ul.comment-thread-content
+      - for (var i = 0; i < jaunt.comments.length; i++)	
+        -var comment = jaunt.comments[i];
+        li.comment-wrapper
+          .comment-content
+            .comment-header
+              span.comment-header-element.comment-name #{comment.brother.name}
+              span.comment-header-element.comment-type(style='color:#{comment.type.color};') #{comment.type.name}
+              -if (comment.jaunt !== undefined)
+                span.comment-header-element.comment-jaunt #{comment.jaunt.name}
+              span.comment-header-element.comment-rushee #{comment.rushee.name}
+            .comment-text #{comment.text}
+            .comment-time #{comment.time}
+        

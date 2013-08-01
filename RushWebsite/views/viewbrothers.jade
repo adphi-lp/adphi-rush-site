@@ -14,7 +14,7 @@ block content
           .brother-content.clearfix
             .brother-info
               .brother-info-item.brother-name
-                a(href='viewbrother?bID='+brother._id) #{brother.name}
+                a(href=basepath+'/viewbrother?bID='+brother._id) #{brother.name}
               .brother-info-item.brother-class
                 span.brother-info-type Pledge Class
                 span.brother-info-data #{brother.class}

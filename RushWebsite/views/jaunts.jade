@@ -30,7 +30,8 @@ block content
                         -var rushee = van.rushees[j];
                         .jaunt-rushee-wrapper
                           .jaunt-rushee-content
-                            .jaunt-rushee-name #{rushee.name}
+                            .jaunt-rushee-info-item.jaunt-rushee-name
+                              a(href=basepath+'/vote?rID='+rushee._id) #{rushee.name}
                   .jaunt-brother-thread-wrapper
                     .jaunt-brother-thread-header
                       h4.jaunt-brother-thread-title Brothers
@@ -39,7 +40,8 @@ block content
                         -var brother = van.brothers[j];
                         .jaunt-brother-wrapper
                           .jaunt-brother-content
-                            .jaunt-brother-name #{brother.name}
+                            .jaunt-brother-name
+                              a(href=basepath+'/viewbrother?bID='+brother._id) #{brother.name}
   .jaunt-action-wrapper
     h2.title Add a Jaunt
     form.jaunt-action-content(method='post',action='#')
