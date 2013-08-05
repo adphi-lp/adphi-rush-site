@@ -44,11 +44,14 @@ block content
         -if (inhouse === 'on' && rushee.status.type._id !== 'IN') continue;
         -if (outhouse === 'on' && rushee.status.type._id !== 'OUT') continue;
         -if (onjaunt === 'on' && rushee.status.type._id !== 'JAUNT') continue;
+        -if (newrushee === 'on' && rushee.status.type._id !== 'NULL') continue;
+        -var idName = 'rID';
+        -if (rushee.candidate) idName = 'cID';
         li.rushee-wrapper
           .rushee-content.clearfix
             .rushee-info
               .rushee-info-item.rushee-name
-                a(href=basepath+'/frontdesk?rID='+rushee._id) #{rushee.name}
+                a(href=basepath+'/frontdesk?'+idName+'='+rushee._id) #{rushee.name}
                   -if (accountType.isAdmin() && rushee.visible === false)
                     |  (hidden)
               .rushee-info-item

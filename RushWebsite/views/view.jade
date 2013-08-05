@@ -1,8 +1,8 @@
 extends layout
 
 block head
-  title='Voting'
-  link(rel='stylesheet',href=basepath+'/css/vote.css')
+  title='View'
+  link(rel='stylesheet',href=basepath+'/css/view.css')
   script(type='text/javascript',src=basepath+'/js/vendor/jquery-1.8.3.min.js')
 
 block content
@@ -23,7 +23,9 @@ block content
           span.rushee-info-type Year
           span.rushee-info-data #{rushee.year}
       form.rushee-action
-        input(type='hidden',name='rID',value='#{rushee._id}')
+        -var idName = 'rID';
+        -if (rushee.candidate) idName = 'cID';
+        input(type='hidden',name=idName,value='#{rushee._id}')
         input(type='submit',formmethod='post',formaction=basepath+'/inhouse',value='In house')
         input(type='submit',formmethod='post',formaction=basepath+'/outhouse',value='Going out')
         input(type='submit',formmethod='post',formaction=basepath+'/onjaunt',value='On a jaunt')

@@ -229,11 +229,13 @@ function joinGroup(groups, groupsName, members) {
 
 function findOne(col, query, augment, callback) {
 	db[col].findOne(query, function(err, doc) {
-		if (err === undefined || err === null) {
+		if (err !== null && err !== undefined) {
+			callback(err, doc);
+		} else if (doc === null) {
+			callback(null, null);
+		} else {
 			augment(doc);
 			callback(null, doc);
-		} else {
-			callback(err, doc);
 		}
 	});
 }

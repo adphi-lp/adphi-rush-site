@@ -9,9 +9,10 @@ var sponsordb = require('./sponsordb');
 var votedb = require('./votedb');
 var jauntdb = require('./jauntdb');
 var commentdb = require('./commentdb');
+var candidatedb = require('./candidatedb');
 
 var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
-'votes', 'statuses', 'jaunts', 'vans'];
+'votes', 'statuses', 'jaunts', 'vans', 'candidates'];
 
 var StatusType = {
 	IN : {_id: 'IN', name: 'In House', color: '#00FF00'},
@@ -40,12 +41,15 @@ function connect(databaseURL) {
 	votedb.importJoin(joindb);
 	jauntdb.importJoin(joindb);
 	commentdb.importJoin(joindb);
+	candidatedb.importJoin(joindb);
 	
 	//to ensure that you can sort fast
 	joindb.ensureIndex('rushees', {sfirst: 1, slast: 1});
 	joindb.ensureIndex('rushees', {slast: 1, sfirst: 1});
 	joindb.ensureIndex('brothers', {sfirst: 1, slast: 1});
 	joindb.ensureIndex('brothers', {slast: 1, sfirst: 1});
+	joindb.ensureIndex('candidates', {sfirst: 1, slast: 1});
+	joindb.ensureIndex('candidates', {slast: 1, sfirst: 1});
 }
 
 function augRushee(rushee) {
@@ -91,35 +95,70 @@ function makeInHouseRushees(info, rushees) {
 }
 
 function getRushee(rusheeID, render) {
-	if (rusheeID === null) {
-		render(new Error('no rusheeID'));
+	getSingle('rushees', 'rushee', rusheeID, augRushee, render);
+}
+
+function getCandidate(cID, render) {
+	getSingle('candidates', 'candidate', cID,
+				candidatedb.augCandidate, render);
+}
+
+function getSingle(col, name, id, aug, render) {
+	if (id === null) {
+		render(new Error('no ' + name + 'ID given'));
 	}
 	
-	var query = {_id : rusheeID};
-	joindb.findOne('rushees', query, augRushee, function(err, rushee) {
+	var query = {_id : id};
+	joindb.findOne(col, query, aug, function(err, doc) {
 		if (err !== null && err !== undefined) {
 			render(err);
 			return;
 		}
+		if (doc === null) {
+			render(new Error('no ' + name + ' found'));
+			return;
+		}
 		
-		var info = {
-			rushee : rushee
-		};
+		var info = {};
+		info[name] = doc;
 		
 		render(null, info);
 	});
 }
 
+
 function get(arrange, options, render) {
-	var firstStep = getFirstBrothersLast;
+	var defaultOptions = {
+		brothers : {sort : {slast : 1, sfirst : 1}},
+		rushees : {sort : {sfirst: 1, slast : 1}},
+		candidates : {sort : {sfirst: 1, slast : 1}}
+	};
+	
+	if (options.brothers !== undefined) {
+		if (options.brothers.sort !== undefined) {
+			defaultOptions.brothers.sort = options.brothers.sort;
+		}
+	}
+	
+	if (options.rushees !== undefined) {
+		if (options.rushees.sort !== undefined) {
+			defaultOptions.rushees.sort = options.rushees.sort;
+		}
+	}
+	
+	if (options.candidates !== undefined) {
+		if (options.candidates.sort !== undefined) {
+			defaultOptions.candidates.sort = options.candidates.sort;
+		}
+	}
+	
+	var firstStep = function(nextStep) {
+		getFirst(defaultOptions, nextStep);
+	};
 	var secondStep = getSecond;
 	var thirdStep = getThird;
-	if (options.brothersFirst === true) {
-		firstStep = getFirstBrothersFirst;
-	} else if (options.rusheesRecent === true) {
-		firstStep = getFirstRusheesRecent;
-	}	
-
+	
+	
 	var time = process.hrtime();
 	
 	firstStep(function(err1, info1) {
@@ -155,33 +194,6 @@ function get(arrange, options, render) {
 	});
 }
 
-function getFirstBrothersFirst(nextStep) {
-	var options = {
-		brothers : {sort : {sfirst : 1, slast : 1}},
-		rushees : {sort : {sfirst: 1, slast : 1}}
-	};
-	
-	getFirst(options, nextStep);
-}
-
-function getFirstBrothersLast(nextStep) {
-	var options = {
-		brothers : {sort : {slast : 1, sfirst : 1}},
-		rushees : {sort : {sfirst: 1, slast : 1}}
-	};
-	
-	getFirst(options, nextStep);
-}
-
-function getFirstRusheesRecent(nextStep) {
-	var options = {
-		brothers : {sort : {slast : 1, sfirst : 1}},
-		rushees : {sort : {_id : -1}}
-	};
-	
-	getFirst(options, nextStep);
-}
-
 function getFirst(options, nextStep) {
 	async.parallel({
 		brothers : function(cb) {
@@ -189,6 +201,10 @@ function getFirst(options, nextStep) {
 		},
 		rushees : function(cb) {
 			joindb.find('rushees', {}, options.rushees.sort, augRushee, cb);
+		},
+		candidates : function (cb) {
+			joindb.find('candidates', {},
+					options.candidates.sort, candidatedb.augCandidate, cb);
 		}
 	}, nextStep);
 }
@@ -196,6 +212,7 @@ function getFirst(options, nextStep) {
 function getSecond(info, nextStep) {
 	var rushees = info.rushees;
 	var brothers = info.brothers;
+	var candidates = info.candidates;
 	var brotherIDs = tools.map(brothers, function(b) {return b._id;});
 	var rusheeIDs = tools.map(rushees, function(r) {return r._id;});
 	var queryRushees = {rusheeID: {$in : rusheeIDs}};
@@ -208,6 +225,9 @@ function getSecond(info, nextStep) {
 		},
 		brothers : function(cb) {
 			cb(null, brothers);
+		},
+		candidates : function(cb) {
+			cb(null, candidates);
 		},
 		statuses : function(cb) {
 			joindb.find('statuses', queryRushees, {_id:-1}, function(){}, cb);
@@ -231,6 +251,7 @@ function getSecond(info, nextStep) {
 }
 
 function getThird(info, nextStep) {
+	var candidates = info.candidates;
 	var rushees = info.rushees;
 	var brothers = info.brothers;
 	var statuses = info.statuses;
@@ -242,6 +263,8 @@ function getThird(info, nextStep) {
 	info.jaunts = jauntdb.filterJaunts(vans, info.jaunts);
 	var jaunts = info.jaunts;
 	
+	makeStatuses(candidates, []);
+	makeStatus(candidates, []);
 	makeStatuses(rushees, statuses);
 	makeStatus(rushees);
 	makeInHouseRushees(info, rushees);
@@ -449,13 +472,15 @@ module.exports = {
 	getNullStatus: getNullStatus,
 	
 	getRushee : getRushee,
+	getCandidate : getCandidate,
 	
 	connect : connect,
 	
 	augRushee : augRushee, 
 	augBrother : augBrother,
 	augComment : commentdb.augComment,
-		
+	augCandidate : candidatedb.augCandidate,
+
 	get : get,
 	
 	arrange : arrange,
@@ -474,8 +499,12 @@ module.exports = {
 	insertComment : commentdb.insertComment,
 	insertRushee : insertRushee,
 	insertBrother : insertBrother,
+	insertCandidate : candidatedb.insertCandidate,
 	
+	updateCandidate : candidatedb.updateCandidate,
 	updateRushee : updateRushee,
+	
+	transferCandidate : candidatedb.transferCandidate,
 	
 	pushBrotherToVan : jauntdb.pushBrotherToVan,
 	pushRusheeToVan : jauntdb.pushRusheeToVan,

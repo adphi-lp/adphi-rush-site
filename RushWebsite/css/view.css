@@ -1,0 +1,34 @@
+.content-wrapper{
+	margin:0 auto;
+	width:800px;
+	/*box-shadow: 0 0 10px 2px #888;*/
+}
+
+.rushee-wrapper{
+	background-color:rgba(215, 236, 255, 0.4);
+	margin: 10px 0px 40px 0px;
+	padding: 10px 0px 10px 10px;
+	box-shadow: 0 0 10px 2px #888;
+	position:relative;
+}
+
+.rushee-info{
+	margin-left:180px;
+}
+
+.rushee-info-type{
+	font-weight:bold;
+}
+
+.rushee-info-type:after{
+	content:':\0000a0';
+}
+
+.rushee-name{
+	font-size:xx-large;
+}
+
+.rushee-status{
+	font-weight:bold;
+}
+

@@ -384,6 +384,48 @@ app.post(BASE_PATH+'/addbrother', auth.checkAdminAuth, function(req,res) {
 	res.render('addbrother.jade',{basepath:BASE_PATH});
 });
 
+app.get(BASE_PATH+'/addcandidate', auth.checkAdminAuth, function(req,res) {
+	res.render('addcandidate.jade',{basepath:BASE_PATH});
+});
+
+app.post(BASE_PATH+'/addcandidate', auth.checkAdminAuth, function(req,res) {
+	//TODO cleanup photo code
+	var photo = req.files.photo;
+	var photoLen = 10, photoPath = '/public/img/no_photo.jpg';
+	if (photo.size !== 0) {
+		var name = photo.name;
+		var extension = name.substr(name.lastIndexOf('.')+1);
+		photoPath = '/public/img/'+tools.randomString(photoLen,'')+'.'+extension;
+	
+		fs.readFile(req.files.photo.path, function(err, data) {
+			var newPath = __dirname + photoPath;
+			fs.writeFile(newPath, data, function(err) {
+				if (err !== null) {
+					console.log('uploadpath: ' + req.files.photo.path);
+					console.log("photopath: " + photoPath);
+					console.log(err);
+				}
+			});
+		});
+	}
+	
+	var cand = {
+		first: req.body.first,
+		last: req.body.last,
+		nick: req.body.nick,
+		dorm: req.body.dorm,
+		phone: req.body.phone,
+		email: req.body.email,
+		year: req.body.year,
+		photo: photoPath,
+		visible: true,
+		priority: false
+	};
+
+	rushdb.insertCandidate(cand);
+	res.render('addcandidate.jade',{basepath:BASE_PATH});
+});
+
 app.get(BASE_PATH+'/addrushee', auth.checkAdminAuth, function(req,res) {
 	res.render('addrushee.jade',{basepath:BASE_PATH});
 });
@@ -452,7 +494,30 @@ app.post(BASE_PATH+'/login', function(req,res){
 
 app.get(BASE_PATH+'/frontdesk', function(req, res) {
 	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
-	if (rusheeID === null) {
+	var cID = req.query.cID === undefined ? null : toObjectID(req.query.cID);
+	
+	if (rusheeID !== null) {
+		rushdb.getRushee(rusheeID, function(err, info) {
+			if (err !== null && err !== undefined) {
+				console.log(err);
+				res.redirect(BASE_PATH+'/404');
+				return;
+			}
+			info.basepath = BASE_PATH;
+			res.render('view.jade', info);
+		});
+	} else if (cID !== null) {
+		rushdb.getCandidate(cID, function(err, info) {
+			if (err !== null && err !== undefined) {
+				console.log(err);
+				res.redirect(BASE_PATH+'/404');
+				return;
+			}
+			info.rushee = info.candidate;
+			info.basepath = BASE_PATH;
+			res.render('view.jade', info);
+		});
+	} else {
 		rushdb.get(rushdb.arrange, {}, function(err, info) {
 			if (err !== null && err !== undefined) {
 				console.log(err);
@@ -464,9 +529,12 @@ app.get(BASE_PATH+'/frontdesk', function(req, res) {
 				info.rushees = [];
 				info.q = '';
 			} else if (q !== "") {
-				info.rushees = search.get(info.rushees, q);
+				var results = info.rushees.concat(info.candidates);
+				results = search.get(results, q);
+				info.rushees = results;
 				info.q = q;
 			} else {
+				info.rushees = info.rushees.concat(info.candidates);
 				info.q = q;
 			}
 			info.accountType = auth.getAccountType(req, res);
@@ -478,25 +546,35 @@ app.get(BASE_PATH+'/frontdesk', function(req, res) {
 			info.inhouse = req.query.inhouse;
 			res.render('viewall.jade', info);
 		});
-	} else {
-		rushdb.getRushee(rusheeID, function(err, info) {
+	}
+});
+
+app.post(BASE_PATH+'/inhouse', auth.checkFrontDeskAuth, function(req, res) {
+	var rID = req.body.rID === undefined ? null : toObjectID(req.body.rID);
+	var cID = req.body.cID === undefined ? null : toObjectID(req.body.cID);
+	
+	
+	//GOING IN
+	if (rID !== null) {	
+		rushdb.insertStatus(rID, 'IN');
+		res.redirect(BASE_PATH+'/frontdesk');
+	} else if (cID !== null) {
+		rushdb.transferCandidate(cID, rushdb.insertRushee, function(err, docs) {
 			if (err !== null && err !== undefined) {
 				console.log(err);
 				res.redirect(BASE_PATH+'/404');
 				return;
 			}
-			info.basepath = BASE_PATH;
-			res.render('view.jade', info);
+			console.log(docs);
+			var newID = docs[0]._id;
+			rushdb.insertStatus(newID, 'IN');
 		});
+		res.redirect(BASE_PATH+'/frontdesk');
+	} else {
+		console.log(new Error('no rushee or candidate ID.'));
+		res.redirect(BASE_PATH+'/404');
 	}
-});
 
-app.post(BASE_PATH+'/inhouse', auth.checkFrontDeskAuth, function(req, res) {
-	var rusheeID = toObjectID(req.body.rID);
-	
-	//GOING IN
-	rushdb.insertStatus(rusheeID, 'IN');
-	res.redirect(BASE_PATH+'/frontdesk');
 });
 
 app.post(BASE_PATH+'/outhouse', auth.checkFrontDeskAuth, function(req, res) {
