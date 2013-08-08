@@ -263,26 +263,42 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 			return;
 		}
 		
-		var q = req.query.q;
-		if (q === null || q === undefined) {
-			info.rushees = [];
-			info.q = '';
-		} else if (q !== "") {
-			info.rushees = search.get(info.rushees, q);
-			info.q = q;
-		} else {
-			info.q = q;
-		}
-		
 		info.inhouse = req.query.inhouse;
 		info.priority = req.query.priority;
 		info.newrushee = req.query.newrushee;
 		info.outhouse = req.query.outhouse;
 		info.onjaunt = req.query.onjaunt;
-		
 		info.search = req.query.q;
 		info.basepath = BASE_PATH;
 		info.accountType = auth.getAccountType(req, res);
+		info.bidworthy = req.query.bidworthy;
+		
+		var options = {
+			inhouse : info.inhouse === 'on',
+			priority : info.priority === 'on',
+			outhouse : info.outhouse === 'on',
+			onjaunt : info.onjaunt === 'on',
+			bidworthy : info.bidworthy === 'on' ? info.bidScore : false,
+			visible : !info.accountType.isAdmin()
+		};
+		
+		var f = function(rushee) {
+			return search.filterRushee(rushee, options);
+		};
+		
+		var q = info.search;
+		if (q === null || q === undefined) {
+			info.rushees = [];
+			info.q = '';
+		} else if (q !== "") {
+			info.rushees = tools.filter(info.rushees, f);
+			info.rushees = search.get(info.rushees, q);
+			info.q = q;
+		} else {
+			info.rushees = tools.filter(info.rushees, f);
+			info.q = q;
+		}
+		
 		res.render('viewrushees.jade', info);
 	});
 });
@@ -468,6 +484,48 @@ app.post(BASE_PATH+'/addrushee', auth.checkAdminAuth, function(req,res) {
 	res.render('addrushee.jade',{basepath:BASE_PATH});
 });
 
+
+app.get(BASE_PATH+'/newrushee', auth.checkFrontDeskAuth, function(req,res) {
+	res.render('addrusheefront.jade',{basepath:BASE_PATH});
+});
+
+app.post(BASE_PATH+'/newrushee', auth.checkFrontDeskAuth, function(req,res) {
+	var photoPath = '/public/img/no_photo.jpg';
+	var first = req.body.first || '';
+	var last = req.body.last || '';
+	var nick = req.body.nick || '';
+	var dorm = req.body.dorm || '';
+	var phone = req.body.phone || '';
+	var year = req.body.year || '';
+	var email = req.body.email || '';
+	var photo = photoPath;
+	
+	var rushee = {
+		first: first,
+		last: last,
+		nick: nick,
+		dorm: dorm,
+		phone: phone,
+		email: email,
+		year: year,
+		photo: photoPath,
+		visible: true,
+		priority: false
+	};
+
+	rushdb.insertRushee(rushee, function(err, docs) {
+		if (err !== null && err !== undefined) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		var newID = docs[0]._id;
+		rushdb.insertStatus(newID, 'IN');
+	});
+	res.redirect(BASE_PATH+'/frontdesk');
+});
+
+
 app.get(BASE_PATH+'/', auth.checkFrontDeskAuth, function(req, res){
 	var accountType = auth.getAccountType(req, res);
 	if (accountType == auth.accountType.ADMIN) {
@@ -524,26 +582,42 @@ app.get(BASE_PATH+'/frontdesk', function(req, res) {
 				res.redirect(BASE_PATH+'/404');
 				return;
 			}
-			var q = req.query.q;
+			
+			info.accountType = auth.getAccountType(req, res);
+			info.search = req.query.q;
+			info.basepath = BASE_PATH;
+			info.outhouse = req.query.outhouse;
+			info.onjaunt = req.query.onjaunt;
+			info.inhouse = req.query.inhouse;
+			var options = {
+				inhouse : info.inhouse === 'on',
+				priority : info.priority === 'on',
+				outhouse : info.outhouse === 'on',
+				onjaunt : info.onjaunt === 'on',
+				visible : !info.accountType.isAdmin()
+			};
+		
+			var f = function(rushee) {
+				return search.filterRushee(rushee, options);
+			};
+			
+			var q = info.search;
 			if (q === null || q === undefined) {
 				info.rushees = [];
 				info.q = '';
 			} else if (q !== "") {
 				var results = info.rushees.concat(info.candidates);
+				results = tools.filter(results, f);
 				results = search.get(results, q);
 				info.rushees = results;
 				info.q = q;
 			} else {
-				info.rushees = info.rushees.concat(info.candidates);
+				var results = info.rushees.concat(info.candidates);
+				results = tools.filter(results, f);
+				info.rushees = results;
 				info.q = q;
 			}
-			info.accountType = auth.getAccountType(req, res);
-			info.search = req.query.q;
-			info.basepath = BASE_PATH;
-			info.newrushee = req.query.newrushee;
-			info.outhouse = req.query.outhouse;
-			info.onjaunt = req.query.onjaunt;
-			info.inhouse = req.query.inhouse;
+			
 			res.render('viewall.jade', info);
 		});
 	}
@@ -552,7 +626,6 @@ app.get(BASE_PATH+'/frontdesk', function(req, res) {
 app.post(BASE_PATH+'/inhouse', auth.checkFrontDeskAuth, function(req, res) {
 	var rID = req.body.rID === undefined ? null : toObjectID(req.body.rID);
 	var cID = req.body.cID === undefined ? null : toObjectID(req.body.cID);
-	
 	
 	//GOING IN
 	if (rID !== null) {	
@@ -565,7 +638,6 @@ app.post(BASE_PATH+'/inhouse', auth.checkFrontDeskAuth, function(req, res) {
 				res.redirect(BASE_PATH+'/404');
 				return;
 			}
-			console.log(docs);
 			var newID = docs[0]._id;
 			rushdb.insertStatus(newID, 'IN');
 		});
@@ -578,19 +650,53 @@ app.post(BASE_PATH+'/inhouse', auth.checkFrontDeskAuth, function(req, res) {
 });
 
 app.post(BASE_PATH+'/outhouse', auth.checkFrontDeskAuth, function(req, res) {
-	var rusheeID = toObjectID(req.body.rID);
+	var rID = req.body.rID === undefined ? null : toObjectID(req.body.rID);
+	var cID = req.body.cID === undefined ? null : toObjectID(req.body.cID);
 	
 	//GOING OUT
-	rushdb.insertStatus(rusheeID, 'OUT');
-	res.redirect(BASE_PATH+'/frontdesk');
+	if (rID !== null) {	
+		rushdb.insertStatus(rID, 'OUT');
+		res.redirect(BASE_PATH+'/frontdesk');
+	} else if (cID !== null) {
+		rushdb.transferCandidate(cID, rushdb.insertRushee, function(err, docs) {
+			if (err !== null && err !== undefined) {
+				console.log(err);
+				res.redirect(BASE_PATH+'/404');
+				return;
+			}
+			var newID = docs[0]._id;
+			rushdb.insertStatus(newID, 'OUT');
+		});
+		res.redirect(BASE_PATH+'/frontdesk');
+	} else {
+		console.log(new Error('no rushee or candidate ID.'));
+		res.redirect(BASE_PATH+'/404');
+	}
 });
 
 app.post(BASE_PATH+'/onjaunt', auth.checkFrontDeskAuth, function(req, res) {
-	var rusheeID = toObjectID(req.body.rID);
+	var rID = req.body.rID === undefined ? null : toObjectID(req.body.rID);
+	var cID = req.body.cID === undefined ? null : toObjectID(req.body.cID);
 	
 	//ON JAUNT
-	rushdb.insertStatus(rusheeID, 'JAUNT');
-	res.redirect(BASE_PATH+'/frontdesk');
+	if (rID !== null) {	
+		rushdb.insertStatus(rID, 'JAUNT');
+		res.redirect(BASE_PATH+'/frontdesk');
+	} else if (cID !== null) {
+		rushdb.transferCandidate(cID, rushdb.insertRushee, function(err, docs) {
+			if (err !== null && err !== undefined) {
+				console.log(err);
+				res.redirect(BASE_PATH+'/404');
+				return;
+			}
+			var newID = docs[0]._id;
+			rushdb.insertStatus(newID, 'JAUNT');
+		});
+		res.redirect(BASE_PATH+'/frontdesk');
+	} else {
+		console.log(new Error('no rushee or candidate ID.'));
+		res.redirect(BASE_PATH+'/404');
+	}
 });
 
 app.get('*', function(req, res){

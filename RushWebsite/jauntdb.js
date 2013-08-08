@@ -34,6 +34,19 @@ function makeJaunts(vans, jaunts) {
 		[[vans, 'vIDs', 'vans']]);
 }
 
+function makeVansNameList(rushees) {
+	var vanToName = function(v) {
+		return tools.map(v.jaunts, function(j) {
+			return j.name;
+		}).join(',') + ': ' + v.name;
+	};
+	
+	for (var i = 0, l = rushees.length; i < l; i++) {
+		var r = rushees[i];
+		r.vansNameList = tools.map(r.vans, vanToName);
+	}
+}
+
 //bit of a misnomer but w/e.
 function pushBrotherToVan(brotherID, vanID, callback) {
 	joindb.update('vans', {_id : vanID}, {$addToSet : {'bIDs' : brotherID}}, {}, callback);
@@ -91,6 +104,7 @@ module.exports = {
 	
 	makeVans : makeVans,
 	makeJaunts : makeJaunts,
+	makeVansNameList : makeVansNameList,
 	
 	pushBrotherToVan : pushBrotherToVan,
 	pushRusheeToVan : pushRusheeToVan,

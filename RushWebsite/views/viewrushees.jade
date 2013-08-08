@@ -37,14 +37,15 @@ block content
           input#priority(type='checkbox', name = 'priority')
         label.toggle-choice(for='priority') Priority
         
+        -if (bidworthy === 'on')
+          input#bidworthy(type='checkbox', name = 'bidworthy', checked)
+        -else
+          input#bidworthy(type='checkbox', name = 'bidworthy')
+        label.toggle-choice(for='bidworthy') Bidworthy
+        
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
-        -if (rushee.visible === false && !accountType.isAdmin()) continue;
-        -if (inhouse === 'on' && rushee.status.type._id !== 'IN') continue;
-        -if (priority === 'on' && rushee.priority !== true) continue; 
-        -if (onjaunt === 'on' && rushee.status.type._id !== 'JAUNT') continue;
-        -if (outhouse === 'on' && rushee.status.type._id !== 'OUT') continue;
         li.rushee-wrapper
           .rushee-content.clearfix
             rushee-photo-and-status.lfloat
@@ -76,6 +77,9 @@ block content
                   span.rushee-info-data #{rushee.sponsorsNameList.join(', ')}
                 - else
                   span.rushee-info-data.missing-sponsor NEED SPONSOR
+              .rushee-info-item.rushee-jaunts
+                span.rushee-info-type Jaunt(s)
+                span.rushee-info-data #{rushee.vansNameList.join(', ')}
               .rushee-info-item.rushee-votes
                 span.rushee-info-type Voting score
                 span.rushee-info-data #{rushee.voteScore}

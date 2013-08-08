@@ -139,6 +139,12 @@ function insertVote(rusheeID, brotherID, typeID) {
 	joindb.insert('votes', entry);
 }
 
+function getBidScore(brothers) {
+	return 3/4 * tools.count(brothers, function(b) {
+		return b.visible !== false; //undefined = true
+	});
+}
+
 module.exports = {
 	VoteType : VoteType,
 	SORTED_VOTE_TYPES : SORTED_VOTE_TYPES,
@@ -151,5 +157,6 @@ module.exports = {
 	makeVoteScore : makeVoteScore,
 	makeVotesByType : makeVotesByType,
 	countVotesByType : countVotesByType,
-	insertVote : insertVote
+	insertVote : insertVote,
+	getBidScore : getBidScore
 };

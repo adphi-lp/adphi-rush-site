@@ -2,16 +2,30 @@
 
 var tools = require("./tools");
 
+function filterRushee(rushee, options) {
+	return (options.inhouse !== true || rushee.status.type._id === 'IN') &&
+		(options.outhouse !== true || rushee.status.type._id === 'OUT') &&
+		(options.onjaunt !== true || rushee.status.type._id === 'JAUNT') &&
+		(options.priority !== true || rushee.priority === true) && //undefined = false
+		(options.visible !== true|| rushee.visible !== false) && //undefined = true
+		(options.bidworthy === false || options.bidworthy === undefined ||
+			rushee.voteScore > options.bidworthy);
+}
+
 function get(rushees, query) {
 	var words = split(query);
 	var ranking = [];
 	for (var i = 0, l = rushees.length; i < l; i++) {
 		var rushee = rushees[i];
-		ranking[i] = [rushee, rank(rushee, words)];
+		ranking[i] = [rushee, rank(rushee, words), i];
 	}
 	
 	ranking.sort(function(a, b) {
-		return b[1] - a[1];
+		if (b[1] != a[1]) {
+			return b[1] - a[1];
+		} else {
+			return a[2] - b[2];
+		}
 	});
 	
 	var results = ranking.slice(0,10);
@@ -67,11 +81,7 @@ function rankStatus(rushee) {
 	return count;
 }
 
-
-function match(rushee, query) {
-	return rushee.name.toUpperCase().indexOf(query.toUpperCase()) !== -1;
-}
-
 module.exports = {
-	get : get
+	get : get,
+	filterRushee : filterRushee
 };

@@ -285,9 +285,12 @@ function getThird(info, nextStep) {
 	votedb.makeVotesByType(rushees);
 	votedb.countVotesByType(rushees, brothers);
 	votedb.countVotesByType(brothers, rushees);
+	info.bidScore = votedb.getBidScore(brothers);
 	
 	jauntdb.makeVans(rushees, brothers, vans);
 	jauntdb.makeJaunts(vans, jaunts);
+	jauntdb.makeVansNameList(rushees);
+	jauntdb.makeVansNameList(brothers);
 	
 	nextStep(null, info);
 }

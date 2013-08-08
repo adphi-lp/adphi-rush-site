@@ -36,6 +36,28 @@ function map (arr, func) {
 	return ret;
 }
 
+function filter(arr, filt) {
+	var results = [];
+	for (var i = 0, l = arr.length; i < l; i++) {
+		var el = arr[i];
+		if (filt(el)) {
+			results.push(el);
+		}
+	}
+	return results;
+}
+
+function count (arr, func) {
+	var num = 0;
+	for (var i = 0, l = arr.length; i < l; i++) {
+		if (func(arr[i])) {
+			num++;
+		}
+	}
+	
+	return num;
+}
+
 function strCmp(str1, str2) {
 	if (str1 > str2) {
 		return 1;
@@ -56,5 +78,7 @@ module.exports = {
 	lastfirst : lastfirst,
 	strCmp: strCmp,
 	strCmpNoCase : strCmpNoCase,
-	map : map
+	filter : filter,
+	map : map,
+	count : count
 };
