@@ -12,6 +12,7 @@ block content
       .search-bar
         input#search(type='text', name = 'q', value = '#{q}')
         input(type='submit',formmethod='get',formaction=basepath+'/frontdesk', value='Search')
+        input(type='submit',formmethod='get',formaction=basepath+'/newrushee',value = 'New')
       .search-options
         -if (inhouse === 'on')
           input#inhouse(type='checkbox', name = 'inhouse', checked)
@@ -30,21 +31,9 @@ block content
         -else
           input#onjaunt(type='checkbox', name = 'onjaunt')
         label.toggle-choice(for='onjaunt') Jaunt
-      
-        -if (newrushee === 'on')
-          input#newrushee(type='checkbox', name = 'newrushee', checked)
-        -else
-          input#newrushee(type='checkbox', name = 'newrushee')
-        label.toggle-choice(for='newrushee') New
-      
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
-        -if (rushee.visible === false && !accountType.isAdmin()) continue;
-        -if (inhouse === 'on' && rushee.status.type._id !== 'IN') continue;
-        -if (outhouse === 'on' && rushee.status.type._id !== 'OUT') continue;
-        -if (onjaunt === 'on' && rushee.status.type._id !== 'JAUNT') continue;
-        -if (newrushee === 'on' && rushee.status.type._id !== 'NULL') continue;
         -var idName = 'rID';
         -if (rushee.candidate) idName = 'cID';
         li.rushee-wrapper

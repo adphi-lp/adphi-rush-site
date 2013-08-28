@@ -10,7 +10,7 @@ block content
     form.rushee-add-content(enctype = 'multipart/form-data')
       .rushee-add-info
         .rushee-add-item.rushee-id
-          input.rushee-add-date(type='hidden',name='rusheeID',value=rushee._id)
+          input.rushee-add-data(type='hidden',name='rID',value=rushee._id)
         .rushee-add-item.rushee-first-name
           span.rushee-add-type First Name
           input.rushee-add-data(name='first',required,value=rushee.first)

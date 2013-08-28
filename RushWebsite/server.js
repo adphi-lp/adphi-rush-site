@@ -211,7 +211,7 @@ app.get(BASE_PATH+'/editrushee', auth.checkAuth,  function(req, res) {
 });
 
 app.post(BASE_PATH+'/editrushee', auth.checkAuth, function(req, res) {
-	var rusheeID = toObjectID(req.body.rusheeID);
+	var rusheeID = toObjectID(req.body.rID);
 	
 	//TODO clean up photo code
 	var photo = req.files.photo;
@@ -248,9 +248,45 @@ app.post(BASE_PATH+'/editrushee', auth.checkAuth, function(req, res) {
 	rushdb.updateRushee(rusheeID, rushee, function(err) {
 		if (err !== null && err !== undefined) {
 			console.log(err);
-			res.redirect(BASE_PATH+'/editrushees');
+			res.redirect(BASE_PATH+'/editrushees'); //TODO error page
 		} else {
 			res.redirect(BASE_PATH+'/viewrushees');
+		}
+	});
+});
+
+app.get(BASE_PATH+'/editbrother', auth.checkAuth,  function(req, res) {
+	var bID = req.query.bID === undefined ? null : toObjectID(req.query.bID);
+	
+	rushdb.getBrother(bID, function(err, info) {
+		if (err !== null && err !== undefined) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		info.accountType = auth.getAccountType(req, res);
+		info.basepath = BASE_PATH;
+		res.render('editbrother.jade', info);
+	});
+});
+
+app.post(BASE_PATH+'/editbrother', auth.checkAuth, function(req, res) {
+	var brotherID = toObjectID(req.body.bID);
+	var brother = {
+		first: req.body.first,
+		last: req.body.last,
+		'class': req.body['class'],
+		phone: req.body.phone,
+		email: req.body.email
+	};
+	
+	rushdb.updateBrother(brotherID, brother, function(err) {
+		if (err !== null && err !== undefined) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/editbrothers'); //TODO error page
+		} else {
+			res.redirect(BASE_PATH+'/viewbrothers');
 		}
 	});
 });
@@ -265,7 +301,6 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 		
 		info.inhouse = req.query.inhouse;
 		info.priority = req.query.priority;
-		info.newrushee = req.query.newrushee;
 		info.outhouse = req.query.outhouse;
 		info.onjaunt = req.query.onjaunt;
 		info.search = req.query.q;
@@ -300,6 +335,20 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 		}
 		
 		res.render('viewrushees.jade', info);
+	});
+});
+
+app.get(BASE_PATH+'/newrushees', auth.checkAdminAuth, function(req,res){
+	rushdb.get(rushdb.arrange, {rushees : {sort : {_id : -1}}}, function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		info.basepath = BASE_PATH;
+		info.accountType = auth.getAccountType(req, res);
+		res.render('newrushees.jade', info);
 	});
 });
 

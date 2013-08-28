@@ -1,48 +1,13 @@
 extends layout
 
 block head
-  title='View all Rushees'  
+  title='Recent Rushees'  
   link(rel='stylesheet',href=basepath+'/css/viewrushees.css')
  
 
 block content
   .rushees-wrapper
-    h1.rushees-title View all rushees
-    form.rushees-search
-      .search-bar
-        input#search(type='text', name = 'q', value = '#{q}')
-        input(type='submit',formmethod='get',formaction=basepath+'/viewrushees', value='Search')
-      .search-options
-        -if (inhouse === 'on')
-          input#inhouse(type='checkbox', name = 'inhouse', checked)
-        -else
-          input#inhouse(type='checkbox', name = 'inhouse')
-        label.toggle-choice(for='inhouse') In
-      
-        -if (outhouse === 'on')
-          input#outhouse(type='checkbox', name = 'outhouse', checked)
-        -else
-          input#outhouse(type='checkbox', name = 'outhouse')
-        label.toggle-choice(for='outhouse') Out
-      
-        -if (onjaunt === 'on')
-          input#onjaunt(type='checkbox', name = 'onjaunt', checked)
-        -else
-          input#onjaunt(type='checkbox', name = 'onjaunt')
-        label.toggle-choice(for='onjaunt') Jaunt
-        
-        -if (priority === 'on')
-          input#priority(type='checkbox', name = 'priority', checked)
-        -else
-          input#priority(type='checkbox', name = 'priority')
-        label.toggle-choice(for='priority') Priority
-        
-        -if (bidworthy === 'on')
-          input#bidworthy(type='checkbox', name = 'bidworthy', checked)
-        -else
-          input#bidworthy(type='checkbox', name = 'bidworthy')
-        label.toggle-choice(for='bidworthy') Bidworthy
-        
+    h1.rushees-title View recent rushees
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
@@ -59,6 +24,7 @@ block content
                 a(href=basepath+'/vote?rID='+rushee._id) #{rushee.name}
                   -if (accountType.isAdmin() && rushee.visible === false)
                     |  (hidden)
+              .rushee-time #{rushee.time}
               .rushee-info-item.rushee-dorm
                 span.rushee-info-type Dorm
                 span.rushee-info-data #{rushee.dorm}

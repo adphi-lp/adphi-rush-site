@@ -55,6 +55,8 @@ function connect(databaseURL) {
 function augRushee(rushee) {
 	rushee.name = tools.name(rushee.first, rushee.nick, rushee.last);
 	rushee.lastfirst = tools.lastfirst(rushee.first, rushee.nick, rushee.last);
+	var time = moment(rushee._id.getTimestamp());
+	rushee.time = time.format('h:mm:ss a, dddd, MMMM Do YYYY');
 }
 
 function augBrother(brother) {
@@ -96,6 +98,10 @@ function makeInHouseRushees(info, rushees) {
 
 function getRushee(rusheeID, render) {
 	getSingle('rushees', 'rushee', rusheeID, augRushee, render);
+}
+
+function getBrother(brotherID, render) {
+	getSingle('brothers', 'brother', brotherID, augBrother, render);
 }
 
 function getCandidate(cID, render) {
@@ -464,6 +470,12 @@ function updateRushee(rusheeID, rushee, callback) {
 	joindb.update('rushees', {_id : rusheeID}, {$set : rushee}, {}, callback);	
 }
 
+function updateBrother(brotherID, brother, callback) {
+	brother.sfirst = brother.first.toLowerCase();
+	brother.slast = brother.last.toLowerCase();
+	joindb.update('brothers', {_id : brotherID}, {$set : brother}, {}, callback);	
+}
+
 module.exports = {
 	VoteType: votedb.VoteType,
 	CommentType : commentdb.CommentType,
@@ -476,6 +488,7 @@ module.exports = {
 	
 	getRushee : getRushee,
 	getCandidate : getCandidate,
+	getBrother : getBrother,
 	
 	connect : connect,
 	
@@ -506,6 +519,7 @@ module.exports = {
 	
 	updateCandidate : candidatedb.updateCandidate,
 	updateRushee : updateRushee,
+	updateBrother : updateBrother,
 	
 	transferCandidate : candidatedb.transferCandidate,
 	
