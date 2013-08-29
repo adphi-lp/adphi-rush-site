@@ -436,7 +436,7 @@ app.get(BASE_PATH+'/viewbrother', auth.checkAuth, function(req, res){
 	});
 });
 
-app.get(BASE_PATH+'/viewhistory', function(req, res) {
+app.get(BASE_PATH+'/viewhistory', auth.checkAdminAuth, function(req, res) {
 	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
 	var brotherID = req.query.bID === undefined ? null : toObjectID(req.query.bID);
 	
@@ -645,7 +645,7 @@ app.post(BASE_PATH+'/login', function(req,res){
 	res.redirect(BASE_PATH+'/');
 });
 
-app.get(BASE_PATH+'/frontdesk', function(req, res) {
+app.get(BASE_PATH+'/frontdesk', auth.checkFrontDeskAuth, function(req, res) {
 	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
 	var cID = req.query.cID === undefined ? null : toObjectID(req.query.cID);
 	
