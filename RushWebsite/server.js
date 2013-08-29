@@ -63,6 +63,7 @@ app.get(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){
 		
 		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
 		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
+		info.accountType = auth.getAccountType(req, res);
 		info.basepath = BASE_PATH;
 		res.render('jaunt.jade', info);
 		time = process.hrtime(time);
@@ -90,7 +91,6 @@ app.post(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){
 	res.redirect(BASE_PATH+'/jaunt?jID=' + id);
 });
 
-
 app.post(BASE_PATH+'/pushRusheeToVan', auth.checkAuth, function(req, res){
 	var rid = toObjectID(req.body.rID);
 	var vid = toObjectID(req.body.vID);
@@ -108,7 +108,53 @@ app.post(BASE_PATH+'/pushBrotherToVan', auth.checkAuth, function(req, res){
 	
 	res.redirect(BASE_PATH+'/jaunts');
 });
-app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){//TODO
+
+app.post(BASE_PATH+'/pullVanFromJaunt', auth.checkAuth, function(req, res){
+	var jid = toObjectID(req.body.jID);
+	var vid = toObjectID(req.body.vID);
+	
+	rushdb.pullVanFromJaunt(vid, jid, function(err, count) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		rushdb.removeVan(vid);
+	});
+	
+	res.redirect(BASE_PATH+'/jaunts');
+});
+
+
+app.post(BASE_PATH+'/pullRusheeFromVan', auth.checkAuth, function(req, res){
+	var rid = toObjectID(req.body.rID);
+	var vid = toObjectID(req.body.vID);
+	
+	rushdb.pullRusheeFromVan(rid, vid, function(err, count) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		res.redirect(BASE_PATH+'/jaunts');
+	});
+});
+
+app.post(BASE_PATH+'/pullBrotherFromVan', auth.checkAuth, function(req, res){
+	var bid = toObjectID(req.body.bID);
+	var vid = toObjectID(req.body.vID);
+	
+	rushdb.pullBrotherFromVan(bid, vid, function(err, count) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		res.redirect(BASE_PATH+'/jaunts');
+	});
+});
+
+app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){
 	var time = process.hrtime();
 	
 	rushdb.get(rushdb.arrange, {}, function(err, info) {
@@ -128,7 +174,7 @@ app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){//TODO
 });
 
 
-app.post(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){//TODO
+app.post(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){
 	var name = req.body.jName;
 	var time = Date.parse(req.body.jTime);
 	

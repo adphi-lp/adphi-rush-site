@@ -1,4 +1,5 @@
 extends layout
+include mixins
 
 block head
   title='View all Rushees'  
@@ -47,40 +48,4 @@ block content
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
         li.rushee-wrapper
-          .rushee-content.clearfix
-            rushee-photo-and-status.lfloat
-              a.rushee-photo(href=basepath+'/vote?rID='+rushee._id)
-                img.img-medium(src=basepath+rushee.photo,alt=rushee.name)
-              .rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
-              -if (rushee.priority)
-                .rushee-priority Priority
-            .rushee-info
-              .rushee-info-item.rushee-name
-                a(href=basepath+'/vote?rID='+rushee._id) #{rushee.name}
-                  -if (accountType.isAdmin() && rushee.visible === false)
-                    |  (hidden)
-              .rushee-info-item.rushee-dorm
-                span.rushee-info-type Dorm
-                span.rushee-info-data #{rushee.dorm}
-              .rushee-info-item.rushee-phone
-                span.rushee-info-type Phone
-                span.rushee-info-data #{rushee.phone}
-              .rushee-info-item.rushee-email
-                span.rushee-info-type Email
-                span.rushee-info-data #{rushee.email}
-              .rushee-info-item.rushee-year
-                span.rushee-info-type Year
-                span.rushee-info-data #{rushee.year}
-              .rushee-info-item.rushee-sponsors
-                span.rushee-info-type Sponsor(s)
-                - if (rushee.sponsorsNameList.length > 0)
-                  span.rushee-info-data #{rushee.sponsorsNameList.join(', ')}
-                - else
-                  span.rushee-info-data.missing-sponsor NEED SPONSOR
-              .rushee-info-item.rushee-jaunts
-                span.rushee-info-type Jaunt(s)
-                span.rushee-info-data #{rushee.vansNameList.join(', ')}
-              .rushee-info-item.rushee-votes
-                span.rushee-info-type Voting score
-                span.rushee-info-data #{rushee.voteScore}
- 
+          +rushee(rushee, accountType, basepath)

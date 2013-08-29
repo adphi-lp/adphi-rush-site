@@ -1,4 +1,5 @@
 extends layout
+include mixins
 
 block head
   title='Voting'
@@ -50,13 +51,7 @@ block content
     ul.comment-thread-content
       - for (var i = 0; i < brother.comments.length; i++)	
         -var comment = brother.comments[i];
-        li.comment-wrapper
-          .comment-content
-            .comment-header
-              span.comment-header-element.comment-name #{comment.rushee.name}
-              span.comment-header-element.comment-type(style='color:#{comment.type.color};') #{comment.type.name}
-            .comment-text #{comment.text}
-            .comment-time #{comment.time}
+        +comment(comment, accountType, basepath, {rushee: true})
 
 
  

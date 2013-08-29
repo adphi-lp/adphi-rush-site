@@ -21,27 +21,42 @@ block content
                 -var van = jaunt.vans[j];
                 .jaunt-van-wrapper
                   h3.jaunt-van-title #{van.name}
-                  .jaunt-van-driver #{van.driver}
+                  form.jaunt-van-form(method='post',action=basepath+'/pullVanFromJaunt')
+                    span.jaunt-van-driver #{van.driver}
+                    input(type='hidden',name='vID',value=van._id)
+                    input(type='hidden',name='jID',value=jaunt._id)
+                    input(type='submit',value='Pull van')
                   .jaunt-rushee-thread-wrapper
                     .jaunt-rushee-thread-header
                       h4.jaunt-rushee-thread-title Rushees
                     .jaunt-rushee-thread-content
-                      -for (var j = 0; j < van.rushees.length; j++)
-                        -var rushee = van.rushees[j];
+                      -for (var k = 0; k < van.rushees.length; k++)
+                        -var rushee = van.rushees[k];
                         .jaunt-rushee-wrapper
                           .jaunt-rushee-content
-                            .jaunt-rushee-info-item.jaunt-rushee-name
-                              a(href=basepath+'/vote?rID='+rushee._id) #{rushee.name}
+                            .jaunt-rushee-info-item.jaunt-rushee-name   
+                              form.jaunt-rushee-form(method='post',
+                                        action=basepath+'/pullRusheeFromVan')
+                                a(href=basepath+'/vote?rID='+rushee._id) #{rushee.name}  
+                                input(type='hidden',name='vID',value=van._id)
+                                input(type='hidden',name='rID',value=rushee._id)
+                                input(type='submit',value='Pull rushee')
                   .jaunt-brother-thread-wrapper
                     .jaunt-brother-thread-header
                       h4.jaunt-brother-thread-title Brothers
                     .jaunt-brother-thread-content
-                      -for (var j = 0; j < van.brothers.length; j++)
-                        -var brother = van.brothers[j];
+                      -for (var k = 0; k < van.brothers.length; k++)
+                        -var brother = van.brothers[k];
                         .jaunt-brother-wrapper
                           .jaunt-brother-content
                             .jaunt-brother-name
-                              a(href=basepath+'/viewbrother?bID='+brother._id) #{brother.name}
+                              form.jaunt-rushee-form(method='post',
+                                        action=basepath+'/pullBrotherFromVan')
+                                a(href=basepath+'/viewbrother?bID='+brother._id) #{brother.name}
+                                input(type='hidden',name='vID',value=van._id)
+                                input(type='hidden',name='bID',value=brother._id)
+                                input(type='submit',value='Pull brother')
+                                
   .jaunt-action-wrapper
     h2.title Add a Jaunt
     form.jaunt-action-content(method='post',action='#')

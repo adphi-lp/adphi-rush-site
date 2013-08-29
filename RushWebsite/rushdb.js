@@ -246,7 +246,7 @@ function getSecond(info, nextStep) {
 		},
 		sponsors : function (cb) {
 			joindb.find('sponsors', queryBoth, {_id: -1}, function(){}, cb);
-		},//TODO
+		},
 		vans : function(cb) {
 			joindb.find('vans', {}, {_id: -1}, function(){}, cb);
 		},
@@ -531,6 +531,7 @@ module.exports = {
 	pullVanFromJaunt : jauntdb.pullVanFromJaunt,
 	insertVan : jauntdb.insertVan,
 	updateVan : jauntdb.updateVan,
+	removeVan : jauntdb.removeVan,
 	insertJaunt : jauntdb.insertJaunt,
 	updateJaunt : jauntdb.updateJaunt,
 	removeJaunt : jauntdb.removeJaunt

@@ -1,4 +1,5 @@
 extends layout
+include mixins
 
 block head
   title='Voting'
@@ -8,41 +9,7 @@ block head
 
 block content
   .rushee-wrapper
-    .rushee-content.clearfix
-      rushee-photo-and-status.lfloat
-        a.rushee-photo(href=basepath+'/vote?rID='+rushee._id)
-          img.img-large(src=basepath+rushee.photo,alt=rushee.name)
-        .rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
-        -if (rushee.priority)
-          .rushee-priority Priority
-      .rushee-info
-        .rushee-info-item.rushee-name
-          a(href=basepath+'/vote?rID='+rushee._id) #{rushee.name}
-            -if (accountType.isAdmin() && rushee.visible === false)
-              |  (hidden)
-        .rushee-info-item.rushee-dorm
-          span.rushee-info-type Dorm
-          span.rushee-info-data #{rushee.dorm}
-        .rushee-info-item.rushee-phone
-          span.rushee-info-type Phone
-          span.rushee-info-data #{rushee.phone}
-        .rushee-info-item.rushee-email
-          span.rushee-info-type Email
-          span.rushee-info-data #{rushee.email}
-        .rushee-info-item.rushee-year
-          span.rushee-info-type Year
-          span.rushee-info-data #{rushee.year}
-        .rushee-info-item.rushee-sponsors
-          span.rushee-info-type Sponsor(s)
-          - if (rushee.sponsorsNameList.length > 0)
-            span.rushee-info-data #{rushee.sponsorsNameList.join(', ')}
-          - else
-            span.rushee-info-data.missing-sponsor NEED SPONSOR
-        .rushee-info-item.rushee-votes
-          span.rushee-info-type Voting score
-          span.rushee-info-data #{rushee.voteScore}
-        .rushee-edit
-          a(href=basepath+'/editrushee?rID='+rushee._id) edit
+    +rushee(rushee, accountType, basepath, options={largeimg : true, edit: true})
           
   -if (accountType.isAdmin())
     .brother-action-wrapper
@@ -149,15 +116,4 @@ block content
     ul.comment-thread-content
       - for (var i = 0; i < rushee.comments.length; i++)	
         -var comment = rushee.comments[i];
-        li.comment-wrapper
-          .comment-content
-            .comment-header
-              span.comment-header-element.comment-name #{comment.brother.name}
-              span.comment-header-element.comment-type(style='color:#{comment.type.color};') #{comment.type.name}
-              -if (comment.jaunt !== undefined)
-                span.comment-header-element.comment-jaunt #{comment.jaunt.name}
-            .comment-text #{comment.text}
-            .comment-time #{comment.time}
-
-
- 
+        +comment(comment, accountType, basepath, {brother: true})
