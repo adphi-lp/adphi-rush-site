@@ -363,6 +363,7 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 		info.basepath = BASE_PATH;
 		info.accountType = auth.getAccountType(req, res);
 		info.bidworthy = req.query.bidworthy;
+		info.hidden = req.query.hidden;
 		
 		var options = {
 			inhouse : info.inhouse === 'on',
@@ -370,7 +371,9 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 			outhouse : info.outhouse === 'on',
 			onjaunt : info.onjaunt === 'on',
 			bidworthy : info.bidworthy === 'on' ? info.bidScore : false,
-			visible : !info.accountType.isAdmin()
+			visible : !info.accountType.isAdmin(),
+			hidden : info.hidden === 'on' && info.accountType.isAdmin(),
+			candidate : false
 		};
 		
 		var f = function(rushee) {
@@ -694,14 +697,19 @@ app.get(BASE_PATH+'/frontdesk', auth.checkFrontDeskAuth, function(req, res) {
 			info.outhouse = req.query.outhouse;
 			info.onjaunt = req.query.onjaunt;
 			info.inhouse = req.query.inhouse;
+			info.hidden = req.query.hidden;
+			info.candidate = req.query.candidate;
+			
 			var options = {
 				inhouse : info.inhouse === 'on',
 				priority : info.priority === 'on',
 				outhouse : info.outhouse === 'on',
 				onjaunt : info.onjaunt === 'on',
-				visible : !info.accountType.isAdmin()
+				visible : !info.accountType.isAdmin(),
+				hidden : info.hidden === 'on' && info.accountType.isAdmin(),
+				candidate : info.candidate === 'on' && info.accountType.isAdmin()
 			};
-		
+			
 			var f = function(rushee) {
 				return search.filterRushee(rushee, options);
 			};

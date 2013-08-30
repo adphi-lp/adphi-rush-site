@@ -44,6 +44,13 @@ block content
           input#bidworthy(type='checkbox', name = 'bidworthy')
         label.toggle-choice(for='bidworthy') Bidworthy
         
+        -if (accountType.isAdmin())
+          -if (hidden === 'on')
+            input#hidden(type='checkbox', name = 'hidden', checked)
+          -else
+            input#hidden(type='checkbox', name = 'hidden')
+          label.toggle-choice(for='hidden') Hidden
+        
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];

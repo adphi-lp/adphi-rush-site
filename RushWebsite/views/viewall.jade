@@ -31,6 +31,20 @@ block content
         -else
           input#onjaunt(type='checkbox', name = 'onjaunt')
         label.toggle-choice(for='onjaunt') Jaunt
+        
+        -if (accountType.isAdmin())
+          -if (hidden === 'on')
+            input#hidden(type='checkbox', name = 'hidden', checked)
+          -else
+            input#hidden(type='checkbox', name = 'hidden')
+          label.toggle-choice(for='hidden') Hidden
+          
+          -if (candidate === 'on')
+            input#candidate(type='checkbox', name = 'candidate', checked)
+          -else
+            input#candidate(type='checkbox', name = 'candidate')
+          label.toggle-choice(for='candidate') Cand
+        
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
@@ -43,6 +57,8 @@ block content
                 a(href=basepath+'/frontdesk?'+idName+'='+rushee._id) #{rushee.name}
                   -if (accountType.isAdmin() && rushee.visible === false)
                     |  (hidden)
+                  -if (accountType.isAdmin() && rushee.candidate === true)
+                    |  (cand)
               .rushee-info-item
                 span.rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
               .rushee-info-item.rushee-dorm
