@@ -12,7 +12,7 @@ var commentdb = require('./commentdb');
 var candidatedb = require('./candidatedb');
 
 var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
-'votes', 'statuses', 'jaunts', 'vans', 'candidates', 'ids'];
+'votes', 'statuses', 'jaunts', 'vans', 'candidates', 'ids', 'import'];
 
 var StatusType = {
 	IN : {_id: 'IN', name: 'In House', color: '#00FF00'},
@@ -476,6 +476,14 @@ function updateBrother(brotherID, brother, callback) {
 	joindb.update('brothers', {_id : brotherID}, {$set : brother}, {}, callback);	
 }
 
+function copyCol(col1, col2) {
+	joindb.find(col1, {}, {}, function(){}, function(err, docs){
+		for (var i = 0; i < docs.length; i++) {
+			joindb.insert(col2, docs[i]);
+		}
+	});
+}
+
 module.exports = {
 	VoteType: votedb.VoteType,
 	CommentType : commentdb.CommentType,
@@ -536,5 +544,7 @@ module.exports = {
 	removeVan : jauntdb.removeVan,
 	insertJaunt : jauntdb.insertJaunt,
 	updateJaunt : jauntdb.updateJaunt,
-	removeJaunt : jauntdb.removeJaunt
+	removeJaunt : jauntdb.removeJaunt,
+	
+	copyCol : copyCol,
 };

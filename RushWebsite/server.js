@@ -174,6 +174,16 @@ app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){
 });
 
 
+app.get(BASE_PATH+'/copycol', auth.checkAdminAuth, function(req, res) {
+	res.render('copycol.jade', {basepath:BASE_PATH});
+});
+
+app.post(BASE_PATH+'/copycol', auth.checkAdminAuth, function(req, res) {
+	rushdb.copyCol('import', req.body.col);
+	res.redirect(BASE_PATH + '/');
+});
+
+
 app.post(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){
 	var name = req.body.jName;
 	var time = Date.parse(req.body.jTime);
