@@ -247,7 +247,7 @@ app.post(BASE_PATH+'/vote', auth.checkAuth, function(req, res) {
 		}
 	}
 	
-	res.redirect(BASE_PATH+'/');	
+	res.redirect(BASE_PATH+'/vote?rID=' + rusheeID);
 });
 
 app.get(BASE_PATH+'/editrushee', auth.checkAuth,  function(req, res) {
@@ -382,7 +382,9 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 		
 		var q = info.search;
 		if (q === null || q === undefined) {
-			info.rushees = [];
+			info.rushees = tools.filter(info.rushees, function (rushee) {
+				return search.filterRushee(rushee, {inhouse: true});
+			});
 			info.q = '';
 		} else if (q !== "") {
 			info.rushees = tools.filter(info.rushees, f);
@@ -716,7 +718,10 @@ app.get(BASE_PATH+'/frontdesk', auth.checkFrontDeskAuth, function(req, res) {
 			
 			var q = info.search;
 			if (q === null || q === undefined) {
-				info.rushees = [];
+				var results = info.rushees.concat(info.candidates);
+				info.rushees = tools.filter(results, function (rushee) {
+					return search.filterRushee(rushee, {inhouse: true});
+				});
 				info.q = '';
 			} else if (q !== "") {
 				var results = info.rushees.concat(info.candidates);
