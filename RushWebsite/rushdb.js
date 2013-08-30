@@ -50,7 +50,12 @@ function connect(databaseURL) {
 	joindb.ensureIndex('brothers', {slast: 1, sfirst: 1});
 	joindb.ensureIndex('candidates', {sfirst: 1, slast: 1});
 	joindb.ensureIndex('candidates', {slast: 1, sfirst: 1});
-	joindb.ensureIndex('vans', {sname: 1});
+	joindb.ensureIndex('votes', {ts: -1});
+	joindb.ensureIndex('sponsors', {ts: -1});
+	joindb.ensureIndex('comments', {ts: -1});
+	joindb.ensureIndex('statuses', {ts: -1});
+	joindb.ensureIndex('vans', {ts: 1});
+	joindb.ensureIndex('jaunts', {time: 1});
 }
 
 function augRushee(rushee) {
@@ -252,7 +257,7 @@ function getSecond(info, nextStep) {
 			joindb.find('vans', {}, {ts: 1}, function(){}, cb);
 		},
 		jaunts : function(cb) {
-			joindb.find('jaunts', {}, {ts: 1}, function(){}, cb);
+			joindb.find('jaunts', {}, {time: 1}, jauntdb.augJaunt, cb);
 		}
 	}, nextStep);
 }

@@ -15,6 +15,7 @@ block content
           .jaunt-header
             a.jaunt-title(href=basepath+'/jaunt?jID='+jaunt._id)
               h2 #{jaunt.name}
+            span.jaunt-time #{jaunt.timehuman}
           .jaunt-content
             .jaunt-van-thread-wrapper
               -for (var j = 0; j < jaunt.vans.length; j++)

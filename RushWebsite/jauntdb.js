@@ -1,6 +1,7 @@
 'use strict';
 
 var tools = require('./tools');
+var moment = require('moment');
 
 var joindb;
 
@@ -10,6 +11,11 @@ function importJoin(db) {
 
 function filterVans(rushees, brothers, vans) {
 	return joindb.filterGroup(vans, [[rushees, 'rIDs'], [brothers, 'bIDs']]);
+}
+
+function augJaunt(jaunt) {
+	var time = moment(jaunt.time);
+	jaunt.timehuman = time.format('dddd, MMM DD, HH:mm');
 }
 
 /**
@@ -102,6 +108,8 @@ module.exports = {
 	
 	filterVans : filterVans,
 	filterJaunts : filterJaunts,
+	
+	augJaunt : augJaunt,
 	
 	makeVans : makeVans,
 	makeJaunts : makeJaunts,
