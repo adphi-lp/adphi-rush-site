@@ -40,7 +40,7 @@ function getNullVote(rushee, brother) {
 }
 
 function augVote(vote) {
-	var time = moment(vote._id.getTimestamp());
+	var time = moment(vote.ts);
 	vote.time = time.format('h:mm:ss a') +
 		' on ' + time.format('dddd, MMMM Do YYYY');
 }

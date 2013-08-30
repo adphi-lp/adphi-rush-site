@@ -15,7 +15,7 @@ var rushdb = require('./rushdb');
 var tools = require('./tools');
 var auth = require('./auth');
 var search = require('./search');
-var toObjectID = require('mongojs').ObjectId;
+var toObjectID = rushdb.toObjectID;
 
 //create app and connect
 var app = express();

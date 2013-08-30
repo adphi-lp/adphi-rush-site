@@ -6,7 +6,14 @@ var tools = require('./tools');
 var moment = require('moment');
 
 function connect(databaseURL, collections) {
+	//ids is a reserved collection
+	var cols = collections.concat(['ids']);
 	db = mongojs.connect(databaseURL, collections);
+	
+	//ensure id
+	for (var i = 0; i < collections.length; i++) {
+		db.ids.insert({_id : cols[i], value: 0});
+	}
 }
 
 function ensureIndex(col, index) {
@@ -254,12 +261,55 @@ function find(col, query, sort, augment, callback) {
 	});
 }
 
+function findAndModify(col, query, augment, callback) {
+	db[col].findAndModify(query, function(err, doc){
+		if (err !== null && err !== undefined) {
+			callback(err, doc);
+		} else if (doc === null) {
+			callback(null, null);
+		} else {
+			augment(doc);
+			callback(null, doc);
+		}
+	});
+}
+
+function toObjectID(id) {
+	return parseInt(id, 10);
+}
+
+function findID(col, callback) {
+	var query = {
+		query : {_id : col},
+		update : {$inc : {value : 1}},
+		'new' : true
+	};
+	
+	findAndModify('ids', query, function(){}, function(err, doc) {
+		if (err !== undefined && err !== null) {
+			callback(err);
+		} else {
+			callback(null, doc.value);
+		}
+	});
+}
+
 function insert(col, doc, callback) {
-	if (callback === undefined) {
-		db[col].insert(doc);
-	} else {
-		db[col].insert(doc, callback);
-	}
+	findID(col, function(err, id){
+		if (err !== undefined && err !== null) {
+			if (typeof callback === 'function') {
+				callback(err);
+			}
+		} else {
+			doc._id = id;
+			doc.ts = new Date();
+			if (callback === undefined) {
+				db[col].insert(doc);
+			} else {
+				db[col].insert(doc, callback);
+			}
+		}
+	});
 }
 
 function update(col, query, commands, options, callback) {
@@ -282,6 +332,7 @@ module.exports = {
 	connect : connect,
 	
 	ensureIndex : ensureIndex,
+	toObjectID : toObjectID,
 
 	joinProperty : joinProperty,
 	joinPropertyIf : joinPropertyIf,
@@ -292,6 +343,7 @@ module.exports = {
 	
 	findOne : findOne,
 	find: find,
+	findAndModify : findAndModify,
 	insert: insert,
 	update: update,
 	remove : remove

@@ -12,7 +12,7 @@ var commentdb = require('./commentdb');
 var candidatedb = require('./candidatedb');
 
 var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
-'votes', 'statuses', 'jaunts', 'vans', 'candidates'];
+'votes', 'statuses', 'jaunts', 'vans', 'candidates', 'ids'];
 
 var StatusType = {
 	IN : {_id: 'IN', name: 'In House', color: '#00FF00'},
@@ -55,7 +55,7 @@ function connect(databaseURL) {
 function augRushee(rushee) {
 	rushee.name = tools.name(rushee.first, rushee.nick, rushee.last);
 	rushee.lastfirst = tools.lastfirst(rushee.first, rushee.nick, rushee.last);
-	var time = moment(rushee._id.getTimestamp());
+	var time = moment(rushee.ts);
 	rushee.time = time.format('h:mm:ss a, dddd, MMMM Do YYYY');
 }
 
@@ -313,7 +313,7 @@ function arrangeJaunt(jauntID, info, render) {
 	
 	var jaunts = info.jaunts;
 	for (var j = 0, l = jaunts.length; j < l; j++) {
-		if (jauntID.equals(jaunts[j]._id)) {
+		if (jauntID === jaunts[j]._id) {
 			info.jaunt = jaunts[j];
 		}
 	}
@@ -332,7 +332,7 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 	}
 	var rushees = info.rushees;
 	for (var r = 0, l = rushees.length; r < l; r++) {
-		if (rusheeID.equals(rushees[r]._id)) {
+		if (rusheeID === rushees[r]._id) {
 			info.rushee = rushees[r];
 		}
 	}
@@ -344,7 +344,7 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 	var brothers = info.brothers;
 	if (brotherID !== null) {
 		for (var b = 0, lb = brothers.length; b < lb; b++) {
-			if (brothers[b]._id.equals(brotherID)) {
+			if (brothers[b]._id === brotherID) {
 				info.brother = brothers[b];
 			}
 		}
@@ -379,7 +379,7 @@ function arrangeBrother(brotherID, info, render) {
 	var brothers = info.brothers;
 	if (brotherID !== null) {
 		for (var b = 0, lb = brothers.length; b < lb; b++) {
-			if (brothers[b]._id.equals(brotherID)) {
+			if (brothers[b]._id === brotherID) {
 				info.brother = brothers[b];
 			}
 		}
@@ -413,12 +413,12 @@ function arrangeInHouseVotes(info, render) {
 	arrangeVoteScore(info, render);
 }
 
-function insertStatus(rusheeID, typeID) {
+function insertStatus(rusheeID, typeID, callback) {
 	var entry = {
 		rusheeID: rusheeID,
 		typeID : typeID
 	};
-	joindb.insert('statuses', entry);
+	joindb.insert('statuses', entry, callback);
 }
 
 function loadTestInsertRushees() {
@@ -491,6 +491,8 @@ module.exports = {
 	getBrother : getBrother,
 	
 	connect : connect,
+	
+	toObjectID : joindb.toObjectID,
 	
 	augRushee : augRushee, 
 	augBrother : augBrother,
