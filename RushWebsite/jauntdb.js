@@ -73,6 +73,7 @@ function pullVanFromJaunt(vanID, jauntID, callback) {
 }
 
 function insertVan(van, callback) {
+	van.sname = van.name.toLowerCase();
 	joindb.insert('vans', van, callback);
 }
 

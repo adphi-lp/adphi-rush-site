@@ -50,6 +50,7 @@ function connect(databaseURL) {
 	joindb.ensureIndex('brothers', {slast: 1, sfirst: 1});
 	joindb.ensureIndex('candidates', {sfirst: 1, slast: 1});
 	joindb.ensureIndex('candidates', {slast: 1, sfirst: 1});
+	joindb.ensureIndex('vans', {sname: 1});
 }
 
 function augRushee(rushee) {
@@ -236,22 +237,22 @@ function getSecond(info, nextStep) {
 			cb(null, candidates);
 		},
 		statuses : function(cb) {
-			joindb.find('statuses', queryRushees, {_id:-1}, function(){}, cb);
+			joindb.find('statuses', queryRushees, {ts: -1}, function(){}, cb);
 		},
 		votes : function(cb) {
-			joindb.find('votes', queryBoth, {_id:-1}, votedb.augVote, cb);
+			joindb.find('votes', queryBoth, {ts: -1}, votedb.augVote, cb);
 		},
 		comments : function(cb) {
-			joindb.find('comments', queryBoth, {_id:-1}, commentdb.augComment, cb);
+			joindb.find('comments', queryBoth, {ts:-1}, commentdb.augComment, cb);
 		},
 		sponsors : function (cb) {
-			joindb.find('sponsors', queryBoth, {_id: -1}, function(){}, cb);
+			joindb.find('sponsors', queryBoth, {ts: -1}, function(){}, cb);
 		},
 		vans : function(cb) {
-			joindb.find('vans', {}, {_id: -1}, function(){}, cb);
+			joindb.find('vans', {}, {ts: 1}, function(){}, cb);
 		},
 		jaunts : function(cb) {
-			joindb.find('jaunts', {}, {_id: -1}, function(){}, cb);
+			joindb.find('jaunts', {}, {ts: 1}, function(){}, cb);
 		}
 	}, nextStep);
 }
@@ -546,5 +547,5 @@ module.exports = {
 	updateJaunt : jauntdb.updateJaunt,
 	removeJaunt : jauntdb.removeJaunt,
 	
-	copyCol : copyCol,
+	copyCol : copyCol
 };
