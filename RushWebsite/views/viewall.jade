@@ -73,3 +73,7 @@ block content
               .rushee-info-item.rushee-year
                 span.rushee-info-type Year
                 span.rushee-info-data #{rushee.year}
+              -if (accountType.isAdmin())
+                .rushee-info-item.rushee-meta
+                  span.rushee-info-type Meta
+                  span.rushee-info-data #{rushee.metadata}

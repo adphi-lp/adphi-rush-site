@@ -173,6 +173,15 @@ app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){
 	});
 });
 
+app.get(BASE_PATH+'/importcand', auth.checkAdminAuth, function(req, res) {
+	res.render('importcand.jade', {basepath:BASE_PATH});
+});
+
+app.post(BASE_PATH+'/importcand', auth.checkAdminAuth, function(req, res) {
+	var candtext = req.body.cand;
+	rushdb.importCand(candtext);
+	res.redirect(BASE_PATH + '/');
+});
 
 app.get(BASE_PATH+'/copycol', auth.checkAdminAuth, function(req, res) {
 	res.render('copycol.jade', {basepath:BASE_PATH});

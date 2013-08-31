@@ -490,6 +490,44 @@ function copyCol(col1, col2) {
 	});
 }
 
+function importCand(candText) {
+	var regexp = /[\n\r]+/;
+	var lines = candText.split(regexp);
+	var page = -1;
+	for (var l = 0; l < lines.length; l++) {
+		var line = lines[l];
+		if (line === 'Page' + (page+1)) {
+			page++;
+		} else {
+			var male = false;
+			if (line.indexOf('.') === 0) {
+				male = true;
+				line = line.substring(1);
+			}
+			var name = line.split(' ', 2);
+			if (name.length !== 2) {
+				console.log('asdfasdf');
+			}
+			var metamale = male ? 'XXMALE' : 'XXFEMALE';
+			var metapage = 'XXPAGE' + (page+1);
+			var cand = {
+				first : name[0],
+				last : name[1],
+				nick : '',
+				dorm : '',
+				phone : '',
+				email : '',
+				year : 'Freshman',
+				photo : '/public/img/no_photo.jpg',
+				visible : true,
+				priority : false,
+				metadata : metamale + ' ' + metapage
+			};
+			candidatedb.insertCandidate(cand);
+		}
+	}
+}
+
 module.exports = {
 	VoteType: votedb.VoteType,
 	CommentType : commentdb.CommentType,
@@ -552,5 +590,6 @@ module.exports = {
 	updateJaunt : jauntdb.updateJaunt,
 	removeJaunt : jauntdb.removeJaunt,
 	
-	copyCol : copyCol
+	copyCol : copyCol,
+	importCand : importCand
 };
