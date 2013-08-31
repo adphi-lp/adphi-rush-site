@@ -94,10 +94,16 @@ function makeStatus(rushees) {
 }
 
 function makeInHouseRushees(info, rushees) {
-	info.inHouseRushees = [];
+	makeCustomRushees(info, rushees, 'inHouseRushees', function(r) {
+		return r.status.type._id === 'IN';
+	});
+}
+
+function makeCustomRushees(info, rushees, name, func) {
+	info[name] = [];
 	for (var i = 0, l = rushees.length; i < l; i++) {
-		if (rushees[i].status.type._id === 'IN') {
-			info.inHouseRushees.push(rushees[i]);
+		if (func(rushees[i])) {
+			info[name].push(rushees[i]);
 		}
 	}
 }
@@ -405,17 +411,20 @@ function arrangeVoteScore(info, render) {
 		return b.voteScore - a.voteScore;
 	});
 	
-	var brothers = info.brothers;
-	brothers.sort(function(a, b) {
-		return b.voteScore - a.voteScore;
-	});
+//	var brothers = info.brothers;
+//	brothers.sort(function(a, b) {
+//		return b.voteScore - a.voteScore;
+//	});
 	
 	render(null, info);
 }
 
 function arrangeInHouseVotes(info, render) {
-	votedb.makeVoteBy(info.inHouseRushees, info.brothers);
-	
+	arrangeCustomVotes(info, render, 'inHouseRushees', 'brothers');
+}
+
+function arrangeCustomVotes(info, render, nameR, nameB) {
+	votedb.makeVoteBy(info[nameR], info[nameB]);
 	arrangeVoteScore(info, render);
 }
 
@@ -553,11 +562,14 @@ module.exports = {
 
 	get : get,
 	
+	makeCustomRushees : makeCustomRushees,
+	
 	arrange : arrange,
 	arrangeVote : arrangeVote,
 	arrangeBrother : arrangeBrother,
 	arrangeVoteScore: arrangeVoteScore,
 	arrangeInHouseVotes : arrangeInHouseVotes,
+	arrangeCustomVotes : arrangeCustomVotes,
 	arrangeJaunt : arrangeJaunt,
 	
 	loadTestInsertRushees : loadTestInsertRushees,

@@ -27,9 +27,13 @@ block content
                   -var voteCount = b.countVotesByType[voteType._id]
                   td.votes-cell
                     -if (voteType._id === 'NULL')
-                      -for (var r in inHouseRushees)
-                        -if (inHouseRushees[r].voteBy[b._id].type._id === 'NULL')
-                          .vote-rushee #{inHouseRushees[r].name}
+                      -for (var r in relevantRushees)
+                        -var rushee = relevantRushees[r];
+                        -if (rushee.voteBy[b._id].type._id === 'NULL')
+                          -var relstyle = 'color:' + rushee.status.type.color + ';';
+                          -relstyle += rushee.priority ? 'font-weight:bold;' : '';
+                          
+                          .vote-rushee(style=relstyle) #{relevantRushees[r].name}
                     -else
                       | #{voteCount}
               td.votes-cell #{b.voteScore}     

@@ -491,7 +491,24 @@ app.get(BASE_PATH+'/viewbrothers', auth.checkAuth, function(req,res){
 });
 
 app.get(BASE_PATH+'/viewbrothervotes', auth.checkAuth, function(req,res){
-	rushdb.get(rushdb.arrangeInHouseVotes, {}, function(err, info) {
+	var arrangeInPriVotes = function(info, render) {
+		rushdb.makeCustomRushees(info, info.rushees, 'relevantRushees',function(r) {
+			return r.status.type._id === 'IN' || r.priority === true;
+		});
+		info.relevantRushees.sort(function(a, b){
+			var astat = a.status.type._id === 'IN' ? 1 : 0;
+			var bstat = b.status.type._id === 'IN' ? 1 : 0;
+			if (astat !== bstat) {
+				return astat - bstat;
+			}
+			var apri = a.priority === true ? 1 : 0;
+			var bpri = b.priority === true ? 1 : 0;
+			
+			return apri - bpri;
+		});
+		rushdb.arrangeCustomVotes(info, render, 'relevantRushees', 'brothers');
+	};
+	rushdb.get(arrangeInPriVotes, {}, function(err, info) {
 		if (err !== undefined && err !== null) {
 			console.log(err);
 			res.redirect(BASE_PATH+'/404');
