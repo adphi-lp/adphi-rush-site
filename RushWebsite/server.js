@@ -305,10 +305,13 @@ app.post(BASE_PATH+'/editrushee', auth.checkAuth, function(req, res) {
 		phone: req.body.phone,
 		email: req.body.email,
 		year: req.body.year,
-		visible: req.body.visible === 'on',
-		priority: req.body.priority === 'on',
 		photo: photoPath
 	};
+	var accountType = auth.getAccountType(req, res);
+	if (accountType.isAdmin()) {
+		rushee.visible = req.body.visible === 'on';
+		rushee.priority = req.body.priority === 'on';
+	}
 	
 	rushdb.updateRushee(rusheeID, rushee, function(err) {
 		if (err !== null && err !== undefined) {
@@ -499,12 +502,12 @@ app.get(BASE_PATH+'/viewbrothervotes', auth.checkAuth, function(req,res){
 			var astat = a.status.type._id === 'IN' ? 1 : 0;
 			var bstat = b.status.type._id === 'IN' ? 1 : 0;
 			if (astat !== bstat) {
-				return astat - bstat;
+				return bstat - astat;
 			}
 			var apri = a.priority === true ? 1 : 0;
 			var bpri = b.priority === true ? 1 : 0;
 			
-			return apri - bpri;
+			return bpri - apri;
 		});
 		rushdb.arrangeCustomVotes(info, render, 'relevantRushees', 'brothers');
 	};
