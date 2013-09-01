@@ -301,6 +301,8 @@ function getThird(info, nextStep) {
 	votedb.makeVotesBy(rushees, brothers, votes);
 	votedb.makeVoteScore(brothers);
 	votedb.makeVoteScore(rushees);
+	votedb.makeVoteTotal(brothers);
+	votedb.makeVoteTotal(rushees);
 	votedb.makeVotesByType(brothers);
 	votedb.makeVotesByType(rushees);
 	votedb.countVotesByType(rushees, brothers);
@@ -413,10 +415,10 @@ function arrangeVoteScore(info, render) {
 		return b.voteScore - a.voteScore;
 	});
 	
-//	var brothers = info.brothers;
-//	brothers.sort(function(a, b) {
-//		return b.voteScore - a.voteScore;
-//	});
+	var brothers = info.brothers;
+	brothers.sort(function(a, b) {
+		return b.voteTotal - a.voteTotal;
+	});
 	
 	render(null, info);
 }

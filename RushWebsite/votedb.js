@@ -97,6 +97,23 @@ function makeVoteScore(rushees) {
 		}
 	}
 }
+/**
+ * Gets the vote total for each rushee from rushee.votesBy[brother._id]
+ * and puts it into rushee.voteTotal.
+ * @param {Object} rushees
+ */
+function makeVoteTotal(rushees) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
+		var r = rushees[i];
+		r.voteTotal = 0;
+		for (var b in r.votesBy) {
+			var vote = r.votesBy[b][0];
+			r.voteTotal += vote.type.value !== 0? 1 : 0;	
+			//TODO Disregard hidden rushees when calculating
+		}
+	}
+}
+
 
 /**
  * Aggregates the votes in rushee.voteBy by type into
@@ -155,6 +172,7 @@ module.exports = {
 	makeVotesBy : makeVotesBy,
 	makeVoteBy : makeVoteBy,
 	makeVoteScore : makeVoteScore,
+	makeVoteTotal : makeVoteTotal,
 	makeVotesByType : makeVotesByType,
 	countVotesByType : countVotesByType,
 	insertVote : insertVote,

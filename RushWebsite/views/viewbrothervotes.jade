@@ -17,6 +17,7 @@ block content
               -var voteType = voteTypes[i];
               th.votes-header-cell #{voteType.name}
             th.votes-header-cell Vote Score
+            th.votes-header-cell Total Non-Zero
             
             -for (var i = 0; i < brothers.length; i++)
               -var b = brothers[i];
@@ -36,4 +37,5 @@ block content
                           .vote-rushee(style=relstyle) #{relevantRushees[r].name}
                     -else
                       | #{voteCount}
-              td.votes-cell #{b.voteScore}     
+              td.votes-cell #{b.voteScore}
+              td.votes-cell #{b.voteTotal}     
