@@ -390,24 +390,41 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 			hidden : info.hidden === 'on' && info.accountType.isAdmin(),
 			candidate : false
 		};
-		
-		var f = function(rushee) {
-			return search.filterRushee(rushee, options);
-		};
-		
+				
 		var q = info.search;
 		if (q === null || q === undefined) {
 			info.rushees = tools.filter(info.rushees, function (rushee) {
 				return search.filterRushee(rushee, {inhouse: true});
 			});
+			
+			info.rushees.sort(function(a, b) {
+				var abid = a.voteScore > info.bidScore ? 1 : 0;
+				var bbid = b.voteScore > info.bidScore ? 1 : 0;
+				if (bbid !== abid) {
+					return abid - bbid;
+				}
+				var apri = a.priority === true ? 1 : 0;
+				var bpri = b.priority === true ? 1 : 0;
+				if (bpri !== apri) {
+					return bpri - apri;
+				}
+				
+				return b.voteScore - a.voteScore;
+			});
 			info.q = '';
-		} else if (q !== "") {
-			info.rushees = tools.filter(info.rushees, f);
-			info.rushees = search.get(info.rushees, q);
-			info.q = q;
 		} else {
-			info.rushees = tools.filter(info.rushees, f);
-			info.q = q;
+			var f = function(rushee) {
+				return search.filterRushee(rushee, options);
+			};
+			q = q.trim();
+			if (q !== '') {
+				info.rushees = tools.filter(info.rushees, f);
+				info.rushees = search.get(info.rushees, q);
+				info.q = q;
+			} else {
+				info.rushees = tools.filter(info.rushees, f);
+				info.q = q;
+			}
 		}
 		
 		res.render('viewrushees.jade', info);
