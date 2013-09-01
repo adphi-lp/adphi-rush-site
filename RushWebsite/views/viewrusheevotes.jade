@@ -18,6 +18,7 @@ block content
               th.votes-header-cell #{voteType.name}
             th.votes-header-cell Vote Score
             th.votes-header-cell Total Non-Zero
+            th.votes-header-cell Sponsor(s)
             
             -for (var i = 0; i < rushees.length; i++)
               -var r = rushees[i];
@@ -33,3 +34,8 @@ block content
                     td.votes-cell(style='color:red; font-weight:bold') #{voteCount}
               td.votes-cell #{r.voteScore}
               td.votes-cell #{r.voteTotal}
+              td.votes-cell
+                -if (r.sponsorsNameList.length > 0)
+                  .rushee-info-data #{r.sponsorsNameList.join(', ')}
+                -else
+                  .rushee-info-data.missing-sponsor NEED SPONSOR
