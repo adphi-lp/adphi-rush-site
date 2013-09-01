@@ -246,7 +246,7 @@ app.post(BASE_PATH+'/vote', auth.checkAuth, function(req, res) {
 		var commentID = req.body['commentType'+i].toUpperCase();
 		var commentJaunt = req.body['commentJaunt'+i];
 		
-		if (commentText !== '') {
+		if (commentText !== '' || commentJaunt !== 'null') {
 			if (commentJaunt === 'null') {
 				rushdb.insertComment(rusheeID, brotherID, commentID, commentText);
 			} else {
