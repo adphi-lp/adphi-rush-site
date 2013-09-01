@@ -305,8 +305,11 @@ app.post(BASE_PATH+'/editrushee', auth.checkAuth, function(req, res) {
 		phone: req.body.phone,
 		email: req.body.email,
 		year: req.body.year,
+		cross1 : req.body.cross1,
+		cross2 : req.body.cross2,
 		photo: photoPath
 	};
+	
 	var accountType = auth.getAccountType(req, res);
 	if (accountType.isAdmin()) {
 		rushee.visible = req.body.visible === 'on';

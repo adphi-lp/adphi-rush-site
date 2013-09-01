@@ -32,10 +32,10 @@ block content
         .rushee-add-item.rushee-year
           span.rushee-add-type Year
           select.rushee-add-data(name='year')
-            -years = ['Freshman', 'Sophomore', 'Junior', 'Senior']
+            -var years = ['Freshman', 'Sophomore', 'Junior', 'Senior']
             -for (var i = 0; i < years.length; i++)
               -if (rushee.year === years[i])
-                option(value='#{years[i]}') #{years[i]}
+                option(value='#{years[i]}', selected) #{years[i]}
               -else
                 option(value='#{years[i]}') #{years[i]}
         .rushee-add-item.rushee-photo-old
@@ -43,6 +43,33 @@ block content
         .rushee-add-item.rushee-photo
           span.rushee-add-type Photo
           input.rushee-add-data(type='file',name='photo')
+        -var frats1 = ['Alpha-Delta-Phi', 'Alpha-Epsilon-Pi', 'Chi-Phi', 'Delta-Kappa-Epsilon'];
+        -var frats2 = ['Delta-Tau-Delta', 'Delta-Upsilon', 'Kappa-Sigma', 'Lambda-Chi-Alpha'];
+        -var frats3 = ['Nu-Delta', 'Phi-Beta-Epsilon', 'Phi-Delta-Theta', 'Phi-Kappa-Sigma'];
+        -var frats4 = ['Phi-Kappa-Theta', 'Phi-Sigma-Kappa', 'Pi-Lambda-Phi', 'Sigma-Alpha-Epsilon'];
+        -var frats5 = ['Sigma-Chi', 'Sigma-Nu', 'Sigma-Phi-Epsilon', 'Tau-Epsilon-Phi'];
+        -var frats6 = ['Theta-Chi', 'Theta-Delta-Chi', 'Theta-Xi', 'Zeta-Beta-Tau'];
+        -var frats7 = ['Zeta-Psi'];
+        -var frats8 = ['Beta-Theta-Pi', 'Alpha-Sigma-Psi'];
+        -var frats = frats1.concat(frats2, frats3, frats4, frats5, frats6, frats7, frats8);
+        .rushee-add-item.rushee-cross1
+          span.rushee-add-type Cross Rush 1
+          select.rushee-add-data(name='cross1')
+            option(value='None') None
+            -for (var i = 0; i < frats.length; i++)
+              -if (rushee.cross1 === frats[i])
+                option(value='#{frats[i]}', selected) #{frats[i]}
+              -else
+                option(value='#{frats[i]}') #{frats[i]}
+        .rushee-add-item.rushee-cross2
+          span.rushee-add-type Cross Rush 2
+          select.rushee-add-data(name='cross2')
+            option(value='None') None
+            -for (var i = 0; i < frats.length; i++)
+              -if (rushee.cross2 === frats[i])
+                option(value='#{frats[i]}', selected) #{frats[i]}
+              -else
+                option(value='#{frats[i]}') #{frats[i]}
         -if (accountType.isAdmin())
           .rushee-add-item.rushee-visible
             span.rushee-add-type Visible

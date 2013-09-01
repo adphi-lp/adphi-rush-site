@@ -61,6 +61,8 @@ function connect(databaseURL) {
 function augRushee(rushee) {
 	rushee.name = tools.name(rushee.first, rushee.nick, rushee.last);
 	rushee.lastfirst = tools.lastfirst(rushee.first, rushee.nick, rushee.last);
+	rushee.cross1 = rushee.cross1 || 'None';
+	rushee.cross2 = rushee.cross2 || 'None';
 	var time = moment(rushee.ts);
 	rushee.time = time.format('h:mm:ss a, dddd, MMMM Do YYYY');
 }
