@@ -59,6 +59,14 @@ block content
                     |  (hidden)
                   -if (accountType.isAdmin() && rushee.candidate === true)
                     |  (cand)
+              form.rushee-action
+                -var idName = 'rID';
+                -if (rushee.candidate) idName = 'cID';
+                input(type='hidden',name=idName,value='#{rushee._id}')
+                input(type='submit',formmethod='post',formaction=basepath+'/inhouse',value='In house')
+                input(type='submit',formmethod='post',formaction=basepath+'/outhouse',value='Going out')
+                input(type='submit',formmethod='post',formaction=basepath+'/onjaunt',value='On a jaunt')
+ 
               .rushee-info-item
                 span.rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
               .rushee-info-item.rushee-dorm
