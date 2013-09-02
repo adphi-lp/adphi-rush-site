@@ -439,6 +439,7 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 			q = q.trim();
 			if (q !== '') {
 				info.rushees = tools.filter(info.rushees, f);
+				info.rushees.sort(prisort);
 				info.rushees = search.get(info.rushees, q);
 				info.q = q;
 			} else {
