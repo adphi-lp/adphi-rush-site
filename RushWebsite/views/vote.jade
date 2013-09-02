@@ -34,7 +34,10 @@ block content
           select.brother-list#brothers(name='bID')
             -for (var i = 0; i < brothers.length; i++)
               -var b = brothers[i];
-              option(value='#{b._id}') #{b.lastfirst}
+              -if (brotherID === b._id)
+                option(value='#{b._id}', selected) #{b.lastfirst}
+              -else
+                option(value='#{b._id}') #{b.lastfirst}
          button#brother-select-button(formmethod='get',formaction=basepath+'/vote',value='Select') Select
       -else
         input(type='hidden',name='bID',value='#{brother._id}')

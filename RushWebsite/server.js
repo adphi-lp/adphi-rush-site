@@ -209,6 +209,9 @@ app.post(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){
 app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
 	var brotherID = req.query.bID === undefined ? null : toObjectID(req.query.bID);
+	if (brotherID !== null) {
+		res.cookie('brotherID', brotherID);
+	}
 	
 	var time = process.hrtime();
 	var arrangeVote = function(info, render) {
@@ -220,6 +223,10 @@ app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 			console.log(err);
 			res.redirect(BASE_PATH+'/404');
 			return;
+		}
+		
+		if (brotherID === null) {
+			info.brotherID = toObjectID(req.cookies.brotherID);
 		}
 		
 		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
@@ -427,7 +434,6 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 			}
 		}
 		
-		console.log(info.rushees);
 		res.render('viewrushees.jade', info);
 	});
 });
