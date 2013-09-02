@@ -399,25 +399,38 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 		};
 				
 		var q = info.search;
+		var prisort = function(a, b) {
+			var abid = a.voteScore >= info.bidScore ? 1 : 0;
+			var bbid = b.voteScore >= info.bidScore ? 1 : 0;
+			if (bbid !== abid) {
+				return abid - bbid;
+			}
+			var apri = a.priority === true ? 1 : 0;
+			var bpri = b.priority === true ? 1 : 0;
+			if (bpri !== apri) {
+				return bpri - apri;
+			}
+			
+			var ain = a.status.type._id === 'IN' ? 1 : 0;
+			var bin = b.status.type._id === 'IN' ? 1 : 0;
+			if (bin !== ain) {
+				return bin - ain;
+			}
+			
+			var ajaunt = a.status.type._id === 'JAUNT' ? 1 : 0;
+			var bjaunt = b.status.type._id === 'JAUNT' ? 1 : 0;
+			if (bjaunt !== ajaunt) {
+				return bjaunt - ajaunt;
+			}
+			
+			return b.voteScore - a.voteScore;
+		};
 		if (q === null || q === undefined) {
 			info.rushees = tools.filter(info.rushees, function (rushee) {
 				return search.filterRushee(rushee, {inhouse: true});
 			});
 			
-			info.rushees.sort(function(a, b) {
-				var abid = a.voteScore > info.bidScore ? 1 : 0;
-				var bbid = b.voteScore > info.bidScore ? 1 : 0;
-				if (bbid !== abid) {
-					return abid - bbid;
-				}
-				var apri = a.priority === true ? 1 : 0;
-				var bpri = b.priority === true ? 1 : 0;
-				if (bpri !== apri) {
-					return bpri - apri;
-				}
-				
-				return b.voteScore - a.voteScore;
-			});
+			info.rushees.sort(prisort);
 			info.q = '';
 		} else {
 			var f = function(rushee) {
@@ -430,6 +443,7 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 				info.q = q;
 			} else {
 				info.rushees = tools.filter(info.rushees, f);
+				info.rushees.sort(prisort);
 				info.q = q;
 			}
 		}
