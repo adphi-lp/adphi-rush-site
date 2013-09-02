@@ -9,7 +9,7 @@ function filterRushee(rushee, options) {
 		(options.priority !== true || rushee.priority === true) && //undefined = false
 		(options.visible !== true || rushee.visible !== false) && //undefined = true
 		(options.bidworthy === false || options.bidworthy === undefined ||
-			rushee.voteScore > options.bidworthy) &&
+			rushee.voteScore >= options.bidworthy) &&
 			//hidden xor visible
 		((options.hidden === true) !== (rushee.visible !== false)) &&
 		((options.candidate !== true) || (rushee.candidate === true)); //undefined = false;
