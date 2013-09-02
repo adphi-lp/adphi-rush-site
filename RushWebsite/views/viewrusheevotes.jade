@@ -1,7 +1,7 @@
 extends layout
 
 block head
-  title='View all Brother Votes'  
+  title='View all Rushee Votes'  
   link(rel='stylesheet',href=basepath+'/css/viewbrothersvote.css')
 
 block content
@@ -12,6 +12,7 @@ block content
       .votes-content
         table.votes-table
           tr.votes-header-row
+            th.votes-status Status
             th.votes-header-name Rushee Name
             -for (var i = 0; i < voteTypes.length; i++)
               -var voteType = voteTypes[i];
@@ -20,9 +21,14 @@ block content
             th.votes-header-cell Total Non-Zero
             th.votes-header-cell Sponsor(s)
             
-            -for (var i = 0; i < rushees.length; i++)
-              -var r = rushees[i];
-              tr.votes-row
+          -for (var i = 0; i < rushees.length; i++)
+            -var r = rushees[i];
+            
+            -var votesRowClass = r.visible !== false ? 'votes-row' : 'votes-row votes-hidden';
+            tr(class=votesRowClass)
+              td.votes-status
+                .rushee-status(style='color:#{r.status.type.color};')
+                  | #{r.status.type.name}
               td.votes-name
                 a.rushee-name(href=basepath+'/vote?rID='+r._id) #{r.name}
                 -for (var j = 0; j < voteTypes.length; j++)
@@ -31,7 +37,7 @@ block content
                   -if (voteType.value >= 0 || voteCount === 0)
                     td.votes-cell #{voteCount}
                   -else
-                    td.votes-cell(style='color:red; font-weight:bold') #{voteCount}
+                    td.votes-cell(style='color:red; font-weight:bold;') #{voteCount}
               td.votes-cell #{r.voteScore}
               td.votes-cell #{r.voteTotal}
               td.votes-cell
