@@ -427,6 +427,7 @@ app.get(BASE_PATH+'/viewrushees', auth.checkAuth, function(req,res){
 			}
 		}
 		
+		console.log(info.rushees);
 		res.render('viewrushees.jade', info);
 	});
 });

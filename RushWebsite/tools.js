@@ -72,6 +72,11 @@ function strCmpNoCase(str1, str2) {
 	return strCmp(str1.toLowerCase(), str2.toLowerCase());
 }
 
+function isArray(a)
+{
+    return Object.prototype.toString.apply(a) === '[object Array]';
+}
+
 module.exports = {
 	randomString : randomString,
 	name : name,
@@ -80,5 +85,6 @@ module.exports = {
 	strCmpNoCase : strCmpNoCase,
 	filter : filter,
 	map : map,
-	count : count
+	count : count,
+	isArray : isArray
 };

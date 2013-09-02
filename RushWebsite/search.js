@@ -55,12 +55,20 @@ function rankWords(rushee, words) {
 		var word = words[i];
 		for (var field in rushee) {
 			var value = rushee[field];
-			if (typeof value !== "string") {
-				continue;
+			if (typeof value === "string") {
+				if (value.toUpperCase().indexOf(word.toUpperCase()) !== -1) {
+					count += 5;
+				}
+			} else if (tools.isArray(value)) {
+				for (var j = 0, m = value.length; j < m; j++) {
+					if (typeof value[j] === "string") {
+						if (value[j].toUpperCase().indexOf(word.toUpperCase()) !== -1) {
+							count += 5;
+						}
+					}
+				}
 			}
-			if (value.toUpperCase().indexOf(word.toUpperCase()) !== -1) {
-				count += 5;
-			}
+
 		}
 	}
 	return count;
