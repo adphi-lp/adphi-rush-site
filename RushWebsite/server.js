@@ -565,6 +565,38 @@ app.get(BASE_PATH+'/viewbrothervotes', auth.checkAuth, function(req,res){
 	});
 });
 
+app.get(BASE_PATH+'/viewbrothersummary', auth.checkAuth, function(req,res){
+	var arrangeInPriVotes = function(info, render) {
+		rushdb.makeCustomRushees(info, info.rushees, 'relevantRushees',function(r) {
+			return r.status.type._id === 'IN' || r.priority === true;
+		});
+		info.relevantRushees.sort(function(a, b){
+			var astat = a.status.type._id === 'IN' ? 1 : 0;
+			var bstat = b.status.type._id === 'IN' ? 1 : 0;
+			if (astat !== bstat) {
+				return bstat - astat;
+			}
+			var apri = a.priority === true ? 1 : 0;
+			var bpri = b.priority === true ? 1 : 0;
+			
+			return bpri - apri;
+		});
+		rushdb.arrangeCustomVotes(info, render, 'relevantRushees', 'brothers');
+	};
+	rushdb.get(arrangeInPriVotes, {}, function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
+		info.basepath = BASE_PATH;
+		info.accountType = auth.getAccountType(req, res);
+		res.render('viewbrothersummary.jade', info);
+	});
+});
+
+
 app.get(BASE_PATH+'/addbrother', auth.checkAdminAuth, function(req, res){
 	res.render('addbrother.jade',{basepath:BASE_PATH});
 });

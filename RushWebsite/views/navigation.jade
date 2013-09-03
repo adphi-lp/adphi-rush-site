@@ -1,3 +1,6 @@
-div#navigation
+div#navigation(style='display:inline-block;')
   h1
     a(href=basepath+'/') home
+    span &nbsp;&nbsp;
+    -if (accountType.isBrother())
+      a(href=basepath+'/') who to meet

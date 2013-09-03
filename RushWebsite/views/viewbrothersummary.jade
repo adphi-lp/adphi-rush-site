@@ -1,23 +1,20 @@
 extends layout
 
 block head
-  title='View all Brother Votes'  
+  title='View brother summaries'  
   link(rel='stylesheet',href=basepath+'/css/viewbrothersvote.css')
 
 block content
   .brothers-wrapper
-    h1.brothers-title View all brothers votes
+    h1.brothers-title View brother summaries
     .votes-wrapper
       h2.title Votes
       .votes-content
         table.votes-table
           tr.votes-header-row
             th.votes-header-name Brother Name
-            -for (var i = 0; i < voteTypes.length; i++)
-              -var voteType = voteTypes[i];
-              th.votes-header-cell #{voteType.name}
-            th.votes-header-cell Vote Score
-            th.votes-header-cell Total Non-Zero
+            th.votes-header-cell Please meet
+            th.votes-header-cell Sponsoring
             
           -for (var i = 0; i < brothers.length; i++)
             -var b = brothers[i];
@@ -26,8 +23,9 @@ block content
                 -for (var j = 0; j < voteTypes.length; j++)
                   -var voteType = voteTypes[j];
                   -var voteCount = b.countVotesByType[voteType._id]
-                  td.votes-cell
-                    -if (voteType._id === 'NULL')
+                  
+                  -if (voteType._id === 'NULL')
+                    td.votes-cell
                       -for (var r in relevantRushees)
                         -var rushee = relevantRushees[r];
                         -if (rushee.voteBy[b._id].type._id === 'NULL')
@@ -35,7 +33,4 @@ block content
                           -relstyle += rushee.priority ? 'font-weight:bold;' : '';
                           
                           .vote-rushee(style=relstyle) #{relevantRushees[r].name}
-                    -else
-                      | #{voteCount}
-              td.votes-cell #{b.voteScore}
-              td.votes-cell #{b.voteTotal}     
+              td.votes-cell #{b.sponsorsNameList.join(', ')}   
