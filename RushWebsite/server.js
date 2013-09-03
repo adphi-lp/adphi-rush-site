@@ -581,6 +581,7 @@ app.get(BASE_PATH+'/viewbrothersummary', auth.checkAuth, function(req,res){
 			
 			return bpri - apri;
 		});
+		info.brothersortoff = true; //fix this
 		rushdb.arrangeCustomVotes(info, render, 'relevantRushees', 'brothers');
 	};
 	rushdb.get(arrangeInPriVotes, {}, function(err, info) {
