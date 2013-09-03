@@ -25,6 +25,7 @@ block content
       form.rushee-action
         -var idName = 'rID';
         -if (rushee.candidate) idName = 'cID';
+        input(type='hidden',name='redirect',value=basepath+'/viewrushees')
         input(type='hidden',name=idName,value='#{rushee._id}')
         input(type='submit',formmethod='post',formaction=basepath+'/inhouse',value='In house')
         input(type='submit',formmethod='post',formaction=basepath+'/outhouse',value='Going out')

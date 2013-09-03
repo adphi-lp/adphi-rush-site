@@ -70,6 +70,14 @@ mixin rushee(rushee, accountType, basepath, options)
         .rushee-edit
           a(href=basepath+'/editrushee?rID='+rushee._id) edit
 
+    -if (accountType.isAdmin())
+      form.rushee-action
+        input(type='hidden',name='redirect',value=basepath+'/viewrushees')
+        input(type='hidden',name='rID',value='#{rushee._id}')
+        input(type='submit',formmethod='post',formaction=basepath+'/inhouse',value='In house')
+        input(type='submit',formmethod='post',formaction=basepath+'/outhouse',value='Going out')
+        input(type='submit',formmethod='post',formaction=basepath+'/onjaunt',value='On a jaunt')
+
 mixin comment(comment, accountType, basepath, options)
   -if (basepath === undefined)
     var basepath = '';

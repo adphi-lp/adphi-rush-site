@@ -815,11 +815,12 @@ app.get(BASE_PATH+'/frontdesk', auth.checkFrontDeskAuth, function(req, res) {
 app.post(BASE_PATH+'/inhouse', auth.checkFrontDeskAuth, function(req, res) {
 	var rID = req.body.rID === undefined ? null : toObjectID(req.body.rID);
 	var cID = req.body.cID === undefined ? null : toObjectID(req.body.cID);
+	var redirect = req.body.redirect;
 	
 	//GOING IN
 	if (rID !== null) {	
 		rushdb.insertStatus(rID, 'IN');
-		res.redirect(BASE_PATH+'/frontdesk');
+		res.redirect(redirect);
 	} else if (cID !== null) {
 		rushdb.transferCandidate(cID, rushdb.insertRushee, function(err, docs) {
 			if (err !== null && err !== undefined) {
@@ -830,7 +831,7 @@ app.post(BASE_PATH+'/inhouse', auth.checkFrontDeskAuth, function(req, res) {
 			var newID = docs[0]._id;
 			rushdb.insertStatus(newID, 'IN');
 		});
-		res.redirect(BASE_PATH+'/frontdesk');
+		res.redirect(redirect);
 	} else {
 		console.log(new Error('no rushee or candidate ID.'));
 		res.redirect(BASE_PATH+'/404');
@@ -841,11 +842,12 @@ app.post(BASE_PATH+'/inhouse', auth.checkFrontDeskAuth, function(req, res) {
 app.post(BASE_PATH+'/outhouse', auth.checkFrontDeskAuth, function(req, res) {
 	var rID = req.body.rID === undefined ? null : toObjectID(req.body.rID);
 	var cID = req.body.cID === undefined ? null : toObjectID(req.body.cID);
+	var redirect = req.body.redirect;
 	
 	//GOING OUT
 	if (rID !== null) {	
 		rushdb.insertStatus(rID, 'OUT');
-		res.redirect(BASE_PATH+'/frontdesk');
+		res.redirect(redirect);
 	} else if (cID !== null) {
 		rushdb.transferCandidate(cID, rushdb.insertRushee, function(err, docs) {
 			if (err !== null && err !== undefined) {
@@ -856,7 +858,7 @@ app.post(BASE_PATH+'/outhouse', auth.checkFrontDeskAuth, function(req, res) {
 			var newID = docs[0]._id;
 			rushdb.insertStatus(newID, 'OUT');
 		});
-		res.redirect(BASE_PATH+'/frontdesk');
+		res.redirect(redirect);
 	} else {
 		console.log(new Error('no rushee or candidate ID.'));
 		res.redirect(BASE_PATH+'/404');
@@ -866,11 +868,12 @@ app.post(BASE_PATH+'/outhouse', auth.checkFrontDeskAuth, function(req, res) {
 app.post(BASE_PATH+'/onjaunt', auth.checkFrontDeskAuth, function(req, res) {
 	var rID = req.body.rID === undefined ? null : toObjectID(req.body.rID);
 	var cID = req.body.cID === undefined ? null : toObjectID(req.body.cID);
+	var redirect = req.body.redirect;
 	
 	//ON JAUNT
 	if (rID !== null) {	
 		rushdb.insertStatus(rID, 'JAUNT');
-		res.redirect(BASE_PATH+'/frontdesk');
+		res.redirect(redirect);
 	} else if (cID !== null) {
 		rushdb.transferCandidate(cID, rushdb.insertRushee, function(err, docs) {
 			if (err !== null && err !== undefined) {
@@ -881,7 +884,7 @@ app.post(BASE_PATH+'/onjaunt', auth.checkFrontDeskAuth, function(req, res) {
 			var newID = docs[0]._id;
 			rushdb.insertStatus(newID, 'JAUNT');
 		});
-		res.redirect(BASE_PATH+'/frontdesk');
+		res.redirect(redirect);
 	} else {
 		console.log(new Error('no rushee or candidate ID.'));
 		res.redirect(BASE_PATH+'/404');
