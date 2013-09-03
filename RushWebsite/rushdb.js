@@ -10,6 +10,7 @@ var votedb = require('./votedb');
 var jauntdb = require('./jauntdb');
 var commentdb = require('./commentdb');
 var candidatedb = require('./candidatedb');
+var moment = require('moment');
 
 var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
 'votes', 'statuses', 'jaunts', 'vans', 'candidates', 'ids', 'import'];
@@ -70,6 +71,11 @@ function augRushee(rushee) {
 function augBrother(brother) {
 	brother.name = tools.name(brother.first, brother.nick, brother.last);
 	brother.lastfirst = tools.lastfirst(brother.first, brother.nick, brother.last);
+}
+
+function augStatus(status) {
+	var time = moment(status.ts);
+	status.shorttime = time.format('dddd, MMM DD, HH:mm');
 }
 
 /**
@@ -250,7 +256,7 @@ function getSecond(info, nextStep) {
 			cb(null, candidates);
 		},
 		statuses : function(cb) {
-			joindb.find('statuses', queryRushees, {ts: -1}, function(){}, cb);
+			joindb.find('statuses', queryRushees, {ts: -1}, augStatus, cb);
 		},
 		votes : function(cb) {
 			joindb.find('votes', queryBoth, {ts: -1}, votedb.augVote, cb);

@@ -29,6 +29,7 @@ function augComment(comment) {
 	var time = moment(comment.ts);
 	comment.time = 'Posted at ' + time.format('h:mm:ss a') +
 		' on ' + time.format('dddd, MMMM Do YYYY');
+	comment.shorttime = time.format('dddd, MMM DD, HH:mm');
 }
  
 /**

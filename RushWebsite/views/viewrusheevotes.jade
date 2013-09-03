@@ -20,6 +20,7 @@ block content
             th.votes-header-cell Vote Score
             th.votes-header-cell Total Non-Zero
             th.votes-header-cell Sponsor(s)
+            th.votes-header-cell Last comment or seen
             
           -for (var i = 0; i < rushees.length; i++)
             -var r = rushees[i];
@@ -45,3 +46,12 @@ block content
                   .rushee-info-data #{r.sponsorsNameList.join(', ')}
                 -else
                   .rushee-info-data.missing-sponsor NEED SPONSOR
+              -if (r.status.type._id !== 'IN')
+                -if (r.comments.length === 0)
+                  td.votes-cell #{r.status.shorttime}
+                -else if (r.status.type.ts > r.comments[0].ts)
+                  td.votes-cell #{r.status.shorttime}
+                -else
+                  td.votes-cell #{r.comments[0].shorttime}
+              -else
+                td.votes-cell In house
