@@ -27,7 +27,7 @@ block content
                     td.votes-cell
                       -for (var r in relevantRushees)
                         -var rushee = relevantRushees[r];
-                        -if (rushee.voteBy[b._id].type._id === 'NULL')
+                        -if (rushee.voteBy[b._id].type._id === 'NULL' && rushee.visible)
                           -var relstyle = 'color:' + rushee.status.type.color + ';';
                           -relstyle += rushee.priority ? 'font-weight:bold;' : '';
                           
