@@ -16,7 +16,7 @@ var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
 'votes', 'statuses', 'jaunts', 'vans', 'candidates', 'ids', 'import'];
 
 var StatusType = {
-	IN : {_id: 'IN', name: 'In House', color: '#00FF00'},
+	IN : {_id: 'IN', name: 'In House', color: '#228b22'},
 	JAUNT : {_id: 'JAUNT', name: 'On a Jaunt', color: '#0000FF'},
 	OUT : {_id: 'OUT', name: 'Out of House', color: '#000000'},
 	NULL : {_id: 'NULL', name: 'Never seen', color: '#000000'}
