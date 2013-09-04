@@ -109,10 +109,13 @@ block content
                 -var voteType = voteTypes[j];
                 -var vid = voteType._id;
                 -if (bid == vid)
-                  td.votes-cell
-                    strong X
+                  td.votes-cell.votes
+                    -if (voteType.value < 0)
+                      strong(style='color:red; font-weight:bold;') X
+                    -else
+                      strong X
                 -else
-                  td.votes-cell
+                  td.votes-cell.votes
          
   .comment-thread-wrapper
     h2.title Comments
