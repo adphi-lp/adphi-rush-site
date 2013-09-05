@@ -392,6 +392,26 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 	render(null, info);
 }
 
+function arrangeComment(commentID, info, render) {
+	if (commentID === null) {
+		render(new Error('no commentID'));
+		return;
+	}
+	var comments = info.comments;
+	if (commentID !== null) {
+		for (var c = 0, lc = comments.length; c < lc; c++) {
+			if (comments[c]._id === commentID) {
+				info.comment = comments[c];
+			}
+		}
+	}
+	if (info.comment === undefined) {
+		render(new Error('no comment'));
+		return;
+	}
+	render(null, info);
+}
+
 function arrangeBrother(brotherID, info, render) {
 	if (brotherID === null) {
 		render(new Error('no brotherID'));
@@ -577,6 +597,7 @@ module.exports = {
 	
 	arrange : arrange,
 	arrangeVote : arrangeVote,
+	arrangeComment : arrangeComment,
 	arrangeBrother : arrangeBrother,
 	arrangeVoteScore: arrangeVoteScore,
 	arrangeInHouseVotes : arrangeInHouseVotes,
@@ -597,6 +618,7 @@ module.exports = {
 	updateCandidate : candidatedb.updateCandidate,
 	updateRushee : updateRushee,
 	updateBrother : updateBrother,
+	updateComment : commentdb.updateComment,
 	
 	transferCandidate : candidatedb.transferCandidate,
 	

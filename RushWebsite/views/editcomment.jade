@@ -1,0 +1,35 @@
+extends layout
+include mixins
+
+block head
+  title='Edit comment'
+  link(rel='stylesheet',href=basepath+'/css/vote.css')
+  script(type='text/javascript',src=basepath+'/js/vendor/jquery-1.8.3.min.js')
+  script(type='text/javascript',src=basepath+'/js/vote.js')
+
+block content
+  form.action-comment-wrapper
+    .action-comment-content.clearfix
+      span.brother-action-type Comment
+      .action-comment-textarea-wrapper
+        input.brother-add-data(type='hidden',name='commentID',value=comment._id)
+        textarea#comment-textarea(name='comment',rows=5,cols=40) #{comment.text}
+        .action-comment-type
+          span.brother-action-type Type
+          select(name='commentType')
+            -for (var i = 0; i < commentTypes.length; i++)
+              -if (comment.typeID === commentTypes[i]._id)
+                option(value='#{commentTypes[i]._id}', selected) #{commentTypes[i].name}
+              -else
+                option(value='#{commentTypes[i]._id}') #{commentTypes[i].name}
+        .action-comment-jaunt
+          span.brother-action-type Jaunt
+          select#comment-jaunt(name='commentJaunt')
+            option(value='null') None
+            -for (var i = 0; i < jaunts.length; i++)
+              -if (comment.jauntID === jaunts[i]._id)
+                option(value='#{jaunts[i]._id}', selected) #{jaunts[i].name}
+              -else
+                option(value='#{jaunts[i]._id}') #{jaunts[i].name}
+    .brother-edit-post
+      input.save(type='submit',formmethod='post',formaction='',value='Submit')

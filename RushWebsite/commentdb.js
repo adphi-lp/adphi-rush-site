@@ -58,6 +58,16 @@ function insertComment(rusheeID, brotherID, typeID, text, jauntID) {
 	joindb.insert('comments', comment);
 }
 
+function updateComment(commentID, typeID, text, jauntID, callback) {
+	var comment = {
+		typeID: typeID,
+		text: text
+	};
+	if (jauntID !== undefined) comment.jauntID = jauntID;
+	joindb.update('comments', {_id : commentID}, {$set : comment}, {}, callback);
+}
+
+
 module.exports = {
 	CommentType : CommentType,
 	SORTED_COMMENT_TYPES : SORTED_COMMENT_TYPES,
@@ -66,5 +76,6 @@ module.exports = {
 	
 	augComment : augComment,
 	makeComments : makeComments,
-	insertComment : insertComment
+	insertComment : insertComment,
+	updateComment : updateComment
 };

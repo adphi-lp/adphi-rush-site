@@ -266,6 +266,49 @@ app.post(BASE_PATH+'/vote', auth.checkAuth, function(req, res) {
 	res.redirect(BASE_PATH+'/vote?rID=' + rusheeID);
 });
 
+app.get(BASE_PATH+'/editcomment', auth.checkAdminAuth, function(req, res){
+	var cID = req.query.cID === undefined ? null : toObjectID(req.query.cID);
+	
+	var time = process.hrtime();
+	var arrangeComment = function(info, render) {
+		rushdb.arrangeComment(cID, info, render);
+	};
+	
+	rushdb.get(arrangeComment, {}, function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
+		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
+		info.accountType = auth.getAccountType(req, res);
+		info.basepath = BASE_PATH;
+		res.render('editcomment.jade', info);
+		time = process.hrtime(time);
+		console.log('/editcomment took %d seconds and %d nanoseconds', time[0], time[1]);
+	});
+});
+
+app.post(BASE_PATH+'/editcomment', auth.checkAuth, function(req, res) {
+	var commentText = req.body.comment;
+	var commentType = req.body.commentType.toUpperCase();
+	var commentID = toObjectID(req.body.commentID);
+	var commentJaunt = req.body.commentJaunt;
+	
+	if (commentText !== '' || commentJaunt !== 'null') {
+		if (commentJaunt === 'null') {
+			rushdb.updateComment(commentID, commentType, commentText);
+		} else {
+			var jauntID = toObjectID(commentJaunt);
+			rushdb.updateComment(commentID, commentType, commentText, jauntID);
+		}
+	}
+	
+	res.redirect(BASE_PATH+'/viewrushees');
+});
+
 app.get(BASE_PATH+'/editrushee', auth.checkAuth,  function(req, res) {
 	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
 	

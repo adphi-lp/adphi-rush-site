@@ -238,6 +238,7 @@ function findOne(col, query, augment, callback) {
 	db[col].findOne(query, function(err, doc) {
 		if (err !== null && err !== undefined) {
 			callback(err, doc);
+			return;
 		} else if (doc === null) {
 			callback(null, null);
 		} else {
@@ -252,6 +253,7 @@ function find(col, query, sort, augment, callback) {
 	db[col].find(query).sort(sort).forEach(function(err, doc) {
 		if (err !== null && err !== undefined) {
 			callback(err);
+			return;
 		} else if (doc === null) {
 			callback(null, docs);
 		} else {
@@ -265,6 +267,7 @@ function findAndModify(col, query, augment, callback) {
 	db[col].findAndModify(query, function(err, doc){
 		if (err !== null && err !== undefined) {
 			callback(err, doc);
+			return;
 		} else if (doc === null) {
 			callback(null, null);
 		} else {

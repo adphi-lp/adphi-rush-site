@@ -100,4 +100,6 @@ mixin comment(comment, accountType, basepath, options)
           span.comment-header-element.comment-rushee
             +rusheeName(comment.rushee, accountType, basepath)
         .comment-text #{comment.text}
+        -if (accountType.isAdmin())
+          a.comment-edit(href=basepath+'/editcomment?cID='+comment._id) edit
         .comment-time #{comment.time}

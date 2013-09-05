@@ -167,6 +167,13 @@ td,th {
 }
 
 
+.comment-edit{
+	font-size:12px;
+	position:absolute;
+	bottom:5px;
+}
+
+
 
 .post-wrapper{
 	margin-top:20px;
