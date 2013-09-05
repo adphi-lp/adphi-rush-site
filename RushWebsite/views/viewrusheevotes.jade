@@ -21,7 +21,7 @@ block content
             th.votes-header-cell Total Non-Zero
             th.votes-header-cell Sponsor(s)
             th.votes-header-cell Last seen
-            th.votes-header-cell Last comment
+            th.votes-header-cell Last contact
             
           -for (var i = 0; i < rushees.length; i++)
             -var r = rushees[i];
@@ -52,7 +52,10 @@ block content
               -else
                 td.votes-cell In/jaunt
                 
-              -if (r.comments.length !== 0)
-                td.votes-cell #{r.comments[0].shorttime}
-              -else
-                td.votes-cell None
+              -var comtime  = 'None';
+              -for (var j = 0; j < r.comments.length; j++)
+                -if (r.comments[j].type._id === 'CONTACT')
+                  -comtime = r.comments[j].shorttime
+                  -break;
+               td.votes-cell #{comtime}
+                
