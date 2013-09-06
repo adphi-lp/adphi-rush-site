@@ -1,5 +1,7 @@
 extends layout
 
+include mixins
+
 block head
   title='View brother summaries'  
   link(rel='stylesheet',href=basepath+'/css/viewbrothersvote.css')
@@ -27,9 +29,10 @@ block content
                     td.votes-cell
                       -for (var r in relevantRushees)
                         -var rushee = relevantRushees[r];
-                        -if (rushee.voteBy[b._id].type._id === 'NULL' && rushee.visible)
+                        -if (rushee.voteBy[b._id].type.value === 0 && rushee.visible && rushee.voteScore < bidScore)
                           -var relstyle = 'color:' + rushee.status.type.color + ';';
                           -relstyle += rushee.priority ? 'font-weight:bold;' : '';
                           
-                          .vote-rushee(style=relstyle) #{relevantRushees[r].name}
+                          .vote-rushee(style=relstyle)
+                            +rusheeName(relevantRushees[r], accountType, basepath)
               td.votes-cell #{b.sponsorsNameList.join(', ')}   
