@@ -76,10 +76,10 @@ function checkAdminAuth(req, res, next) {
 }
 
 function login(username, password, res) {
-	if (username.toLowerCase() === 'admin' && password.toLowerCase() === 'jeffshen') {
+	if (username.toLowerCase() === 'admin' && password.toLowerCase() === 'rhythm7') {
 		res.cookie('accountType', accountType.ADMIN.name);
 		return true;
-	} else if (username.toLowerCase() === 'brother' && password.toLowerCase() === 'henryleeb') {
+	} else if (username.toLowerCase() === 'brother' && password.toLowerCase() === 'leebhenry') {
 		res.cookie('accountType', accountType.BROTHER.name);
 		return true;
 	} else if (username.toLowerCase() === 'frontdesk' && password.toLowerCase() === 'splash') {

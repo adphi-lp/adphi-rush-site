@@ -25,7 +25,7 @@ rushdb.connect(DATABASE_URL);
 //for parsing posts
 app.use(express.bodyParser({uploadDir:__dirname+'/uploads'}));
 //TODO: this is a really bad SECRET
-app.use(express.cookieParser('ADPhiRush'));
+app.use(express.cookieParser('afjkv923jnjozp2323jfsjsi2'));
 
 //set path to static things
 app.use(BASE_PATH+'/public/',express.static(__dirname+ '/public'));
