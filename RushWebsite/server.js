@@ -210,7 +210,7 @@ app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 	var rusheeID = req.query.rID === undefined ? null : toObjectID(req.query.rID);
 	var brotherID = req.query.bID === undefined ? null : toObjectID(req.query.bID);
 	if (brotherID !== null) {
-		res.cookie('brotherID', brotherID);
+		auth.setCookie(res, 'brotherID', brotherID+"");
 	}
 	
 	var time = process.hrtime();
@@ -226,7 +226,7 @@ app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 		}
 		
 		if (brotherID === null) {
-			info.brotherID = toObjectID(req.cookies.brotherID);
+			info.brotherID = toObjectID(auth.getCookie(req, 'brotherID'));
 		}
 		
 		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
