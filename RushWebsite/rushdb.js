@@ -431,6 +431,19 @@ function arrangeBrother(brotherID, info, render) {
 		render(new Error('no brother'));
 		return;
 	}
+	
+	var rushees = info.rushees;
+	votedb.makeVoteBy(rushees, brothers);
+	
+	var voteCmp = function (a, b) {
+		return a.type.index - b.type.index ||
+			tools.strCmpNoCase(a.rushee.name, b.rushee.name);
+	};
+	info.brother.sortedVotes = tools.map(rushees, function(r) {
+		return r.voteBy[info.brother._id];
+	});
+	info.brother.sortedVotes.sort(voteCmp);
+
 		
 	render(null, info);
 }
