@@ -524,14 +524,22 @@ function insertBrother(brother, callback) {
 }
 
 function updateRushee(rusheeID, rushee, callback) {
-	rushee.sfirst = rushee.first.toLowerCase();
-	rushee.slast = rushee.last.toLowerCase();
+	if (rushee.first !== undefined) {
+		rushee.sfirst = rushee.first.toLowerCase();
+	}
+	if (rushee.last !== undefined) {
+		rushee.slast = rushee.last.toLowerCase();
+	}
 	joindb.update('rushees', {_id : rusheeID}, {$set : rushee}, {}, callback);	
 }
 
 function updateBrother(brotherID, brother, callback) {
-	brother.sfirst = brother.first.toLowerCase();
-	brother.slast = brother.last.toLowerCase();
+	if (brother.first !== undefined) {
+		brother.sfirst = brother.first.toLowerCase();
+	}
+	if (brother.last !== undefined) {
+		brother.slast = brother.last.toLowerCase();
+	}
 	joindb.update('brothers', {_id : brotherID}, {$set : brother}, {}, callback);	
 }
 

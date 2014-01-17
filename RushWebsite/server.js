@@ -578,6 +578,48 @@ app.get(BASE_PATH+'/viewbrothers', auth.checkAuth, function(req,res){
 	});
 });
 
+app.get(BASE_PATH+'/brotheroptions', auth.checkAuth, function(req,res){
+	rushdb.get(rushdb.arrange, {}, function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		info.basepath = BASE_PATH;
+		info.accountType = auth.getAccountType(req, res);
+		res.render('brotheroptions.jade', info);
+	});
+});
+
+app.post(BASE_PATH+'/brotheroptions', auth.checkAuth, function(req, res) {
+
+	console.log(req.body);	
+	
+	
+	var pre = req.body.pre || {};
+	var post = req.body.post || {};
+	var errorLog = function(err) {
+		if (err !== null && err !== undefined) {
+			console.log(err);
+		}
+	};
+	for (var b in pre) {
+		if (!post[b]) {
+			var bid = toObjectID(b.replace('brother', ''));
+			rushdb.updateBrother(bid, {met: false}, errorLog);
+		}
+	}
+	
+	for (var b in post) {
+		if (!pre[b]) {
+			var bid = toObjectID(b.replace('brother', ''));
+			rushdb.updateBrother(bid, {met: true}, errorLog);
+		}
+	}
+	res.redirect(BASE_PATH+'/brotheroptions');
+});
+
 app.get(BASE_PATH+'/viewbrothervotes', auth.checkAuth, function(req,res){
 	var arrangeInPriVotes = function(info, render) {
 		rushdb.makeCustomRushees(info, info.rushees, 'relevantRushees',function(r) {

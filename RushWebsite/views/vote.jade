@@ -66,9 +66,10 @@ block content
               - var vid = voteType._id;
               - if (bid === vid)
                 input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType._id}',checked)
-              -else
+                label.vote-choice(for ='vote#{i}') #{voteType.name}
+              - else if (vid !== 'MET' || brother.met)
                 input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType._id}')
-              label.vote-choice(for ='vote#{i}') #{voteType.name}
+                label.vote-choice(for ='vote#{i}') #{voteType.name}
         .action-comment-wrapper
           -for (var j = 0; j < 2; j++)
             .action-comment-content.clearfix

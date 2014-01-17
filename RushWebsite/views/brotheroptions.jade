@@ -1,0 +1,31 @@
+extends layout
+include mixins
+
+block head
+  title='Brother options'
+  link(rel='stylesheet',href=basepath+'/css/vote.css')
+  script(type='text/javascript',src=basepath+'/js/vendor/jquery-1.8.3.min.js')
+  script(type='text/javascript',src=basepath+'/js/vote.js')
+
+block content
+  form.votes-wrapper
+    h2.title Brother options
+    table.votes-table
+      tr.votes-header-row
+        th.votes-header-name Brother Name
+        th.votes-header-cell Allow met
+      -for (var i = 0; i < brothers.length; i++)
+        -var b = brothers[i];
+        tr.votes-row
+          td.votes-name
+            +brotherName(b, accountType, basepath)
+          td.votes-cell
+            -if (b.met)
+              input(type='hidden', name = 'pre[brother'+b._id+']')
+              input(type='checkbox', name = 'post[brother'+b._id+']', checked)
+            -else
+              input(type='checkbox', name = 'post[brother'+b._id+']')
+    
+    .votes-post
+      input(type='submit',formmethod='post',formaction='',value='Save')
+    
