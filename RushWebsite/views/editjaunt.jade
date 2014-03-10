@@ -1,0 +1,24 @@
+extends layout
+include mixins
+
+block head
+  title='Jaunt'
+  link(rel='stylesheet',href=basepath+'/css/vote.css')
+
+block content
+  .jaunt-action-wrapper
+    h2.title Edit Jaunt
+    form.jaunt-action-content(method='post',action='#')
+      .jaunt-action-item
+        span.jaunt-action-name Name
+        input.jaunt-action-input(type='text',required,name = 'jName',value=jaunt.name)
+      .jaunt-action-item
+        span.jaunt-action-name Time
+        input.jaunt-action-input(type='datetime-local',required,name = 'jTime',
+          value=jaunt.dateISO.substr(0, jaunt.dateISO.length-1))
+      .jaunt-post
+        input#save(type='submit',value='Submit')
+      input(type='hidden', name='jID', value=jaunt._id)
+      -for (var j = 0; j < jaunt.vans.length; j++)
+        -var van = jaunt.vans[j];
+        input(type='hidden',name='vID',value=van._id)

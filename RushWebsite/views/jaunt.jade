@@ -12,6 +12,7 @@ block content
     .jaunt-wrapper
       .jaunt-header
         h2.jaunt-title #{jaunt.name}
+        a.jaunt-edit(href=basepath + '/editjaunt?jID=' + jaunt._id) Edit Jaunt
       .jaunt-content
         .jaunt-van-thread-wrapper
           -for (var j = 0; j < jaunt.vans.length; j++)

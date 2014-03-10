@@ -176,6 +176,54 @@ app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){
 	});
 });
 
+app.get(BASE_PATH+'/editjaunt', auth.checkAuth, function(req, res) {
+	var jauntID = req.query.jID === undefined ? null : toObjectID(req.query.jID);
+	
+	var time = process.hrtime();
+	
+	var arrangeJaunt = function(info, render) {
+		rushdb.arrangeJaunt(jauntID, info, render);
+	};
+	
+	rushdb.get(arrangeJaunt, {}, function(err, info) {
+		if (err !== undefined && err !== null) {
+			console.log(err);
+			res.redirect(BASE_PATH+'/404');
+			return;
+		}
+		
+		info.voteTypes = rushdb.SORTED_VOTE_TYPES;
+		info.commentTypes = rushdb.SORTED_COMMENT_TYPES;
+		info.accountType = auth.getAccountType(req, res);
+		info.basepath = BASE_PATH;
+		if (info.jaunt !== null) {
+			var date = new Date(info.jaunt.time);
+			info.jaunt.dateISO = date.toISOString();
+		}
+		res.render('editjaunt.jade', info);
+		time = process.hrtime(time);
+		console.log('/editjaunt took %d seconds and %d nanoseconds', time[0], time[1]);
+	});
+});
+
+app.post(BASE_PATH+'/editjaunt', auth.checkAuth, function(req, res) {
+	var jID = parseInt(req.body.jID);
+	var name = req.body.jName;
+	var time = Date.parse(req.body.jTime);
+	var vIDs = req.body.vID;
+	if (vIDs === null || vIDs === undefined) {
+		vIDs = [];
+	}
+
+	var jaunt = {
+		name : name,
+		time : time
+	};
+	rushdb.updateJaunt(jID, jaunt, function() {
+		res.redirect(BASE_PATH+'/jaunt?jID=' + jID);		
+	});
+});
+
 app.get(BASE_PATH+'/importcand', auth.checkAdminAuth, function(req, res) {
 	res.render('importcand.jade', {basepath:BASE_PATH});
 });
