@@ -18,6 +18,11 @@ function name(first, nick, last) {
 	}
 }
 
+function addStat(stats, name, time) {
+	time = time[0]*1e9 + time[1];
+	stats.addStat(name, time);
+}
+
 function lastfirst(first, nick, last) {
 	if (nick === '' || nick === null || nick === undefined) {
 		return last + ', ' + first;

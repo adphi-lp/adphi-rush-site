@@ -15,6 +15,7 @@ var rushdb = require('./rushdb');
 var tools = require('./tools');
 var auth = require('./auth');
 var search = require('./search');
+var stats = require('./stats');
 var toObjectID = rushdb.toObjectID;
 
 //create app and connect
@@ -67,7 +68,8 @@ app.get(BASE_PATH+'/jaunt', auth.checkAuth, function(req, res){
 		info.basepath = BASE_PATH;
 		res.render('jaunt.jade', info);
 		time = process.hrtime(time);
-		console.log('/jaunt took %d seconds and %d nanoseconds', time[0], time[1]);
+		time = time[0]*1e9 + time[1];
+		stats.addStat('/jaunt in ns', time);
 	});
 });
 
@@ -169,7 +171,8 @@ app.get(BASE_PATH+'/jaunts', auth.checkAuth, function(req, res){
 		info.basepath = BASE_PATH;
 		res.render('jaunts.jade', info);
 		time = process.hrtime(time);
-		console.log('/jaunts took %d seconds and %d nanoseconds', time[0], time[1]);
+		time = time[0]*1e9 + time[1];
+		stats.addStat('/jaunts in ns', time);
 	});
 });
 
@@ -235,7 +238,8 @@ app.get(BASE_PATH+'/vote', auth.checkAuth, function(req, res){
 		info.basepath = BASE_PATH;
 		res.render('vote.jade', info);
 		time = process.hrtime(time);
-		console.log('/vote took %d seconds and %d nanoseconds', time[0], time[1]);
+		time = time[0]*1e9 + time[1];
+		stats.addStat('/vote in ns', time);
 	});
 });
 
@@ -287,7 +291,8 @@ app.get(BASE_PATH+'/editcomment', auth.checkAdminAuth, function(req, res){
 		info.basepath = BASE_PATH;
 		res.render('editcomment.jade', info);
 		time = process.hrtime(time);
-		console.log('/editcomment took %d seconds and %d nanoseconds', time[0], time[1]);
+		time = time[0]*1e9 + time[1];
+		stats.addStat('/editcomment in ns', time);
 	});
 });
 
@@ -523,6 +528,26 @@ app.get(BASE_PATH+'/viewrusheevotes', auth.checkAuth, function(req, res) {
 	});
 });
 
+app.get(BASE_PATH+'/viewstats', auth.checkAdminAuth, function(req, res) {
+	var timeUnit = 'ns'; //can change to s, ms, etc
+	var info = {};
+	info.basepath = BASE_PATH;
+	info.stats = [];
+	//breaks in IE8...lemme know if this is a thing I should care about
+	var keys = Object.keys(stats.stats);
+	for(var i = 0; i < keys.length; i++) {
+		var pageName = keys[i];
+		var query = pageName + ' in ' + timeUnit;
+		info.stats[i] = {
+			name: pageName,
+			sum: stats.getStatSum(query),
+			count: stats.getStatCount(query),
+			average: stats.getStatAverage(query)
+		};
+	}
+	res.render('viewstats.jade', info);
+});
+
 app.get(BASE_PATH+'/viewbrother', auth.checkAuth, function(req, res){
 	var brotherID = req.query.bID === undefined ? null : toObjectID(req.query.bID);
 	
@@ -544,7 +569,8 @@ app.get(BASE_PATH+'/viewbrother', auth.checkAuth, function(req, res){
 		info.basepath = BASE_PATH;
 		res.render('viewbrother.jade', info);
 		time = process.hrtime(time);
-		console.log('viewbrother took %d seconds and %d nanoseconds', time[0], time[1]);
+		time = time[0]*1e9 + time[1];
+		stats.addStat('/viewbrother in ns', time);
 	});
 });
 
@@ -566,9 +592,16 @@ app.get(BASE_PATH+'/viewhistory', auth.checkAdminAuth, function(req, res) {
 });
 
 app.get(BASE_PATH+'/viewbrothers', auth.checkAuth, function(req,res){
+	var time = process.hrtime();
+
 	rushdb.get(rushdb.arrange, {}, function(err, info) {
 		if (err !== undefined && err !== null) {
 			console.log(err);
+
+			time = process.hrtime(time);
+			time = time[0]*1e9 + time[1];
+			stats.addStat('/viewbrothers in ns', time);
+			
 			res.redirect(BASE_PATH+'/404');
 			return;
 		}

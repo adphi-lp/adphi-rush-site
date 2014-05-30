@@ -1,0 +1,20 @@
+extends layout
+include mixins
+
+
+block head
+  title='View all Stats'
+  link(rel='stylesheet',href=basepath+'/css/stats.css')
+  
+
+block content
+  h1 View all stats
+  table
+    tr
+      th Name
+      th Count
+      th Sum (ns)
+      th Average (ns)
+    -for(var i = 0; i < stats.length; i++)
+      -var currStat = stats[i]; 
+      +pageStat(currStat.name, currStat.count, currStat.sum, currStat.average)
