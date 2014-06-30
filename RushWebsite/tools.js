@@ -1,5 +1,8 @@
 'use strict';
 
+var fs = require('fs');
+var path = require('path');
+
 function randomString(len, charSet) {
     charSet = charSet || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var rString = '';
@@ -73,13 +76,59 @@ function strCmp(str1, str2) {
 	}
 }
 
+function startsWith(str, starts) {
+	if (starts === '') return true;
+	if (str == null || starts == null) return false;
+	str = String(str); starts = String(starts);
+	return str.length >= starts.length && str.slice(0, starts.length) === starts;
+}
+
+function endsWith(str, ends) {
+	if (ends === '') return true;
+	if (str == null || ends == null) return false;
+	str = String(str); ends = String(ends);
+	return str.length >= ends.length && str.slice(str.length - ends.length) === ends;
+}
+
 function strCmpNoCase(str1, str2) {
 	return strCmp(str1.toLowerCase(), str2.toLowerCase());
 }
 
-function isArray(a)
-{
+function isArray(a) {
     return Object.prototype.toString.apply(a) === '[object Array]';
+}
+
+function walkSync(start, callback) {
+	var stat = fs.statSync(start);
+
+	if (stat.isDirectory()) {
+		var names = fs.readdirSync(start);
+
+		var files = [];
+		var dirs = [];
+		for (var i = 0, l = names.length; i < l; i++) {
+			var name = names[i];
+			var abspath = path.join(start, name);
+
+			if (fs.statSync(abspath).isDirectory()) {
+				dirs.push(abspath);
+			} else {
+				files.push(abspath);
+			}
+		}
+
+		for (var i = 0, l = files.length; i < l; i++) {
+			var file = files[i];
+			callback(file);
+		}
+
+		dirs.forEach(function (dir) {
+			walkSync(dir, callback);
+		});
+
+	} else {
+		throw new Error("path: " + start + " is not a directory");
+	}
 }
 
 module.exports = {
@@ -91,5 +140,12 @@ module.exports = {
 	filter : filter,
 	map : map,
 	count : count,
-	isArray : isArray
+	isArray : isArray,
+	str : {
+		startsWith : startsWith,
+		endsWith : endsWith
+	},
+	file : {
+		walkSync : walkSync
+	}
 };

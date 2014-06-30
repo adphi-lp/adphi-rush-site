@@ -1,0 +1,38 @@
+extends /common/layout
+
+include /common/mixins
+
+block head
+  title='View brother summaries'  
+  link(rel='stylesheet',href=basepath+'/css/viewbrothersvote.css')
+
+block content
+  .brothers-wrapper
+    .votes-wrapper
+      h1.brothers-title View brother summaries
+      .votes-content
+        table.votes-table
+          tr.votes-header-row
+            th.votes-header-name Brother Name
+            th.votes-header-cell Please meet
+            th.votes-header-cell Sponsoring
+            
+          -for (var i = 0; i < brothers.length; i++)
+            -var b = brothers[i];
+            tr.votes-row
+              td.votes-name #{b.name}
+                -for (var j = 0; j < voteTypes.length; j++)
+                  -var voteType = voteTypes[j];
+                  -var voteCount = b.countVotesByType[voteType._id]
+                  
+                  -if (voteType._id === 'NULL')
+                    td.votes-cell
+                      -for (var r in relevantRushees)
+                        -var rushee = relevantRushees[r];
+                        -if (rushee.voteBy[b._id].type.value === 0 && rushee.visible && rushee.voteScore < bidScore)
+                          -var relstyle = 'color:' + rushee.status.type.color + ';';
+                          -relstyle += rushee.priority ? 'font-weight:bold;' : '';
+                          
+                          .vote-rushee(style=relstyle)
+                            +rusheeName(relevantRushees[r], accountType, basepath)
+              td.votes-cell #{b.sponsorsNameList.join(', ')}   

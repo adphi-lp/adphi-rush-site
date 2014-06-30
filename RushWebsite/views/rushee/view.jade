@@ -1,0 +1,126 @@
+extends /common/layout
+include /common/mixins
+
+block head
+  title='Voting'
+  link(rel='stylesheet',href=basepath+'/css/vote.css')
+  script(type='text/javascript',src=basepath+'/js/vendor/jquery-1.8.3.min.js')
+  script(type='text/javascript',src=basepath+'/js/vote.js')
+
+block content
+  .rushee-wrapper
+    +rushee(rushee, accountType, basepath, options={largeimg : true, edit: true})
+          
+  -if (accountType.isAdmin())
+    .brother-action-wrapper
+      form.brother-action-content(method='post',action=basepath+'/jaunt/pushRusheeToVan')
+        span.brother-action-type Add to van
+        input(type='hidden',name='rID',value='#{rushee._id}')     
+        select.jaunt-van-list(name='vID')
+          -for (var i = 0; i < jaunts.length; i++)
+            -var jaunt 	= jaunts[i];
+            -for (var j = 0; j < jaunt.vans.length; j++)
+              -var van = jaunt.vans[j]
+              option(value='#{van._id}') #{jaunt.name + ': ' + van.name}
+        .post-wrapper
+          input#save(type='submit',value='Submit')
+
+  .brother-action-wrapper
+    form.brother-action-content
+      input(type='hidden',name='rID',value='#{rushee._id}')
+      -if (brother === null)
+        .brother-wrapper
+          span.brother-action-type Name
+          select.brother-list#brothers(name='bID')
+            -for (var i = 0; i < brothers.length; i++)
+              -var b = brothers[i];
+              -if (brotherID === b._id)
+                option(value='#{b._id}', selected) #{b.lastfirst}
+              -else
+                option(value='#{b._id}') #{b.lastfirst}
+         button#brother-select-button(formmethod='get',formaction=basepath+'/rushee/view',value='Select') Select
+      -else
+        input(type='hidden',name='bID',value='#{brother._id}')
+        .brother-wrapper
+          span.brother-action-type Name
+          span.brother-info#brother-name #{brother.name}
+        .sponsor-wrapper
+          .sponsor-content
+            span.brother-action-type Sponsor
+            -if (brother.sponsorBy[rushee._id].sponsor)
+              input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes',checked)
+              label.sponsor-choice(for='sponsorYes') Yes
+              input.span-space#sponsorNo(type='radio',name='sponsor',value='No')
+              label.sponsor-choice(for='sponsorNo') No
+            -else
+              input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes')
+              label.sponsor-choice(for='sponsorYes') Yes
+              input.span-space#sponsorNo(type='radio',name='sponsor',value='No',checked)
+              label.sponsor-choice(for='sponsorNo') No
+        .vote-wrapper
+          .vote-content
+            span.brother-action-type Vote
+            - for (var i = 0; i < voteTypes.length; i++)
+              - var voteType = voteTypes[i];
+              - var bid = rushee.voteBy[brother._id].type._id;
+              - var vid = voteType._id;
+              - if (bid === vid)
+                input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType._id}',checked)
+                label.vote-choice(for ='vote#{i}') #{voteType.name}
+              - else if (vid !== 'MET' || brother.met)
+                input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType._id}')
+                label.vote-choice(for ='vote#{i}') #{voteType.name}
+        .action-comment-wrapper
+          -for (var j = 0; j < 2; j++)
+            .action-comment-content.clearfix
+              span.brother-action-type Comment (optional)
+              .action-comment-textarea-wrapper
+                textarea#comment-textarea(name='comment#{j}',rows=5,cols=40)
+              .action-comment-type
+                span.brother-action-type Type
+                select(name='commentType#{j}')
+                  -for (var i = 0; i < commentTypes.length; i++)
+                    option(value='#{commentTypes[i]._id}') #{commentTypes[i].name}
+              .action-comment-jaunt
+                span.brother-action-type Jaunt
+                select#comment-jaunt(name='commentJaunt#{j}')
+                  option(value='null') None
+                  -for (var i = 0; i < jaunts.length; i++)
+                    option(value='#{jaunts[i]._id}') #{jaunts[i].name}
+        .post-wrapper
+          input#save(type='submit',formmethod='post',formaction=basepath+'/rushee/view',value='Submit')
+          input#done(type='submit',formmethod='get',formaction=basepath+'/',value='Back to rushees')
+             
+  .votes-wrapper
+    h2.title Votes
+    button.votes-button.spoiler-button(type='button') Show/hide
+    .votes-content.spoiler-content
+      table.votes-table
+        tr.votes-header-row
+          th.votes-header-name Brother Name
+          -for (var i = 0; i < voteTypes.length; i++)
+            -var voteType = voteTypes[i];
+            th.votes-header-cell #{voteType.name}
+         -for (var i = 0; i < rushee.sortedVotes.length; i++)
+            -var vote = rushee.sortedVotes[i]
+            -var bid = vote.type._id;
+            tr.votes-row
+            td.votes-name #{vote.brother.name}
+              -for (var j = 0; j < voteTypes.length; j++)
+                -var voteType = voteTypes[j];
+                -var vid = voteType._id;
+                -if (bid == vid)
+                  td.votes-cell.votes
+                    -if (voteType.value < 0)
+                      strong(style='color:red; font-weight:bold;') X
+                    -else
+                      strong X
+                -else
+                  td.votes-cell.votes
+         
+  .comment-thread-wrapper
+    h2.title Comments
+    ul.comment-thread-content
+      - for (var i = 0; i < rushee.comments.length; i++)	
+        -var comment = rushee.comments[i];
+        +comment(comment, accountType, basepath, {brother: true})

@@ -1,0 +1,41 @@
+extends /common/layout
+
+block head
+  title = 'Rush Home'
+
+block content
+  -if (accountType.isAdmin())
+    h1 Admin links
+    h2
+      a(href=basepath+'/brother/add') Go add brothers
+    h2
+      a(href=basepath+'/admin/addcandidate') Go add candidates
+    h2
+      a(href=basepath+'/rushee/add') Go add rushees
+    h2
+      a(href=basepath+'/jaunt/list') Go view jaunts
+    h2
+      a(href=basepath+'/rushee/history') Go view voting history
+    h2
+      a(href=basepath+'/rushee/search') Go view rushees
+    h2
+      a(href=basepath+'/rushee/log') Go view recent rushees
+    h2
+      a(href=basepath+'/rushee/votes') Go view rushee votes
+    h2
+      a(href=basepath+'/brother/search') Go view brothers
+    h2
+      a(href=basepath+'/brother/votes') Go view brother votes
+    h2
+      a(href=basepath+'/frontdesk') Front Desk
+    h2
+      a(href=basepath+'/brother/options') Brother options
+    h2
+      a(href=basepath+'/admin/perfstats') View Stats
+  -else if (accountType.isBrother())
+    h1 Brother links
+    h2
+      a(href=basepath+'/rushee/search') Go view rushees
+    //
+      h2
+        a(href=basepath+'/search') Go search for people (NOT READY YET)

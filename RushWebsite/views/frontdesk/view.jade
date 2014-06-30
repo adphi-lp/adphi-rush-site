@@ -1,4 +1,4 @@
-extends layout
+extends /common/layout
 
 block head
   title='View'
@@ -24,7 +24,8 @@ block content
           span.rushee-info-data #{rushee.year}
       form.rushee-action
         -var idName = 'rID';
-        -if (rushee.candidate) idName = 'cID';\
+        -if (rushee.candidate) idName = 'cID';
+        input(type='hidden',name='redirect',value=basepath+'/frontdesk')
         input(type='hidden',name=idName,value='#{rushee._id}')
         input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/inhouse',value='In house')
         input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/outhouse',value='Going out')

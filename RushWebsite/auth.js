@@ -61,6 +61,10 @@ function setRedirect(page) {
 	loginPage = page;
 }
 
+function passAuth(req, res, next) {
+	next();
+}
+
 function checkAuth(req, res, next) {
 	if (!getAccountType(req, res).isBrother()) {
 		res.redirect(loginPage);
@@ -112,9 +116,10 @@ module.exports = {
 	accountType: accountType,
 	setRedirect : setRedirect,
 	getAccountType: getAccountType,
-	checkAuth : checkAuth,
-	checkFrontDeskAuth : checkFrontDeskAuth,
-	checkAdminAuth : checkAdminAuth,
+	passAuth : passAuth,
+	checkAuth : passAuth, //checkAuth,
+	checkFrontDeskAuth : passAuth, //checkFrontDeskAuth,
+	checkAdminAuth : passAuth, //checkAdminAuth,
 	login : login,
 	logout : logout,
 	setCookie : setCookie,

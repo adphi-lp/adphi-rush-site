@@ -1,0 +1,13 @@
+extends /common/layout
+include /common/mixins
+
+block head
+  title='Import candidates'  
+ 
+
+block content
+  h1.rushees-title Import candidates
+  form.candidate-form-wrapper
+    .import-wrapper
+      textarea#import(name = 'cand')
+      input(type='submit',formmethod='post',formaction='', value='Import')

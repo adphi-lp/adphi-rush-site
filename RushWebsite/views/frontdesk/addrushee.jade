@@ -1,0 +1,36 @@
+extends /common/layout
+
+block head
+  title='New Rushee'
+
+block content
+  .rushee-new-wrapper
+    h1.rushee-new-title New Rushee
+    form.rushee-new-content(enctype = 'multipart/form-data')
+      .rushee-new-info
+        .rushee-new-item#rushee-first-name
+          span.rushee-new-type First Name
+          input.rushee-new-data(name='first',required)
+        .rushee-new-item#rushee-last-name
+          span.rushee-new-type Last Name
+          input.rushee-new-data(name='last',required)
+        .rushee-new-item#rushee-nickname
+          span.rushee-new-type Nickname
+          input.rushee-new-data(name='nick')
+        .rushee-new-item#rushee-dorm
+          span.rushee-new-type Dorm
+          input.rushee-new-data(name='dorm')
+        .rushee-new-item#rushee-phone
+          span.rushee-new-type Phone
+          input.rushee-new-data(name='phone')
+        .rushee-new-item#rushee-email
+          span.rushee-new-type Email
+          input.rushee-new-data(name='email')
+        .rushee-new-item#rushee-year
+          span.rushee-new-type Year
+          select.rushee-new-data(name='year')
+            -years = ['Freshman', 'Sophomore', 'Junior', 'Senior']
+            -for (var i = 0; i < years.length; i++)
+              option(value='#{years[i]}') #{years[i]}
+      .rushee-new-post
+        input#save(type='submit',formmethod='post',formaction=basepath+'/frontdesk/addrushee',value='Submit')
