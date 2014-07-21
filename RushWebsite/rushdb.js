@@ -132,6 +132,7 @@ function getCandidate(cID, render) {
 function getSingle(col, name, id, aug, render) {
 	if (id === null) {
 		render(new Error('no ' + name + 'ID given'));
+		return;
 	}
 	
 	var query = {_id : id};
