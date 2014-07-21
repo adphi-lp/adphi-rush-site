@@ -10,6 +10,7 @@ var votedb = require('./votedb');
 var jauntdb = require('./jauntdb');
 var commentdb = require('./commentdb');
 var candidatedb = require('./candidatedb');
+var photodb = require('./photodb');
 var moment = require('moment');
 
 var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
@@ -491,7 +492,7 @@ function loadTestInsertRushees() {
 			phone: 'phone' + i,
 			email: 'email' + i,
 			year: 'year' + i,
-			photo: '/public/img/no_photo.jpg',
+			photo: photodb.DEFAULT_PHOTO_PATH,
 			visible: true,
 			priority: false
 		};
@@ -580,7 +581,7 @@ function importCand(candText) {
 				phone : '',
 				email : '',
 				year : 'Freshman',
-				photo : '/public/img/no_photo.jpg',
+				photo : photodb.DEFAULT_PHOTO_PATH,
 				visible : true,
 				priority : false,
 				metadata : metamale + ' ' + metapage
@@ -656,7 +657,15 @@ module.exports = {
 	insertJaunt : jauntdb.insertJaunt,
 	updateJaunt : jauntdb.updateJaunt,
 	removeJaunt : jauntdb.removeJaunt,
+
+
+	PHOTO_DIR : photodb.PHOTO_DIR,
+	DEFAULT_PHOTO : photodb.DEFAULT_PHOTO,
+	DEFAULT_PHOTO_PATH : photodb.DEFAULT_PHOTO_PATH,
+	PHOTO_NAME_LENGTH : photodb.PHOTO_NAME_LENGTH,
+	uploadPhoto : photodb.uploadPhoto,
+	uploadPhotoIf : photodb.uploadPhotoIf,
 	
 	copyCol : copyCol,
-	importCand : importCand
+	importCand : importCand,
 };

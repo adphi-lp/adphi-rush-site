@@ -1,5 +1,11 @@
 # Include your project-specific ignores in this file
 # Read about how to use .gitignore: https://help.github.com/articles/ignoring-files
+# Project specific #
+####################
+/RushWebsite/uploads/*
+/RushWebsite/public/img/*
+!/RushWebsite/public/img/no_photo.jpg
+
 # Compiled source #
 ###################
 *.com

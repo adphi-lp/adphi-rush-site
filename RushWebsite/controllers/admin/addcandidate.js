@@ -23,41 +23,32 @@ function get(req, res) {
 }
 
 function post(req, res) {
-	//TODO cleanup photo code
-	var photo = req.files.photo;
-	var photoLen = 10, photoPath = '/public/img/no_photo.jpg';
-	if (photo.size !== 0) {
-		var name = photo.name;
-		var extension = name.substr(name.lastIndexOf('.')+1);
-		photoPath = '/public/img/'+tools.randomString(photoLen,'')+'.'+extension;
-	
-		fs.readFile(req.files.photo.path, function(err, data) {
-			var newPath = __dirname + photoPath;
-			fs.writeFile(newPath, data, function(err) {
-				if (err !== null) {
-					console.log('uploadpath: ' + req.files.photo.path);
-					console.log("photopath: " + photoPath);
-					console.log(err);
-				}
-			});
-		});
-	}
-	
-	var cand = {
-		first: req.body.first,
-		last: req.body.last,
-		nick: req.body.nick,
-		dorm: req.body.dorm,
-		phone: req.body.phone,
-		email: req.body.email,
-		year: req.body.year,
-		photo: photoPath,
-		visible: true,
-		priority: false
-	};
+	rushdb.uploadPhoto(req.files.photo, function(err, photoPath) {
+		// ignore error
+		var cand = {
+			first: req.body.first,
+			last: req.body.last,
+			nick: req.body.nick,
+			dorm: req.body.dorm,
+			phone: req.body.phone,
+			email: req.body.email,
+			year: req.body.year,
+			photo: photoPath,
+			visible: true,
+			priority: false
+		};
 
-	rushdb.insertCandidate(cand);
-	res.redirect('/admin/addcandidate');
+
+		rushdb.insertCandidate(cand, function(err) {
+			if (err !== undefined && err !== null) {
+				console.log(err);
+				res.redirect('/404');
+				return;
+			}
+
+			res.redirect('/admin/addcandidate');
+		});
+	});
 }
 
 module.exports = {

@@ -23,7 +23,7 @@ function get(req, res) {
 }
 
 function post(req, res) {
-	var photoPath = '/public/img/no_photo.jpg';
+	var photoPath = rushdb.DEFAULT_PHOTO_PATH;
 	var first = req.body.first || '';
 	var last = req.body.last || '';
 	var nick = req.body.nick || '';
@@ -31,7 +31,6 @@ function post(req, res) {
 	var phone = req.body.phone || '';
 	var year = req.body.year || '';
 	var email = req.body.email || '';
-	var photo = photoPath;
 	
 	var rushee = {
 		first: first,

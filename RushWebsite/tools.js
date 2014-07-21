@@ -13,6 +13,10 @@ function randomString(len, charSet) {
     return rString;
 }
 
+function extension(filename) {
+	return filename.substr(filename.lastIndexOf('.') + 1);
+}
+
 function name(first, nick, last) {
 	if (nick === '' || nick === null || nick === undefined) {
 		return first + ' ' + last;
@@ -133,6 +137,7 @@ function walkSync(start, callback) {
 
 module.exports = {
 	randomString : randomString,
+	extension : extension,
 	name : name,
 	lastfirst : lastfirst,
 	strCmp: strCmp,

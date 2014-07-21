@@ -9,7 +9,6 @@ var DATABASE_URL = 'ADPhiRush';
 var express = require('express');
 var https = require('https');
 var fs = require('fs');
-// var Seq = require('seq');
 var async = require('async');
 var moment = require('moment');
 var rushdb = require('./rushdb');
@@ -17,29 +16,30 @@ var tools = require('./tools');
 var auth = require('./auth');
 var search = require('./search');
 var stats = require('./stats');
-var toObjectID = rushdb.toObjectID;
 var urimapper = require('./urimapper');
 
-//create app and connect
+// create app and connect
 var app = express();
 auth.setRedirect(BASE_PATH + '/login');
 rushdb.connect(DATABASE_URL);
 
-//for parsing posts
+// limit the upload size
+app.use(express.limit('1mb'))
+// for parsing posts
 app.use(express.bodyParser({uploadDir:__dirname+'/uploads'}));
-//TODO: this is a really bad SECRET
+// TODO: this is a really bad SECRET
 app.use(express.cookieParser('afjkv923jnjozp2323jfsjsi2'));
 
-//set path to static things
+// set path to static things
 app.use(BASE_PATH+'/public/',express.static(__dirname+ '/public'));
 app.use(BASE_PATH+'/css',express.static(__dirname + '/css'));
 app.use(BASE_PATH+'/js',express.static(__dirname + '/js'));
 
-//set path to the views (template) directory
+// set path to the views (template) directory
 app.set('views', __dirname + '/views');
 app.locals.basedir = app.get('views');
 
-//make links
+// make links
 var env = {
 	rushdb : rushdb,
 	stats : stats,
@@ -51,17 +51,12 @@ urimapper.setEnv(env);
 urimapper.makeLinks(app, {base : BASE_PATH, controllers : CONTROLLERS_PATH});
 
 app.get('*', function(req, res){
-	res.render('404.jade',{basepath:BASE_PATH});
+	res.render('404.jade', {basepath : BASE_PATH});
 });
 
-//listen on localhost:8000
-// app.listen(8000,'localhost');
 //var options = {
 //	key:fs.readFileSync(__dirname+'/cert/key.pem'),
 //	cert:fs.readFileSync(__dirname+'/cert/cert.pem')
 //};
 
-//https.createServer(options, app).listen(8000, '18.202.1.157');
-// https.createServer(options, app).listen(8000, 'localhost');
-// app.listen(8000,'18.202.1.157');
 app.listen(8888,'localhost');
