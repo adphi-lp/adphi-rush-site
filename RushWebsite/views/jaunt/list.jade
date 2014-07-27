@@ -2,6 +2,7 @@ extends /common/layout
 
 block head
   title='Jaunts'
+  link(rel='stylesheet',href=basepath+'/css/jaunt.css')
   link(rel='stylesheet',href=basepath+'/css/vote.css')
 
 block content
@@ -21,7 +22,10 @@ block content
               -for (var j = 0; j < jaunt.vans.length; j++)
                 -var van = jaunt.vans[j];
                 .jaunt-van-wrapper
-                  h3.jaunt-van-title #{van.name}
+                  form.jaunt-van-edit-form(method='get',action=basepath+'/jaunt/editvan')
+                    h3.jaunt-van-title #{van.name}
+                    input(type='hidden',name='vID',value=van._id);
+                    input(type='submit',value='Edit van')
                   form.jaunt-van-form(method='post',action=basepath+'/jaunt/pullVanFromJaunt')
                     span.jaunt-van-driver #{van.driver}
                     input(type='hidden',name='vID',value=van._id)

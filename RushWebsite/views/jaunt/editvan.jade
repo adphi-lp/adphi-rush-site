@@ -1,0 +1,21 @@
+extends /common/layout
+include /common/mixins
+
+block head
+  title='Edit van'
+
+block content
+  .van-wrapper
+    h1.title Edit a van
+    form.van-add-content
+      .van-add-info
+        .van-add-item.van-id
+          input.van-add-data(type='hidden',name='vID',value=van._id) 
+        .van-add-item.van-name
+          span.van-add-type Van Name
+          input.van-add-data(name='name',required,value=van.name)
+        .van-add-item.van-driver
+          span.van-add-type Driver
+          input.van-add-data(name='driver',required,value=van.driver)
+      .van-add-post
+        input.save(type='submit',formmethod='post',formaction='',value='Submit')

@@ -130,6 +130,10 @@ function getCandidate(cID, render) {
 				candidatedb.augCandidate, render);
 }
 
+function getVan(vID, render) {
+	getSingle('vans', 'van', vID, function(){}, render);
+}
+
 function getSingle(col, name, id, aug, render) {
 	if (id === null) {
 		render(new Error('no ' + name + 'ID given'));
@@ -604,6 +608,7 @@ module.exports = {
 	getRushee : getRushee,
 	getCandidate : getCandidate,
 	getBrother : getBrother,
+	getVan : getVan,
 	
 	connect : connect,
 	
