@@ -23,7 +23,8 @@ function get(req, res) {
 	rushdb.getVan(vID, function(err, info) {
 		if (err !== null && err !== undefined) {
 			console.log(err);
-			return res.redirect(BASE_PATH+'/404');
+			res.redirect('/404');
+			return;
 		}
 		res.render('jaunt/editvan.jade', info);
 	});
@@ -39,9 +40,9 @@ var vID = rushdb.toObjectID(req.body.vID);
 		if (err !== null && err !== undefined) {
 			console.log(err);
 			res.redirect('/404');
-		} else {
-			res.redirect('/jaunt/list');
+			return;
 		}
+		res.redirect('/jaunt/list');
 	});
 }
 
