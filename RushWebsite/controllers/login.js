@@ -13,11 +13,11 @@ function uri() {
 }
 
 function authGet(auth) {
-	return auth.checkAdminAuth;
+	return auth.passAuth;
 }
 
 function authPost(auth) {
-	return auth.checkAdminAuth;
+	return auth.passAuth;
 }
 
 function get(req, res) {
