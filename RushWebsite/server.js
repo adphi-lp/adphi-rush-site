@@ -46,6 +46,7 @@ var env = {
 	auth : auth,
 	tools : tools,
 	search : search,
+	moment : moment,
 }
 urimapper.setEnv(env);
 urimapper.makeLinks(app, {base : BASE_PATH, controllers : CONTROLLERS_PATH});

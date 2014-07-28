@@ -23,6 +23,9 @@ var StatusType = {
 	NULL : {_id: 'NULL', name: 'Never seen', color: '#000000'}
 };
 
+// current time
+var timestamp = null;
+
 function getNullStatus(rushee) {
 	var status = {
 		type: StatusType.NULL,
@@ -58,6 +61,14 @@ function connect(databaseURL) {
 	joindb.ensureIndex('statuses', {ts: -1});
 	joindb.ensureIndex('vans', {ts: 1});
 	joindb.ensureIndex('jaunts', {time: 1});
+}
+
+function getTimestamp() {
+	return timestamp;
+}
+
+function setTimestamp(ts) {
+	timestamp = ts;
 }
 
 function augRushee(rushee) {
@@ -227,21 +238,33 @@ function get(arrange, options, render) {
 }
 
 function getFirst(options, nextStep) {
+	var ts = timestamp;
+	var query = {};
+
+	if (ts != null) {
+		var where = "this.ts <= " + ts;
+		query.$where = where;
+	}
+
 	async.parallel({
+		ts : function (cb) {
+			cb(null, ts);
+		},
 		brothers : function(cb) {
-			joindb.find('brothers', {}, options.brothers.sort, augBrother, cb);
+			joindb.find('brothers', query, options.brothers.sort, augBrother, cb);
 		},
 		rushees : function(cb) {
-			joindb.find('rushees', {}, options.rushees.sort, augRushee, cb);
+			joindb.find('rushees', query, options.rushees.sort, augRushee, cb);
 		},
 		candidates : function (cb) {
-			joindb.find('candidates', {},
+			joindb.find('candidates', query,
 					options.candidates.sort, candidatedb.augCandidate, cb);
 		}
 	}, nextStep);
 }
 
 function getSecond(info, nextStep) {
+	var ts = info.ts;
 	var rushees = info.rushees;
 	var brothers = info.brothers;
 	var candidates = info.candidates;
@@ -250,8 +273,18 @@ function getSecond(info, nextStep) {
 	var queryRushees = {rusheeID: {$in : rusheeIDs}};
 	var queryBrothers = {brotherID: {$in : brotherIDs}};
 	var queryBoth = {rusheeID: {$in : rusheeIDs}, brotherID : {$in : brotherIDs}};
+
+	if (ts != null) {
+		var where = "this.ts <= " + ts;
+		queryRushees.$where = where;
+		queryBrothers.$where = where;
+		queryBoth.$where = where;
+	}
 	
 	async.parallel({
+		ts : function(cb) {
+			cb(null, ts);
+		},
 		rushees : function(cb) {
 			cb(null, rushees);
 		},
@@ -673,4 +706,6 @@ module.exports = {
 	
 	copyCol : copyCol,
 	importCand : importCand,
+	setTimestamp : setTimestamp,
+	getTimestamp : getTimestamp,
 };

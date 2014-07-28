@@ -1,0 +1,17 @@
+extends /common/layout
+
+block head
+  title='Set the time'
+
+block content
+  .time-wrapper
+    h2.title Edit time
+    form.time-action-content(method='post',action='#')
+      .time-action-item
+        span.time-action-name Time
+        -if (dateISO === null)
+          -dateISO = ""
+        input.time-action-input(type='datetime-local',name = 'ts',
+          value=dateISO)
+      .time-post
+        input#save(type='submit',value='Submit')
