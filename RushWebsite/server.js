@@ -2,7 +2,7 @@
 
 //constants
 var BASE_PATH = '/rushsite20';
-var CONTROLLERS_PATH = './controllers'
+var CONTROLLERS_PATH = __dirname + '/controllers';
 var DATABASE_URL = 'ADPhiRush';
 
 //get modules
