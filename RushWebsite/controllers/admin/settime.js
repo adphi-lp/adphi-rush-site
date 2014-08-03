@@ -30,7 +30,8 @@ function get(req, res) {
 }
 
 function post(req, res) {
-	var ts = moment(req.body.ts).valueOf() || null;
+	var time = moment(req.body.ts);
+	var ts = (time && time.isValid()) ? time.valueOf() : null;
 	rushdb.setTimestamp(ts);
 	res.redirect('/admin/settime');
 }
