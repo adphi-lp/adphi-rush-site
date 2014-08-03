@@ -5,6 +5,8 @@ var tools = require('./tools');
 
 var env;
 
+var links = [];
+
 function setEnv(environ) {
 	env = environ;
 }
@@ -13,6 +15,8 @@ function makeLink(app, controller, basepath) {
 	var uri = controller.uri;
 	var get = controller.get;
 	var post = controller.post;
+
+	links.push(uri);
 
 	controller.setup(env);
 
@@ -68,5 +72,6 @@ function process(req, res, basepath, callback) {
 
 module.exports = {
 	setEnv : setEnv,
-	makeLinks : makeLinks
+	makeLinks : makeLinks,
+	links : links,
 }

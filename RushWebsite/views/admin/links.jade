@@ -1,0 +1,10 @@
+extends /common/layout
+
+block head
+  title = 'All links'
+
+block content
+  h1 All links
+  -for (var i = 0; i < links.length; i++)
+    h2
+      a(href=basepath+links[i]) #{links[i]}
