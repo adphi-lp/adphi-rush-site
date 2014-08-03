@@ -48,6 +48,7 @@ function makeLinks(app, paths) {
 		var controller = require(requireFilename);
 		makeLink(app, controller, paths.base);
 	});
+	links.sort();
 }
 
 function process(req, res, basepath, callback) {
