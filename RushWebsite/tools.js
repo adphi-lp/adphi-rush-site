@@ -99,7 +99,11 @@ function strCmpNoCase(str1, str2) {
 }
 
 function isArray(a) {
-    return Object.prototype.toString.apply(a) === '[object Array]';
+    return Array.isArray(a);
+}
+
+function isString(a) {
+	return typeof a === 'string';
 }
 
 function walkSync(start, callback) {
@@ -126,10 +130,9 @@ function walkSync(start, callback) {
 			callback(file);
 		}
 
-		dirs.forEach(function (dir) {
+		dirs.forEach(function(dir) {
 			walkSync(dir, callback);
 		});
-
 	} else {
 		throw new Error("path: " + start + " is not a directory");
 	}
@@ -148,9 +151,9 @@ module.exports = {
 	isArray : isArray,
 	str : {
 		startsWith : startsWith,
-		endsWith : endsWith
+		endsWith : endsWith,
 	},
 	file : {
-		walkSync : walkSync
-	}
+		walkSync : walkSync,
+	},
 };

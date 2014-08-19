@@ -2,6 +2,7 @@
 
 var auth = require('./auth');
 var tools = require('./tools');
+var path = require('path');
 
 var env;
 
@@ -41,11 +42,7 @@ function makeLinks(app, paths) {
 			return;
 		}
 
-		var requireFilename = filename;
-		if (!tools.str.startsWith(requireFilename, '/')) {
-			requireFilename = './' + requireFilename;
-		}
-		var controller = require(requireFilename);
+		var controller = require(path.resolve(filename));
 		makeLink(app, controller, paths.base);
 	});
 	links.sort();
@@ -58,7 +55,7 @@ function process(req, res, basepath, callback) {
 	}
 	response.redirect = function(path) {
 		res.redirect(basepath + path);
-	}
+	};
 
 	response.render = function(page, info) {
 		info.voteTypes = env.rushdb.SORTED_VOTE_TYPES;
@@ -66,7 +63,7 @@ function process(req, res, basepath, callback) {
 		info.accountType = auth.getAccountType(req, res);
 		info.basepath = basepath;
 		res.render(page, info);
-	}
+	};
 
 	callback(req, response);
 }
@@ -75,4 +72,4 @@ module.exports = {
 	setEnv : setEnv,
 	makeLinks : makeLinks,
 	links : links,
-}
+};
