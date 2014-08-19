@@ -5,6 +5,7 @@
 /RushWebsite/uploads/*
 /RushWebsite/public/img/*
 !/RushWebsite/public/img/no_photo.jpg
+node_modules
 
 # Compiled source #
 ###################
