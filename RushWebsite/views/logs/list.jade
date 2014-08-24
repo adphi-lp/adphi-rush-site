@@ -1,0 +1,21 @@
+extends /common/layout
+include /common/mixins
+
+block head
+  title='Logs'
+  link(rel='stylesheet',href=basepath+'/css/vote.css')
+
+block content
+  .log-thread-wrapper
+    .log-thread-header
+      h2.title Logs
+    table.log-thread-content
+      tr
+        th Timestamp
+        th Entry
+      -for (var i = 0; i < logs.length; i++)
+        -var log = logs[i]
+        tr
+          td #{log.ts}
+          td
+            +object(log.entry)

@@ -24,7 +24,7 @@ auth.setRedirect(BASE_PATH + '/login');
 rushdb.connect(DATABASE_URL);
 
 // limit the upload size
-app.use(express.limit('1mb'))
+app.use(express.limit('1mb'));
 // for parsing posts
 app.use(express.bodyParser({uploadDir:__dirname+'/uploads'}));
 // TODO: this is a really bad SECRET
@@ -48,7 +48,7 @@ var env = {
 	search : search,
 	moment : moment,
 	links : urimapper.links,
-}
+};
 urimapper.setEnv(env);
 urimapper.makeLinks(app, {base : BASE_PATH, controllers : CONTROLLERS_PATH});
 

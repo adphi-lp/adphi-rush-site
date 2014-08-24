@@ -1,8 +1,21 @@
+mixin object(entry)
+  -if (entry === null)
+    | null
+  -else if (typeof entry === 'object')
+    table
+      -for (var prop in entry)
+        tr
+          td #{prop}
+          td
+            +object(entry[prop])
+  -else
+    | #{entry}
+         
 mixin rusheeName(rushee, accountType, basepath)
   a(href=basepath+'/rushee/view?rID='+rushee._id) #{rushee.name}
     -if (accountType.isAdmin() && rushee.visible === false)
       |  (hidden)
-      
+
 mixin sponsorsName(sponsors, accountType, basepath)
   .sponsors
       
@@ -80,6 +93,9 @@ mixin rushee(rushee, accountType, basepath, options)
     -if (accountType.isAdmin())
       form.rushee-action
         input(type='hidden',name='rID',value='#{rushee._id}')
+        input(type='hidden',name='redirect',value='/rushee/search')
+        -if (rushee.chID !== undefined && rushee.chID !== null)
+          input(type='hidden',name='chID',value=rushee.chID)
         input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/inhouse',value='In house')
         input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/outhouse',value='Going out')
         input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/onjaunt',value='On a jaunt')

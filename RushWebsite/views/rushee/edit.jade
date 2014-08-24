@@ -84,6 +84,9 @@ block content
               input(type='checkbox',name='priority', checked)
             -else
               input(type='checkbox',name='priority')
+          .rushee-add-item.rushee-chID
+            span.rushee-add-type Clearinghouse ID
+            input.rushee-add-data(name='chID',value=rushee.chID || '')
       .rushee-post
         input#save(type='submit',formmethod='post',formaction='#',value='Submit')
  

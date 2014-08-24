@@ -62,7 +62,10 @@ block content
               form.rushee-action
                 -var idName = 'rID';
                 -if (rushee.candidate) idName = 'cID';
+                input(type='hidden',name='redirect',value='/frontdesk')
                 input(type='hidden',name=idName,value='#{rushee._id}')
+                -if (rushee.chID !== undefined && rushee.chID !== null)
+                  input(type='hidden',name='chID',value=rushee.chID)
                 input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/inhouse',value='In house')
                 input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/outhouse',value='Going out')
                 input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/onjaunt',value='On a jaunt')

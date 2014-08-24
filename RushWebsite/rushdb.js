@@ -2,6 +2,7 @@
 
 var mongojs = require('mongojs');
 var joindb = require('./joindb');
+var logdb = require('./logdb');
 var tools = require('./tools');
 var moment = require('moment');
 var async = require('async');
@@ -11,10 +12,11 @@ var jauntdb = require('./jauntdb');
 var commentdb = require('./commentdb');
 var candidatedb = require('./candidatedb');
 var photodb = require('./photodb');
+var chdb = require('./clearinghousedb');
 var moment = require('moment');
 
 var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
-'votes', 'statuses', 'jaunts', 'vans', 'candidates', 'ids', 'import'];
+'votes', 'statuses', 'jaunts', 'vans', 'candidates', 'ids', 'import', 'logs'];
 
 var StatusType = {
 	IN : {_id: 'IN', name: 'In House', color: '#228b22'},
@@ -42,11 +44,13 @@ function getNullStatus(rushee) {
  */
 function connect(databaseURL) {
 	joindb.connect(databaseURL, COLLECTIONS);
+	logdb.importJoin(joindb);
 	sponsordb.importJoin(joindb);
 	votedb.importJoin(joindb);
 	jauntdb.importJoin(joindb);
 	commentdb.importJoin(joindb);
 	candidatedb.importJoin(joindb);
+	chdb.importLog(logdb);
 	
 	//to ensure that you can sort fast
 	joindb.ensureIndex('rushees', {sfirst: 1, slast: 1});
@@ -61,6 +65,7 @@ function connect(databaseURL) {
 	joindb.ensureIndex('statuses', {ts: -1});
 	joindb.ensureIndex('vans', {ts: 1});
 	joindb.ensureIndex('jaunts', {time: 1});
+	joindb.ensureIndex('logs', {ts: -1});
 }
 
 function getTimestamp() {
@@ -708,4 +713,17 @@ module.exports = {
 	importCand : importCand,
 	setTimestamp : setTimestamp,
 	getTimestamp : getTimestamp,
+	
+	getCHCookies : chdb.getCHCookies,
+	setCHCookie : chdb.setCHCookie,
+	delCHCookie : chdb.delCHCookie,
+	
+	setCHLogin : chdb.setCHLogin,
+	getCHLogin : chdb.getCHLogin,
+	
+	getLog : logdb.getLog,
+	
+	inhouse : chdb.inhouse,
+	outhouse : chdb.outhouse,
+	onjaunt : chdb.onjaunt,
 };

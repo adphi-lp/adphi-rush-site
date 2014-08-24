@@ -1,0 +1,22 @@
+extends /common/layout
+
+block head
+  title='View/set/delete cookies'
+
+block content
+  .cookie-wrapper
+    h1.title View/set/delete cookies
+    .cookies
+      h2 Current cookies
+      -for (var i = 0; i < cookies.length; i++)
+        p #{cookies[i]}
+    form.cookie-edit
+      .cookie-edit-info
+        .cookie-edit-item
+          input.cookie-edit-data(name='cookie',required)
+          input.span-space(id = 'set', type='radio',name='action',value='set',checked)
+          label.vote-choice(for ='set') Set
+          input.span-space(id = 'del', type='radio',name='action',value='del')
+          label.vote-choice(for ='del') Delete
+      .cookie-edit-post
+        input.save(type='submit',formmethod='post',formaction='',value='Submit')

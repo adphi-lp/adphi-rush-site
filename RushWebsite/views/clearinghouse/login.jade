@@ -1,0 +1,16 @@
+extends /common/layout
+
+block head
+  title='View/set login'
+
+block content
+  .login-wrapper
+    h1.title View/set/delete logins
+    form.login-edit
+      .login-edit-info
+        .login-edit-item
+          input.login-edit-data(name='user',value=user)
+        .login-edit-item
+          input.login-edit-data(name='pass',value=pass)
+      .login-edit-post
+        input.save(type='submit',formmethod='post',formaction='',value='Submit')

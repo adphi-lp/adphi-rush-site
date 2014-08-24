@@ -56,6 +56,10 @@ function post(req, res) {
 		if (accountType.isAdmin()) {
 			rushee.visible = req.body.visible === 'on';
 			rushee.priority = req.body.priority === 'on';
+			var chID = req.body.chID;
+			if (chID !== undefined && chID !== null && chID.trim() !== '') {
+				rushee.chID = rushdb.toObjectID(chID);
+			}
 		}
 		
 		rushdb.updateRushee(rusheeID, rushee, function(err) {
