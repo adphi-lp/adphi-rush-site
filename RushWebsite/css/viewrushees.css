@@ -24,6 +24,12 @@ body{
     padding:20px;
 }
 
+.rushee-wrapper-updated{
+    border-left: green;
+    border-left-style: solid;
+    border-left-width: 5px;
+}
+
 .rushee-wrapper:hover{
     background:rgba(215, 236, 255, 0.7);
 }

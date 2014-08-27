@@ -1,8 +1,10 @@
+'use strict';
 var rushdb;
 var stats;
 var auth;
 var tools;
 var search;
+var moment;
 
 function setup(env) {
 	rushdb = env.rushdb;
@@ -10,6 +12,7 @@ function setup(env) {
 	auth = env.auth;
 	tools = env.tools;
 	search = env.search;
+	moment = env.moment;
 }
 
 function uri() {
@@ -20,6 +23,27 @@ function authGet(auth) {
 	return auth.checkAuth;
 }
 
+function calcThisRequestTime(lastRequestTime, rushees) {
+	var thisRequestTime;
+	for (var i = 0; i < rushees.length; ++i) {
+		var rushee = rushees[i];
+		var statusTime = rushee.status.ts && rushee.status.ts.getTime();
+
+		if (isNaN(lastRequestTime) || statusTime === undefined) {
+			rushee.status.updated = false;
+		} else {
+			rushee.status.updated = lastRequestTime < statusTime;
+		}
+
+		if (thisRequestTime === undefined) {
+			thisRequestTime = statusTime;
+		} else if (statusTime !== undefined) {
+			thisRequestTime = (thisRequestTime > statusTime) ? thisRequestTime : statusTime;
+		}
+	}
+	return thisRequestTime;
+}
+
 function get(req, res) {
 	rushdb.get(rushdb.arrange, {}, function(err, info) {
 		if (err !== undefined && err !== null) {
@@ -27,7 +51,7 @@ function get(req, res) {
 			res.redirect('/404');
 			return;
 		}
-		
+
 		info.inhouse = req.query.inhouse;
 		info.priority = req.query.priority;
 		info.outhouse = req.query.outhouse;
@@ -35,6 +59,8 @@ function get(req, res) {
 		info.search = req.query.q;
 		info.bidworthy = req.query.bidworthy;
 		info.hidden = req.query.hidden;
+		info.sortMethod = req.query.sortMethod;
+		var lastRequestTime = parseInt(req.query.lastRequestTime, 10);
 		var accountType = auth.getAccountType(req, res);
 		
 		var options = {
@@ -75,12 +101,40 @@ function get(req, res) {
 			
 			return b.voteScore - a.voteScore;
 		};
+		var lastStatusUpdateSort = function(a, b) {
+			if (a.status.ts === undefined) {
+				if (b.status.ts === undefined) {
+					return 0;
+				} else {
+					return 1;
+				}
+			} else if (b.status.ts === undefined) {
+				return -1;
+			}
+
+			if (a.status.ts > b.status.ts) {
+				return -1;
+			} else if (a.status.ts < b.status.ts) {
+				return 1;
+			}
+			return 0;
+		};
+		var sortFunc;
+		switch (info.sortMethod) {
+		case 'lastStatusUpdate':
+			sortFunc = lastStatusUpdateSort;
+			break;
+		case 'priority':
+			/* falls through */
+		default:
+			sortFunc = prisort;
+		}
 		if (q === null || q === undefined) {
 			info.rushees = tools.filter(info.rushees, function (rushee) {
 				return search.filterRushee(rushee, {inhouse: true});
 			});
 			
-			info.rushees.sort(prisort);
+			info.rushees.sort(sortFunc);
 			info.q = '';
 		} else {
 			var f = function(rushee) {
@@ -89,16 +143,17 @@ function get(req, res) {
 			q = q.trim();
 			if (q !== '') {
 				info.rushees = tools.filter(info.rushees, f);
-				info.rushees.sort(prisort);
+				info.rushees.sort(sortFunc);
 				info.rushees = search.get(info.rushees, q);
 				info.q = q;
 			} else {
 				info.rushees = tools.filter(info.rushees, f);
-				info.rushees.sort(prisort);
+				info.rushees.sort(sortFunc);
 				info.q = q;
 			}
 		}
-		
+		var thisRequestTime = calcThisRequestTime(lastRequestTime, info.rushees);
+		info.lastRequestTime = thisRequestTime;
 		res.render('rushee/search.jade', info);
 	});
 }

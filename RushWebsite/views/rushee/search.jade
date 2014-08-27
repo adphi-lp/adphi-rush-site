@@ -51,9 +51,15 @@ block content
           -else
             input#hidden(type='checkbox', name = 'hidden')
           label.toggle-choice(for='hidden') Hidden
-        
+      .sort-options
+        input#sort-last-status-update(type='radio', name = 'sortMethod', value='lastStatusUpdate', checked=(sortMethod==='lastStatusUpdate'))
+        label.toggle-choice(for='lastStatusUpdate') Last Status Update
+
+        input#sort-priority(type='radio', name = 'sortMethod', value='priority', checked=(sortMethod==='priority' || !sortMethod))
+        label.toggle-choice(for='priority') Priority
+      input#last-request-time(type='hidden', name='lastRequestTime', value=lastRequestTime)
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
-        li.rushee-wrapper
+        li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
           +rushee(rushee, accountType, basepath)
