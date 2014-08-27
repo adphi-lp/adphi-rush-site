@@ -1,0 +1,15 @@
+extends /common/layout
+include /common/mixins
+
+block head
+  title='Edit announcement'
+  link(rel='stylesheet',href=basepath+'/css/vote.css')
+
+block content
+  form.action--wrapper
+    .action-comment-content.clearfix
+      span.brother-action-type Announcement
+      .action-comment-textarea-wrapper
+        textarea#comment-textarea(name='comment',rows=5,cols=40) #{globalAnnouncement}
+      .brother-edit-post
+        input.save(type='submit',formmethod='post',formaction='',value='Submit')

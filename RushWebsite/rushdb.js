@@ -27,6 +27,8 @@ var StatusType = {
 
 // current time
 var timestamp = null;
+//global announcement (stored in memory)
+var announcement = '';
 
 function getNullStatus(rushee) {
 	var status = {
@@ -635,6 +637,14 @@ function importCand(candText) {
 	}
 }
 
+function getAnnouncement(){
+	return announcement;
+}
+
+function setAnnouncement(text){
+	announcement = text;
+}
+
 module.exports = {
 	VoteType: votedb.VoteType,
 	CommentType : commentdb.CommentType,
@@ -649,6 +659,9 @@ module.exports = {
 	getCandidate : getCandidate,
 	getBrother : getBrother,
 	getVan : getVan,
+
+	getAnnouncement : getAnnouncement,
+	setAnnouncement : setAnnouncement,
 
 	connect : connect,
 

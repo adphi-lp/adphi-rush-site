@@ -51,6 +51,8 @@ function get(req, res) {
 			res.redirect('/404');
 			return;
 		}
+		// add global comment
+		info.globalAnnouncement = rushdb.getAnnouncement()
 
 		info.inhouse = req.query.inhouse;
 		info.priority = req.query.priority;
@@ -62,7 +64,7 @@ function get(req, res) {
 		info.sortMethod = req.query.sortMethod;
 		var lastRequestTime = parseInt(req.query.lastRequestTime, 10);
 		var accountType = auth.getAccountType(req, res);
-		
+
 		var options = {
 			inhouse : info.inhouse === 'on',
 			priority : info.priority === 'on',
@@ -86,19 +88,19 @@ function get(req, res) {
 			if (bpri !== apri) {
 				return bpri - apri;
 			}
-			
+
 			var ain = a.status.type._id === 'IN' ? 1 : 0;
 			var bin = b.status.type._id === 'IN' ? 1 : 0;
 			if (bin !== ain) {
 				return bin - ain;
 			}
-			
+
 			var ajaunt = a.status.type._id === 'JAUNT' ? 1 : 0;
 			var bjaunt = b.status.type._id === 'JAUNT' ? 1 : 0;
 			if (bjaunt !== ajaunt) {
 				return bjaunt - ajaunt;
 			}
-			
+
 			return b.voteScore - a.voteScore;
 		};
 		var lastStatusUpdateSort = function(a, b) {
@@ -133,7 +135,7 @@ function get(req, res) {
 			info.rushees = tools.filter(info.rushees, function (rushee) {
 				return search.filterRushee(rushee, {inhouse: true});
 			});
-			
+
 			info.rushees.sort(sortFunc);
 			info.q = '';
 		} else {
