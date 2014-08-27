@@ -1,27 +1,38 @@
 extends /common/layout
+include /common/mixins
 
 block head
-  title='Voting History'
+  title='View History'
   link(rel='stylesheet',href=basepath+'/css/viewhistory.css')
 
 block content
   .history-wrapper
-    h2.title Voting History
+    h2.title View History
     ul.history-content
-      - for (var i = 0; i < votes.length; i++)	
-        -var vote = votes[i];
-        li.vote-wrapper
-          .vote-content
-            .vote-text
-              span.vote-brother
-                a(href=basepath+'/brother/view?bID='+vote.brother._id) #{vote.brother.name}
-              span  voted 
-              span.vote-type #{vote.type.name}
-              span  on 
-              span.vote-rushee
-                a(href=basepath+'/rushee/view?rID='+vote.rushee._id) #{vote.rushee.name}
-            .vote-time #{vote.time}
+      -for (var i = 0; i < fullHistory.length; i++)
+        -var history = fullHistory[i];
+        -if (history.historyType === 'comment')
+          +comment(history, accountType, basepath, {brother: true, rushee:true})
+        -if (history.historyType === 'status')
+          li.vote-wrapper
+            .vote-content
+              .vote-text
+               span.comment-header-element.comment-name
+                +rusheeName(history.rushee, accountType, basepath)
+               span.comment-header-element was marked
+               span.comment-header-element(style='color:#{history.type.color}; font-weight:bold;') #{history.type.name}
+            .comment-time #{history.time}
+        -if (history.historyType === 'vote')
+          li.vote-wrapper
+            .vote-content
+              .vote-text
+                span.comment-header-element.comment-name
+                  +brotherName(history.brother, accountType, basepath)
+                span.comment-header-element voted
+                span.comment-header-element #{history.type.name}
+                span.comment-header-element on
+                span.comment-header-element
+                  +rusheeName(history.rushee, accountType, basepath)
+              .comment-time #{history.time}
 
 
-
- 

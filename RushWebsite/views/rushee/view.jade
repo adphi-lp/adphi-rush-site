@@ -10,12 +10,12 @@ block head
 block content
   .rushee-wrapper
     +rushee(rushee, accountType, basepath, options={largeimg : true, edit: true})
-          
+
   -if (accountType.isAdmin())
     .brother-action-wrapper
       form.brother-action-content(method='post',action=basepath+'/jaunt/pushRusheeToVan')
         span.brother-action-type Add to van
-        input(type='hidden',name='rID',value='#{rushee._id}')     
+        input(type='hidden',name='rID',value='#{rushee._id}')
         select.jaunt-van-list(name='vID')
           -for (var i = 0; i < jaunts.length; i++)
             -var jaunt 	= jaunts[i];
@@ -90,7 +90,7 @@ block content
         .post-wrapper
           input#save(type='submit',formmethod='post',formaction=basepath+'/rushee/view',value='Submit')
           input#done(type='submit',formmethod='get',formaction=basepath+'/',value='Back to rushees')
-             
+
   .votes-wrapper
     h2.title Votes
     button.votes-button.spoiler-button(type='button') Show/hide
@@ -117,10 +117,12 @@ block content
                       strong X
                 -else
                   td.votes-cell.votes
-         
+
   .comment-thread-wrapper
     h2.title Comments
+      - if (accountType.isAdmin())
+        a(href=basepath+'/rushee/history?rID='+rushee._id) (View History)
     ul.comment-thread-content
-      - for (var i = 0; i < rushee.comments.length; i++)	
+      - for (var i = 0; i < rushee.comments.length; i++)
         -var comment = rushee.comments[i];
         +comment(comment, accountType, basepath, {brother: true})

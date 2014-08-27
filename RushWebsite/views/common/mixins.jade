@@ -10,7 +10,7 @@ mixin object(entry)
             +object(entry[prop])
   -else
     | #{entry}
-         
+
 mixin rusheeName(rushee, accountType, basepath)
   a(href=basepath+'/rushee/view?rID='+rushee._id) #{rushee.name}
     -if (accountType.isAdmin() && rushee.visible === false)
@@ -18,7 +18,7 @@ mixin rusheeName(rushee, accountType, basepath)
 
 mixin sponsorsName(sponsors, accountType, basepath)
   .sponsors
-      
+
 mixin brotherName(brother, accountType, basepath)
   a(href=basepath+'/brother/view?bID='+brother._id) #{brother.name}
 
@@ -34,7 +34,7 @@ mixin pageStat(name, count, sum, average)
     td #{count}
     td #{sum}
     td #{average}
-    
+
 mixin rushee(rushee, accountType, basepath, options)
   -if (options === undefined)
     options = {};
@@ -123,5 +123,5 @@ mixin comment(comment, accountType, basepath, options)
             +rusheeName(comment.rushee, accountType, basepath)
         .comment-text #{comment.text}
         -if (accountType.isAdmin())
-          a.comment-edit(href=basepath+'/editcomment?cID='+comment._id) edit
+          a.comment-edit(href=basepath+'/comment/edit?cID='+comment._id) edit
         .comment-time #{comment.time}

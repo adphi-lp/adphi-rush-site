@@ -42,15 +42,39 @@ body{
 	border-radius: 20px
 }
 
-
-.vote-brother, .vote-rushee, .vote-type{
-	font-weight:bold;
-	margin-left:0;
+.comment-header-element{
+	margin: 0em 0em 0em 0.5em
 }
 
-.vote-time{
+.comment-wrapper{
+	margin: 0 auto;
+	margin-bottom:20px;
+	padding:20px;
+	/*border-bottom: 1px solid #aaa;*/
+	position:relative;
+	background:rgba(231, 231, 231, 0.4);
+	width:600px;
+	border-radius: 20px
+}
+
+.comment-time{
 	font-size:12px;
 	position:absolute;
 	right:10px;
 	bottom:5px;
+}
+
+.comment-edit{
+	font-size:12px;
+	position:absolute;
+	bottom:5px;
+}
+
+.comment-name{
+	font-weight:bold;
+	margin-left:0;
+}
+
+.comment-bold{
+	font-weight:bold;
 }

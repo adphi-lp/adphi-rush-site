@@ -34,7 +34,7 @@ function getNullStatus(rushee) {
 		rushee : rushee,
 		rusheeID : rushee._id
 	};
-	
+
 	return status;
 }
 
@@ -51,7 +51,7 @@ function connect(databaseURL) {
 	commentdb.importJoin(joindb);
 	candidatedb.importJoin(joindb);
 	chdb.importLog(logdb);
-	
+
 	//to ensure that you can sort fast
 	joindb.ensureIndex('rushees', {sfirst: 1, slast: 1});
 	joindb.ensureIndex('rushees', {slast: 1, sfirst: 1});
@@ -92,18 +92,20 @@ function augBrother(brother) {
 
 function augStatus(status) {
 	var time = moment(status.ts);
+	status.time = time.format('h:mm:ss a') +
+		' on ' + time.format('dddd, MMMM Do YYYY');
 	status.shorttime = time.format('dddd, MMM DD, HH:mm');
 }
 
 /**
  * Joins the statuses onto rushees under rushees.statuses.
- * 
+ *
  */
 function makeStatuses(rushees, statuses) {
 	for (var i = 0, l = statuses.length; i < l; i++) {
 		statuses[i].type = StatusType[statuses[i].typeID];
 	}
-	
+
 	joindb.joinProperty(statuses, 'statuses', rushees, 'rusheeID', 'rushee');
 }
 
@@ -155,7 +157,7 @@ function getSingle(col, name, id, aug, render) {
 		render(new Error('no ' + name + 'ID given'));
 		return;
 	}
-	
+
 	var query = {_id : id};
 	joindb.findOne(col, query, aug, function(err, doc) {
 		if (err !== null && err !== undefined) {
@@ -166,10 +168,10 @@ function getSingle(col, name, id, aug, render) {
 			render(new Error('no ' + name + ' found'));
 			return;
 		}
-		
+
 		var info = {};
 		info[name] = doc;
-		
+
 		render(null, info);
 	});
 }
@@ -181,54 +183,54 @@ function get(arrange, options, render) {
 		rushees : {sort : {sfirst: 1, slast : 1}},
 		candidates : {sort : {sfirst: 1, slast : 1}}
 	};
-	
+
 	if (options.brothers !== undefined) {
 		if (options.brothers.sort !== undefined) {
 			defaultOptions.brothers.sort = options.brothers.sort;
 		}
 	}
-	
+
 	if (options.rushees !== undefined) {
 		if (options.rushees.sort !== undefined) {
 			defaultOptions.rushees.sort = options.rushees.sort;
 		}
 	}
-	
+
 	if (options.candidates !== undefined) {
 		if (options.candidates.sort !== undefined) {
 			defaultOptions.candidates.sort = options.candidates.sort;
 		}
 	}
-	
+
 	var firstStep = function(nextStep) {
 		getFirst(defaultOptions, nextStep);
 	};
 	var secondStep = getSecond;
 	var thirdStep = getThird;
-	
-	
+
+
 	var time = process.hrtime();
-	
+
 	firstStep(function(err1, info1) {
 	if (err1 !== undefined && err1 !== null) {
 		render(err1);
 		return;
 	}//otherwise,
-	
+
 	time = process.hrtime(time);
 	console.log('step1 took %d seconds and %d nanoseconds', time[0], time[1]);
 	time = process.hrtime();
-	
+
 	secondStep(info1, function(err2, info2){
 	if (err2 !== undefined && err2 !== null) {
 		render(err2);
 		return;
 	}//otherwise,
-	
+
 	time = process.hrtime(time);
 	console.log('step2 took %d seconds and %d nanoseconds', time[0], time[1]);
 	time = process.hrtime();
-	
+
 	thirdStep(info2, function(err3, info3) {
 	if (err3 !== undefined && err3 !== null) {
 		render(err3);
@@ -285,7 +287,7 @@ function getSecond(info, nextStep) {
 		queryBrothers.$where = where;
 		queryBoth.$where = where;
 	}
-	
+
 	async.parallel({
 		ts : function(cb) {
 			cb(null, ts);
@@ -332,22 +334,22 @@ function getThird(info, nextStep) {
 	var vans = info.vans;
 	info.jaunts = jauntdb.filterJaunts(vans, info.jaunts);
 	var jaunts = info.jaunts;
-	
+
 	makeStatuses(candidates, []);
 	makeStatus(candidates, []);
 	makeStatuses(rushees, statuses);
 	makeStatus(rushees);
 	makeInHouseRushees(info, rushees);
-	
+
 	sponsordb.makeSponsors(rushees, brothers, sponsors);
 	sponsordb.makeSponsorsBy(rushees, brothers, sponsors);
 	sponsordb.makeSponsorsList(rushees, 'brother');
 	sponsordb.makeSponsorsList(brothers, 'rushee');
 	sponsordb.makeSponsorsNameList(rushees, 'brother');
 	sponsordb.makeSponsorsNameList(brothers, 'rushee');
-	
+
 	commentdb.makeComments(rushees, brothers, jaunts, comments);
-	
+
 	votedb.makeVotesBy(rushees, brothers, votes);
 	votedb.makeVoteScore(brothers);
 	votedb.makeVoteScore(rushees);
@@ -358,12 +360,12 @@ function getThird(info, nextStep) {
 	votedb.countVotesByType(rushees, brothers);
 	votedb.countVotesByType(brothers, rushees);
 	info.bidScore = votedb.getBidScore(brothers);
-	
+
 	jauntdb.makeVans(rushees, brothers, vans);
 	jauntdb.makeJaunts(vans, jaunts);
 	jauntdb.makeVansNameList(rushees);
 	jauntdb.makeVansNameList(brothers);
-	
+
 	nextStep(null, info);
 }
 
@@ -376,14 +378,14 @@ function arrangeJaunt(jauntID, info, render) {
 		render(new Error('no jauntID'));
 		return;
 	}
-	
+
 	var jaunts = info.jaunts;
 	for (var j = 0, l = jaunts.length; j < l; j++) {
 		if (jauntID === jaunts[j]._id) {
 			info.jaunt = jaunts[j];
 		}
 	}
-	
+
 	if (info.jaunt === undefined) {
 		render(new Error('no jaunt'));
 		return;
@@ -406,7 +408,7 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 		render(new Error('no rushee'));
 		return;
 	}
-	
+
 	var brothers = info.brothers;
 	if (brotherID !== null) {
 		for (var b = 0, lb = brothers.length; b < lb; b++) {
@@ -420,19 +422,19 @@ function arrangeVote(rusheeID, brotherID, info, render) {
 	} else {
 		sponsordb.makeSponsorBy([info.brother], [info.rushee]);
 	}
-	
+
 	votedb.makeVoteBy([info.rushee], brothers);
-	
+
 	var voteCmp = function (a, b) {
 		return a.type.index - b.type.index ||
 			tools.strCmpNoCase(a.brother.name, b.brother.name);
 	};
-	
+
 	info.rushee.sortedVotes = tools.map(brothers, function(b) {
 		return info.rushee.voteBy[b._id];
 	});
 	info.rushee.sortedVotes.sort(voteCmp);
-	
+
 	render(null, info);
 }
 
@@ -461,7 +463,7 @@ function arrangeBrother(brotherID, info, render) {
 		render(new Error('no brotherID'));
 		return;
 	}
-	
+
 	var brothers = info.brothers;
 	if (brotherID !== null) {
 		for (var b = 0, lb = brothers.length; b < lb; b++) {
@@ -470,15 +472,15 @@ function arrangeBrother(brotherID, info, render) {
 			}
 		}
 	}
-	
+
 	if (info.brother === undefined) {
 		render(new Error('no brother'));
 		return;
 	}
-	
+
 	var rushees = info.rushees;
 	votedb.makeVoteBy(rushees, brothers);
-	
+
 	var voteCmp = function (a, b) {
 		return a.type.index - b.type.index ||
 			tools.strCmpNoCase(a.rushee.name, b.rushee.name);
@@ -488,7 +490,7 @@ function arrangeBrother(brotherID, info, render) {
 	});
 	info.brother.sortedVotes.sort(voteCmp);
 
-		
+
 	render(null, info);
 }
 
@@ -497,7 +499,7 @@ function arrangeVoteScore(info, render) {
 	rushees.sort(function(a, b) {
 		return b.voteScore - a.voteScore;
 	});
-	
+
 	if (!info.brothersortoff) { //TODO make this cleaner
 		var brothers = info.brothers;
 		brothers.sort(function(a, b) {
@@ -574,7 +576,7 @@ function updateRushee(rusheeID, rushee, callback) {
 	if (rushee.last !== undefined) {
 		rushee.slast = rushee.last.toLowerCase();
 	}
-	joindb.update('rushees', {_id : rusheeID}, {$set : rushee}, {}, callback);	
+	joindb.update('rushees', {_id : rusheeID}, {$set : rushee}, {}, callback);
 }
 
 function updateBrother(brotherID, brother, callback) {
@@ -584,7 +586,7 @@ function updateBrother(brotherID, brother, callback) {
 	if (brother.last !== undefined) {
 		brother.slast = brother.last.toLowerCase();
 	}
-	joindb.update('brothers', {_id : brotherID}, {$set : brother}, {}, callback);	
+	joindb.update('brothers', {_id : brotherID}, {$set : brother}, {}, callback);
 }
 
 function copyCol(col1, col2) {
@@ -637,30 +639,30 @@ module.exports = {
 	VoteType: votedb.VoteType,
 	CommentType : commentdb.CommentType,
 	StatusType : StatusType,
-	
+
 	SORTED_VOTE_TYPES : votedb.SORTED_VOTE_TYPES,
 	SORTED_COMMENT_TYPES : commentdb.SORTED_COMMENT_TYPES,
-	
+
 	getNullStatus: getNullStatus,
-	
+
 	getRushee : getRushee,
 	getCandidate : getCandidate,
 	getBrother : getBrother,
 	getVan : getVan,
-	
+
 	connect : connect,
-	
+
 	toObjectID : joindb.toObjectID,
-	
-	augRushee : augRushee, 
+
+	augRushee : augRushee,
 	augBrother : augBrother,
 	augComment : commentdb.augComment,
 	augCandidate : candidatedb.augCandidate,
 
 	get : get,
-	
+
 	makeCustomRushees : makeCustomRushees,
-	
+
 	arrange : arrange,
 	arrangeVote : arrangeVote,
 	arrangeComment : arrangeComment,
@@ -669,10 +671,10 @@ module.exports = {
 	arrangeInHouseVotes : arrangeInHouseVotes,
 	arrangeCustomVotes : arrangeCustomVotes,
 	arrangeJaunt : arrangeJaunt,
-	
+
 	loadTestInsertRushees : loadTestInsertRushees,
 	loadTestInsertBrothers : loadTestInsertBrothers,
-	
+
 	insertStatus : insertStatus,
 	insertSponsor: sponsordb.insertSponsor,
 	insertVote : votedb.insertVote,
@@ -680,14 +682,14 @@ module.exports = {
 	insertRushee : insertRushee,
 	insertBrother : insertBrother,
 	insertCandidate : candidatedb.insertCandidate,
-	
+
 	updateCandidate : candidatedb.updateCandidate,
 	updateRushee : updateRushee,
 	updateBrother : updateBrother,
 	updateComment : commentdb.updateComment,
-	
+
 	transferCandidate : candidatedb.transferCandidate,
-	
+
 	pushBrotherToVan : jauntdb.pushBrotherToVan,
 	pushRusheeToVan : jauntdb.pushRusheeToVan,
 	pushVanToJaunt : jauntdb.pushVanToJaunt,
@@ -708,21 +710,21 @@ module.exports = {
 	PHOTO_NAME_LENGTH : photodb.PHOTO_NAME_LENGTH,
 	uploadPhoto : photodb.uploadPhoto,
 	uploadPhotoIf : photodb.uploadPhotoIf,
-	
+
 	copyCol : copyCol,
 	importCand : importCand,
 	setTimestamp : setTimestamp,
 	getTimestamp : getTimestamp,
-	
+
 	getCHCookies : chdb.getCHCookies,
 	setCHCookie : chdb.setCHCookie,
 	delCHCookie : chdb.delCHCookie,
-	
+
 	setCHLogin : chdb.setCHLogin,
 	getCHLogin : chdb.getCHLogin,
-	
+
 	getLog : logdb.getLog,
-	
+
 	inhouse : chdb.inhouse,
 	outhouse : chdb.outhouse,
 	onjaunt : chdb.onjaunt,

@@ -33,12 +33,12 @@ block content
           span.brother-info-data #{brother.voteScore}
         .brother-edit
           a(href=basepath+'/brother/edit?bID='+brother._id) edit
-  
+
   -if (accountType.isAdmin())
     .brother-action-wrapper
       form.brother-action-content(method='post',action=basepath+'/jaunt/pushBrotherToVan')
         span.brother-action-type Add to van
-        input(type='hidden',name='bID',value='#{brother._id}')     
+        input(type='hidden',name='bID',value='#{brother._id}')
         select.jaunt-van-list(name='vID')
           -for (var i = 0; i < jaunts.length; i++)
             -var jaunt  = jaunts[i];
@@ -47,7 +47,7 @@ block content
               option(value='#{van._id}') #{jaunt.name + ': ' + van.name}
         .post-wrapper
           input#save(type='submit',value='Submit')
-          
+
     .votes-wrapper
         h2.title Votes
         button.votes-button.spoiler-button(type='button') Show/hide
@@ -75,13 +75,14 @@ block content
                           strong X
                     -else
                       td.votes-cell.votes
-  
+
   .comment-thread-wrapper
     h2.title Comments
+      - if (accountType.isAdmin())
+        a(href=basepath+'/rushee/history?bID='+brother._id) (View History)
     ul.comment-thread-content
-      - for (var i = 0; i < brother.comments.length; i++)   
+      - for (var i = 0; i < brother.comments.length; i++)
         -var comment = brother.comments[i];
         +comment(comment, accountType, basepath, {rushee: true})
 
 
- 
