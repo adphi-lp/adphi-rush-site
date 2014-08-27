@@ -7,6 +7,12 @@ block head
   script(type='text/javascript',src=basepath+'/js/vendor/jquery-1.8.3.min.js')
   script(type='text/javascript',src=basepath+'/js/vote.js')
 
+  link(rel='stylesheet',href=basepath+'/js/vendor/chosen_v1.1.0/chosen.min.css')
+  script(type='text/javascript',src=basepath+'/js/vendor/chosen_v1.1.0/chosen.jquery.min.js')
+  script(type='text/javascript',src=basepath+'/js/vendor/chosen_v1.1.0/chosen.proto.min.js')
+  script(type='text/javascript',src=basepath+'/js/activateTypeahead.js')
+
+
 block content
   .rushee-wrapper
     +rushee(rushee, accountType, basepath, options={largeimg : true, edit: true})

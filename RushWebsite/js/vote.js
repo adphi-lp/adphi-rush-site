@@ -4,11 +4,11 @@ $(document).ready(function() {
 	$('.spoiler-button').click(function() {
 		var spoiler = this.parentNode.childNodes[2].style;
 		if(spoiler.display=='none') {
-			spoiler.display = ''; 
+			spoiler.display = '';
 		} else {
 			spoiler.display = 'none';
 		}
-		
+
 		// stop browser from following the link
 		return false;
 	});
