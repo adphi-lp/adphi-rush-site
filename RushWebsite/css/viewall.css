@@ -16,6 +16,8 @@ body{
     /*margin: 20px;*/
     background:rgba(215, 236, 255, 0.4);
     padding:20px;
+    display: inline-block;
+    vertical-align: top;
 }
 
 .rushee-wrapper{
@@ -44,6 +46,18 @@ body{
 
 .missing-sponsor{
 	font-weight:bold; color:red;
+}
+
+.frontdesk-wrapper{
+    width: 870px;
+    margin: 0 auto;
+}
+
+.frontdesk-markdown-wrapper{
+    display: inline-block;
+    width: 400px;
+    vertical-align: top;
+    padding-left: 30px;
 }
 
 ul

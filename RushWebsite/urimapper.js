@@ -61,6 +61,7 @@ function process(req, res, basepath, callback) {
 		info.voteTypes = env.rushdb.SORTED_VOTE_TYPES;
 		info.commentTypes = env.rushdb.SORTED_COMMENT_TYPES;
 		info.accountType = auth.getAccountType(req, res);
+		info.StatusType = env.rushdb.StatusType;
 		info.basepath = basepath;
 		res.render(page, info);
 	};
