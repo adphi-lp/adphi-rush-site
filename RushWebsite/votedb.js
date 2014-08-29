@@ -9,6 +9,7 @@ var VoteType = {
 	DEF : {_id : 'DEF', name: 'Definite Yes', value : 2, index : 0},
 	YES : {_id : 'YES', name: 'Yes', value : 1, index: 1},
 	MET : {_id : 'MET', name: 'Met', value : 0, index: 2},
+	NEUTRAL : {_id : 'NEUTRAL', name : 'Neutral', value : 0, index : 2},
 	NO : {_id : 'NO', name: 'No', value : -1, index: 3},
 	VETO : {_id : 'VETO', name: 'Veto', value : -8, index: 4},
 	NULL : {_id : 'NULL', name: 'None', value : 0, index: 5}
@@ -17,7 +18,7 @@ var VoteType = {
 var SORTED_VOTE_TYPES = [
 	VoteType.DEF,
 	VoteType.YES,
-	VoteType.MET,
+	VoteType.NEUTRAL,
 	VoteType.NO,
 	VoteType.VETO,
 	VoteType.NULL
@@ -108,7 +109,25 @@ function makeVoteTotal(rushees) {
 		r.voteTotal = 0;
 		for (var b in r.votesBy) {
 			var vote = r.votesBy[b][0];
-			r.voteTotal += vote.type.value !== 0? 1 : 0;	
+			r.voteTotal += vote.type._id !== 'NULL' ? 1 : 0;	
+			//TODO Disregard hidden rushees when calculating
+		}
+	}
+}
+
+/**
+ * Gets the nonzero votes count for each rushee from rushee.votesBy[brother._id]
+ * and puts it into rushee.nonZeroVotes.
+ * @param {Object} rushees
+ * @deprecated
+ */
+function makeNonZeroVote(rushees) {
+	for (var i = 0, l = rushees.length; i < l; i++) {
+		var r = rushees[i];
+		r.voteTotal = 0;
+		for (var b in r.votesBy) {
+			var vote = r.votesBy[b][0];
+			r.nonZeroVote += vote.type.value !== 0 ? 1 : 0;	
 			//TODO Disregard hidden rushees when calculating
 		}
 	}
@@ -158,8 +177,21 @@ function insertVote(rusheeID, brotherID, typeID) {
 
 function getBidScore(brothers) {
 	return 3/4 * tools.count(brothers, function(b) {
-		return b.visible !== false; //undefined = true
+		return b.visible !== false; // undefined = true
 	});
+}
+
+function isBidworthy(r, activeB) {
+	return r.voteTotalFraction >= 1/2 && r.voteScoreFraction >= 3/4;
+}
+
+function makeBidworthiness(rushees, activeB) {
+	for (var i = 0; i < rushees.length; i++) {
+		var r = rushees[i];
+		r.voteScoreFraction = r.voteScore / r.voteTotal;
+		r.voteTotalFraction = r.voteTotal / activeB;
+		r.bidworthy = isBidworthy(r, activeB);
+	}
 }
 
 module.exports = {
@@ -176,5 +208,6 @@ module.exports = {
 	makeVotesByType : makeVotesByType,
 	countVotesByType : countVotesByType,
 	insertVote : insertVote,
-	getBidScore : getBidScore
+	getBidScore : getBidScore,
+	makeBidworthiness : makeBidworthiness,
 };

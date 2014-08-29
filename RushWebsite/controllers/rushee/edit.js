@@ -22,14 +22,14 @@ function authPost(auth) {
 
 function get(req, res) {
 	var rusheeID = req.query.rID === undefined ? null : rushdb.toObjectID(req.query.rID);
-	
+
 	rushdb.getRushee(rusheeID, function(err, info) {
 		if (err !== null && err !== undefined) {
 			console.log(err);
 			res.redirect('/404');
 			return;
 		}
-		
+
 		res.render('rushee/edit.jade', info);
 	});
 }
@@ -51,17 +51,18 @@ function post(req, res) {
 			cross2 : req.body.cross2,
 			photo: photoPath
 		};
-		
+
 		var accountType = auth.getAccountType(req, res);
 		if (accountType.isAdmin()) {
 			rushee.visible = req.body.visible === 'on';
 			rushee.priority = req.body.priority === 'on';
+			rushee.eligible = req.body.eligible === 'on';
 			var chID = req.body.chID;
 			if (chID !== undefined && chID !== null && chID.trim() !== '') {
 				rushee.chID = rushdb.toObjectID(chID);
 			}
 		}
-		
+
 		rushdb.updateRushee(rusheeID, rushee, function(err) {
 			if (err !== null && err !== undefined) {
 				console.log(err);

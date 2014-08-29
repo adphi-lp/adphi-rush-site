@@ -18,7 +18,7 @@ block content
               -var voteType = voteTypes[i];
               th.votes-header-cell #{voteType.name}
             th.votes-header-cell Vote Score
-            th.votes-header-cell Total Non-Zero
+            th.votes-header-cell Total Votes
             th.votes-header-cell Sponsor(s)
             th.votes-header-cell Last seen
             th.votes-header-cell Last contact
@@ -26,7 +26,8 @@ block content
           -for (var i = 0; i < rushees.length; i++)
             -var r = rushees[i];
             
-            -var votesRowClass = r.visible !== false ? 'votes-row' : 'votes-row votes-hidden';
+            -var votesRowClass = 'votes-row';
+            -votesRowClass += r.visible !== false ? '' : ' votes-hidden';
             tr(class=votesRowClass)
               td.votes-status
                 .rushee-status(style='color:#{r.status.type.color};')
@@ -40,8 +41,15 @@ block content
                     td.votes-cell #{voteCount}
                   -else
                     td.votes-cell(style='color:red; font-weight:bold;') #{voteCount}
-              td.votes-cell #{r.voteScore}
-              td.votes-cell #{r.voteTotal}
+              -var bidworthyClass = '';
+              -if (r.bidworthy)
+                -bidworthyClass = 'bidworthy';
+              -else if (r.voteTotalFraction >= 1/2)
+                -bidworthyClass = 'unbidworthy';
+              -else if (r.voteScoreFraction >= 3/4)
+                -bidworthyClass = 'possible-bidworthy'
+              td.votes-cell(class=bidworthyClass) #{r.voteScore} (#{(r.voteScoreFraction * 100).toFixed(1)})
+              td.votes-cell #{r.voteTotal} (#{(r.voteTotalFraction * 100).toFixed(1)})
               td.votes-cell
                 -if (r.sponsorsNameList.length > 0)
                   .rushee-info-data #{r.sponsorsNameList.join(', ')}

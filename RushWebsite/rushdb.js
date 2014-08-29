@@ -363,6 +363,11 @@ function getThird(info, nextStep) {
 	votedb.countVotesByType(brothers, rushees);
 	info.bidScore = votedb.getBidScore(brothers);
 
+	info.activeBrothers = tools.filter(brothers, function(b) {
+		return b.visible !== false; // undefined = true
+	});
+	votedb.makeBidworthiness(rushees, info.activeBrothers.length);
+
 	jauntdb.makeVans(rushees, brothers, vans);
 	jauntdb.makeJaunts(vans, jaunts);
 	jauntdb.makeVansNameList(rushees);
@@ -500,6 +505,21 @@ function arrangeVoteScore(info, render) {
 	var rushees = info.rushees;
 	rushees.sort(function(a, b) {
 		return b.voteScore - a.voteScore;
+	});
+
+	if (!info.brothersortoff) { //TODO make this cleaner
+		var brothers = info.brothers;
+		brothers.sort(function(a, b) {
+			return b.voteTotal - a.voteTotal;
+		});
+	}
+	render(null, info);
+}
+
+function arrangeVoteTotal(info, render) {
+	var rushees = info.rushees;
+	rushees.sort(function(a, b) {
+		return b.voteTotal - a.voteTotal;
 	});
 
 	if (!info.brothersortoff) { //TODO make this cleaner
@@ -680,7 +700,8 @@ module.exports = {
 	arrangeVote : arrangeVote,
 	arrangeComment : arrangeComment,
 	arrangeBrother : arrangeBrother,
-	arrangeVoteScore: arrangeVoteScore,
+	arrangeVoteScore : arrangeVoteScore,
+	arrangeVoteTotal : arrangeVoteTotal,
 	arrangeInHouseVotes : arrangeInHouseVotes,
 	arrangeCustomVotes : arrangeCustomVotes,
 	arrangeJaunt : arrangeJaunt,

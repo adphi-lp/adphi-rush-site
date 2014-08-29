@@ -78,6 +78,18 @@
 	font-weight:bold;
 }
 
+.bidworthy {
+	font-weight:bold; color:blue;
+}
+
+.unbidworthy {
+	font-weight:bold; color:red;
+}
+
+.possible-bidworthy {
+	font-weight:bold; color:green;
+}
+
 .missing-sponsor{
 	font-weight:bold; color:red;
 }

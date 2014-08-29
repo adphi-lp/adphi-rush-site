@@ -15,7 +15,7 @@ function authGet(auth) {
 }
 
 function get(req, res) {
-	rushdb.get(rushdb.arrangeVoteScore, {}, function(err, info) {
+	rushdb.get(rushdb.arrangeVoteTotal, {}, function(err, info) {
 		if (err !== undefined && err !== null) {
 			console.log(err);
 			res.redirect('/404');

@@ -1,3 +1,5 @@
+'use strict';
+
 var rushdb;
 var stats;
 
@@ -35,7 +37,8 @@ function post(req, res) {
 			year: req.body.year,
 			photo: photoPath,
 			visible: true,
-			priority: false
+			priority: false,
+			eligible: false,
 		};
 
 		rushdb.insertRushee(rushee);

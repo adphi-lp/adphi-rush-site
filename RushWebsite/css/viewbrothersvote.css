@@ -1,6 +1,6 @@
 .content-wrapper{
 	margin:0 auto;
-	width:800px;
+	width:1000px;
 	/*box-shadow: 0 0 10px 2px #888;*/
 }
 
@@ -33,6 +33,18 @@
 
 .votes-hidden {
 	opacity: 0.4;
+}
+
+.bidworthy {
+	font-weight:bold; color:blue;
+}
+
+.unbidworthy {
+	font-weight:bold; color:red;
+}
+
+.possible-bidworthy {
+	font-weight:bold; color:green;
 }
 
 .missing-sponsor{

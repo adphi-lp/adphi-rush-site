@@ -8,8 +8,7 @@ function filterRushee(rushee, options) {
 		(options.onjaunt !== true || rushee.status.type._id === 'JAUNT') &&
 		(options.priority !== true || rushee.priority === true) && //undefined = false
 		(options.visible !== true || rushee.visible !== false) && //undefined = true
-		(options.bidworthy === false || options.bidworthy === undefined ||
-			rushee.voteScore >= options.bidworthy) &&
+		(options.bidworthy !== true || rushee.bidworthy) &&
 			//hidden xor visible
 		((options.hidden === true) !== (rushee.visible !== false)) &&
 		((options.candidate !== true) || (rushee.candidate === true)); //undefined = false;

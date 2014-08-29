@@ -20,7 +20,7 @@ body{
 
 .rushee-wrapper{
     border-bottom: 1px solid #aaa;
- 
+
     padding:20px;
 }
 
@@ -48,6 +48,19 @@ body{
     padding:5px;
     font-size:20px;
 }
+
+.bidworthy {
+	font-weight:bold; color:blue;
+}
+
+.unbidworthy {
+	font-weight:bold; color:red;
+}
+
+.possible-bidworthy {
+	font-weight:bold; color:green;
+}
+
 .missing-sponsor{
 	font-weight:bold; color:red;
 }

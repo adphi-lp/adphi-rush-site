@@ -52,7 +52,7 @@ function get(req, res) {
 			return;
 		}
 		// add global comment
-		info.globalAnnouncement = rushdb.getAnnouncement()
+		info.globalAnnouncement = rushdb.getAnnouncement();
 
 		info.inhouse = req.query.inhouse;
 		info.priority = req.query.priority;
@@ -70,7 +70,7 @@ function get(req, res) {
 			priority : info.priority === 'on',
 			outhouse : info.outhouse === 'on',
 			onjaunt : info.onjaunt === 'on',
-			bidworthy : info.bidworthy === 'on' ? info.bidScore : false,
+			bidworthy : info.bidworthy === 'on',
 			visible : !accountType.isAdmin(),
 			hidden : info.hidden === 'on' && accountType.isAdmin(),
 			candidate : false
@@ -78,11 +78,12 @@ function get(req, res) {
 
 		var q = info.search;
 		var prisort = function(a, b) {
-			var abid = a.voteScore >= info.bidScore ? 1 : 0;
-			var bbid = b.voteScore >= info.bidScore ? 1 : 0;
+			var abid = a.eligible && a.bidworthy ? 1 : 0;
+			var bbid = b.eligible && b.bidworthy ? 1 : 0;
 			if (bbid !== abid) {
 				return abid - bbid;
 			}
+
 			var apri = a.priority === true ? 1 : 0;
 			var bpri = b.priority === true ? 1 : 0;
 			if (bpri !== apri) {
@@ -101,7 +102,7 @@ function get(req, res) {
 				return bjaunt - ajaunt;
 			}
 
-			return b.voteScore - a.voteScore;
+			return b.voteTotal - a.voteTotal;
 		};
 		var lastStatusUpdateSort = function(a, b) {
 			if (a.status.ts === undefined) {
