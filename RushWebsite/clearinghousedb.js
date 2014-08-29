@@ -7,6 +7,8 @@ var cookies = request.defaults({
 	jar : jar,
 });
 
+var SHOW_LOG_PAGE_STRING = 'Showing Log for ';
+
 var user = 'jdshen';
 var pass = 'asdfasdf';
  
@@ -74,7 +76,6 @@ function rawLogin(chID, action, callback) {
 			action(chID, false, callback);
 			return;
 		}
-		
 		logBadPage(chID, body, callback);
 	});
 }
@@ -102,9 +103,38 @@ function handleAction(err, res, body, chID, login, action, callback) {
 		}
 		
 		logBadPage(chID, body, callback);
-			return;
+		return;
 	}
 	
+	logBadPage(chID, body, callback);
+}
+
+function handleShowLog(err, res, body, chID, login, action, callback) {
+	if (err !== undefined && err !== null) {
+		logError(chID, err, callback);
+		return;
+	}
+
+	if (isShowLogPage(body)) {
+		callback(null, body);
+		return;
+	}
+
+	if (isShowLogPageInvalid(body)) {
+		logBadPage(chID, body, callback);
+		return;
+	}
+
+	if (isLoginPage(body)) {
+		if (login) {
+			rawLogin(chID, action, callback);
+			return;
+		}
+
+		logBadPage(chID, body, callback);
+		return;
+	}
+
 	logBadPage(chID, body, callback);
 }
 
@@ -146,6 +176,19 @@ function rawOnjaunt(chID, login, callback) {
 	});
 }
 
+function rawShowLog (chID, login, callback) {
+	var options = {
+		uri : 'http://ifc.mit.edu/ch/showlog.php',
+		qs : {
+			rushee : chID
+		},
+		timeout: 60000
+	};
+	get(options, function(err, res, body) {
+		handleShowLog(err, res, body, chID, login, rawShowLog, callback);
+	});
+}
+
 function inhouse(chID, callback) {
 	rawInhouse(chID, true, callback);
 }
@@ -156,6 +199,31 @@ function outhouse(chID, callback) {
 
 function onjaunt(chID, callback) {
 	rawOnjaunt(chID, true, callback);
+}
+
+function getRusheeData(chID, callback) {
+	rawShowLog(chID, true, function(err, html) {
+		// Precondition: html === null || html.indexOf(SHOW_LOG_PAGE_STRING) !== -1;
+		if (err === null) {
+			if (html !== null) {
+				var logPageStringIdx = html.indexOf(SHOW_LOG_PAGE_STRING);
+				if (logPageStringIdx !== -1) {
+					var nameStartIdx = logPageStringIdx + SHOW_LOG_PAGE_STRING.length;
+					var nameEndIdx = html.indexOf('<', nameStartIdx);
+					var name = html.substring(nameStartIdx, nameEndIdx);
+					var rushee = {
+						name : name,
+						chID : chID
+					};
+					callback(rushee);
+				}
+			} else {
+				console.error('logPageStringIdx === -1! Precondition failed');
+			}
+		} else {
+			console.log(err);
+		}
+	});
 }
 
 function getCookies() {
@@ -200,6 +268,14 @@ function isNotCurrentlyPage(html) {
 	return html.indexOf('not currently') > -1;
 }
 
+function isShowLogPage(html) {
+	return html.indexOf(SHOW_LOG_PAGE_STRING) > -1;
+}
+
+function isShowLogPageInvalid(html) {
+	return html.indexOf('rushee ID is invalid') > -1;
+}
+
 function logError(chID, err, callback) {
 	console.log(err);
 	logdb.log({
@@ -217,7 +293,8 @@ function logBadPage(chID, body, callback) {
 		isAlreadyPage : isAlreadyPage(body),
 		body : body,
 	};
-	console.log("Logging: " + logObject);
+	console.log('Logging: ');
+	console.log(logObject);
 	logdb.log(logObject, callback);
 }
 
@@ -249,7 +326,9 @@ module.exports = {
 	getCHCookies : getCookies,
 	setCHCookie : setCookie,
 	delCHCookie : delCookie,
-	
+
+	getCHRusheeData : getRusheeData,
+
 	setCHLogin : setLogin,
 	getCHLogin : getLogin,
 };

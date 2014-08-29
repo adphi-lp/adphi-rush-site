@@ -733,6 +733,8 @@ module.exports = {
 	setCHCookie : chdb.setCHCookie,
 	delCHCookie : chdb.delCHCookie,
 
+	getCHRusheeData : chdb.getCHRusheeData,
+
 	setCHLogin : chdb.setCHLogin,
 	getCHLogin : chdb.getCHLogin,
 

@@ -1,0 +1,18 @@
+extends /common/layout
+
+block head
+  title='Import from Clearinghouse'
+
+block content
+  .clearinghouse-import-wrapper
+    h1.title Import Rushees from Clearinghouse
+    form.clearinghouse-import-edit
+      .clearinghouse-import-edit-info
+        .clearinghouse-import-edit-item
+          span.clearinghouse-import-edit-type Start Index (Inclusive)
+          input.clearinghouse-import-edit-data(name='startIndex')
+        .clearinghouse-import-edit-item
+          span.clearinghouse-import-edit-type End Index (Exclusive)
+          input.clearinghouse-import-edit-data(name='endIndex')
+      .clearinghouse-import-edit-post
+        input.save(type='submit',formmethod='post',formaction='',value='Submit')

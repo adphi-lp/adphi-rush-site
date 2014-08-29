@@ -53,7 +53,8 @@ function transferCandidate(cID, insert, callback) {
 					year : doc.year,
 					photo : doc.photo,
 					visible : doc.visible,
-					priority : doc.priority
+					priority : doc.priority,
+					chID : doc.chID,
 				};
 				insert(rushee, callback);
 			});
