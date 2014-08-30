@@ -64,6 +64,7 @@ block content
         input#sort-priority(type='radio', name = 'sortMethod', value='priority', checked=(sortMethod==='priority' || !sortMethod))
         label.toggle-choice(for='priority') Priority
       input#last-request-time(type='hidden', name='lastRequestTime', value=lastRequestTime)
+    h3.rushees-result-count #{rushees.length} Results
     ul.rushees-list
       -for(var i = 0; i < rushees.length; i++)
         -var rushee = rushees[i];
