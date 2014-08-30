@@ -78,18 +78,20 @@ block content
                     span.rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
                   -else
                     span.rushee-status(style='color:#{StatusType.OUT.color};') #{StatusType.OUT.name}
-                .rushee-info-item.rushee-dorm
-                  span.rushee-info-type Dorm
-                  span.rushee-info-data #{rushee.dorm}
-                .rushee-info-item.rushee-phone
-                  span.rushee-info-type Phone
-                  span.rushee-info-data #{rushee.phone}
+                
+                -if (accountType.isAdmin())
+                  .rushee-info-item.rushee-dorm
+                    span.rushee-info-type Dorm
+                    span.rushee-info-data #{rushee.dorm}
+                  .rushee-info-item.rushee-phone
+                    span.rushee-info-type Phone
+                    span.rushee-info-data #{rushee.phone}
+                  .rushee-info-item.rushee-year
+                    span.rushee-info-type Year
+                    span.rushee-info-data #{rushee.year}
                 .rushee-info-item.rushee-email
                   span.rushee-info-type Email
                   span.rushee-info-data #{rushee.email}
-                .rushee-info-item.rushee-year
-                  span.rushee-info-type Year
-                  span.rushee-info-data #{rushee.year}
                 -if (accountType.isAdmin())
                   .rushee-info-item.rushee-meta
                     span.rushee-info-type Meta
