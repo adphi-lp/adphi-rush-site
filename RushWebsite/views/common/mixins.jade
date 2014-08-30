@@ -76,13 +76,14 @@ mixin rushee(rushee, accountType, basepath, options)
       .rushee-info-item.rushee-jaunts
         span.rushee-info-type Jaunt(s)
         span.rushee-info-data #{rushee.vansNameList.join(', ')}
-      -if (rushee.cross1 !== 'None')
-        .rushee-info-item.rushee-cross
-          span.rushee-info-type Cross Rush(s)
-          -var cross = rushee.cross1;
-          -if (rushee.cross2 !== 'None')
-            -cross += ', ' + rushee.cross2;
-          span.rushee-info-data #{cross}
+      -if (accountType.isAdmin())
+        -if (rushee.cross1 !== 'None')
+          .rushee-info-item.rushee-cross
+            span.rushee-info-type Cross Rush(s)
+            -var cross = rushee.cross1;
+            -if (rushee.cross2 !== 'None')
+              -cross += ', ' + rushee.cross2;
+            span.rushee-info-data #{cross}
       .rushee-info-item.rushee-vote-score
         span.rushee-info-type Voting score
         -var vsClass = rushee.voteScoreFraction >= 3/4 ? 'bidworthy' : 'unbidworthy';
