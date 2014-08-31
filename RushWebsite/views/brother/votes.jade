@@ -1,4 +1,5 @@
 extends /common/layout
+include /common/mixins
 
 block head
   title='View all Brother Votes'  
@@ -18,11 +19,13 @@ block content
               th.votes-header-cell #{voteType.name}
             th.votes-header-cell Vote Score
             th.votes-header-cell Total votes
+            th.votes-header-cell Sponsees
             
           -for (var i = 0; i < brothers.length; i++)
             -var b = brothers[i];
             tr.votes-row
-              td.votes-name #{b.name}
+              td.votes-name
+                +brotherName(b, accountType, basepath)
                 -for (var j = 0; j < voteTypes.length; j++)
                   -var voteType = voteTypes[j];
                   -var voteCount = b.countVotesByType[voteType._id]
@@ -39,3 +42,4 @@ block content
                       | #{voteCount}
               td.votes-cell #{b.voteScore}
               td.votes-cell #{b.voteTotal}
+              td.votes-cell #{b.sponsorsNameList.join(', ')}
