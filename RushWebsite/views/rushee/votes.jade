@@ -9,6 +9,12 @@ block content
     h1.rushees-title View all rushees votes
     .votes-wrapper
       h2.title Votes
+      form.votes-sort-form
+        input(type='radio', name = 'sortMethod', value='total', checked=(sortMethod==='total' || !sortMethod)).votes-sort-option
+        label.votes-sort-option-label(for='total') Vote Total
+        input(type='radio', name = 'sortMethod', value='score', checked=(sortMethod==='score')).votes-sort-option
+        label.votes-sort-option-label(for='score') Vote Score
+        input(type='submit',formmethod='get',formaction=basepath+'/rushee/votes', value='Sort')
       .votes-content
         table.votes-table
           tr.votes-header-row

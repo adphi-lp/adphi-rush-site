@@ -35,6 +35,14 @@
 	opacity: 0.4;
 }
 
+.votes-sort-form {
+	padding: 10px;
+}
+
+.votes-sort-option-label {
+	padding: 0 10px 0 0;
+}
+
 .bidworthy {
 	font-weight:bold; color:blue;
 }
