@@ -83,9 +83,10 @@ block content
                   .rushee-info-item.rushee-dorm
                     span.rushee-info-type Dorm
                     span.rushee-info-data #{rushee.dorm}
-                  .rushee-info-item.rushee-phone
-                    span.rushee-info-type Phone
-                    span.rushee-info-data #{rushee.phone}
+                .rushee-info-item.rushee-phone
+                  span.rushee-info-type Phone
+                  span.rushee-info-data #{rushee.phone}
+                -if (accountType.isAdmin())
                   .rushee-info-item.rushee-year
                     span.rushee-info-type Year
                     span.rushee-info-data #{rushee.year}
