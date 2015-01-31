@@ -45,11 +45,12 @@ block content
           input#priority(type='checkbox', name = 'priority')
         label.toggle-choice(for='priority') Priority
 
-        -if (bidworthy === 'on')
-          input#bidworthy(type='checkbox', name = 'bidworthy', checked)
-        -else
-          input#bidworthy(type='checkbox', name = 'bidworthy')
-        label.toggle-choice(for='bidworthy') Bidworthy
+        -if (accountType.isAdmin())
+          -if (bidworthy === 'on')
+            input#bidworthy(type='checkbox', name = 'bidworthy', checked)
+          -else
+            input#bidworthy(type='checkbox', name = 'bidworthy')
+          label.toggle-choice(for='bidworthy') Bidworthy
 
         -if (accountType.isAdmin())
           -if (hidden === 'on')

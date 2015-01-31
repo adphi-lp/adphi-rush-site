@@ -1,3 +1,4 @@
+/*jslint node: true */
 'use strict';
 
 var tools = require('./tools');
@@ -31,7 +32,7 @@ function augComment(comment) {
 		' on ' + time.format('dddd, MMMM Do YYYY');
 	comment.shorttime = time.format('dddd, MMM DD, HH:mm');
 }
- 
+
 /**
  * Joins the comments onto rushees and brothers under rushee.comments
  * and brother.comments.
@@ -40,7 +41,7 @@ function makeComments(rushees, brothers, jaunts, comments) {
 	for (var i = 0, l = comments.length; i < l; i++) {
 		comments[i].type = CommentType[comments[i].typeID];
 	}
-	
+
 	joindb.joinAssoc(comments, 'comments',
 		rushees, 'rusheeID', 'rushee',
 		brothers, 'brotherID', 'brother');
@@ -71,9 +72,9 @@ function updateComment(commentID, typeID, text, jauntID, callback) {
 module.exports = {
 	CommentType : CommentType,
 	SORTED_COMMENT_TYPES : SORTED_COMMENT_TYPES,
-	
+
 	importJoin : importJoin,
-	
+
 	augComment : augComment,
 	makeComments : makeComments,
 	insertComment : insertComment,

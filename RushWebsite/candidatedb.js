@@ -1,3 +1,4 @@
+/*jslint node: true */
 'use strict';
 
 var tools = require('./tools');
@@ -21,7 +22,7 @@ function updateCandidate(cID, cand, callback) {
 	if (cand.last !== undefined) {
 		cand.slast = cand.last.toLowerCase();
 	}
-	joindb.update('candidates', {_id : cID}, {$set : cand}, {}, callback);	
+	joindb.update('candidates', {_id : cID}, {$set : cand}, {}, callback);
 }
 
 function augCandidate(cand) {

@@ -1,3 +1,4 @@
+/*jslint node: true */
 'use strict';
 
 var tools = require('./tools');
@@ -36,7 +37,7 @@ function getNullVote(rushee, brother) {
 		brother : brother,
 		brotherID : brother._id
 	};
-	
+
 	return vote;
 }
 
@@ -54,7 +55,7 @@ function makeVotesBy(rushees, brothers, votes) {
 	for (var i = 0, l = votes.length; i < l; i++) {
 		votes[i].type = VoteType[votes[i].typeID];
 	}
-	
+
 	joindb.joinAssocIndexed(votes, 'votesBy',
 		rushees, 'rusheeID', 'rushee',
 		brothers, 'brotherID', 'brother');
@@ -93,7 +94,7 @@ function makeVoteScore(rushees) {
 		r.voteScore = 0;
 		for (var b in r.votesBy) {
 			var vote = r.votesBy[b][0];
-			r.voteScore += vote.type.value;	
+			r.voteScore += vote.type.value;
 			//TODO Disregard hidden rushees when calculating
 		}
 	}
@@ -109,7 +110,7 @@ function makeVoteTotal(rushees) {
 		r.voteTotal = 0;
 		for (var b in r.votesBy) {
 			var vote = r.votesBy[b][0];
-			r.voteTotal += vote.type._id !== 'NULL' ? 1 : 0;	
+			r.voteTotal += vote.type._id !== 'NULL' ? 1 : 0;
 			//TODO Disregard hidden rushees when calculating
 		}
 	}
@@ -127,7 +128,7 @@ function makeNonZeroVote(rushees) {
 		r.voteTotal = 0;
 		for (var b in r.votesBy) {
 			var vote = r.votesBy[b][0];
-			r.nonZeroVote += vote.type.value !== 0 ? 1 : 0;	
+			r.nonZeroVote += vote.type.value !== 0 ? 1 : 0;
 			//TODO Disregard hidden rushees when calculating
 		}
 	}
@@ -182,7 +183,7 @@ function getBidScore(brothers) {
 }
 
 function isBidworthy(r, activeB) {
-	return r.voteTotalFraction >= 1/2 && r.voteScoreFraction >= 3/4;
+	return r.voteTotalFraction >= 1/2 && r.voteScoreFraction >= 0.65;
 }
 
 function makeBidworthiness(rushees, activeB) {
@@ -197,7 +198,7 @@ function makeBidworthiness(rushees, activeB) {
 module.exports = {
 	VoteType : VoteType,
 	SORTED_VOTE_TYPES : SORTED_VOTE_TYPES,
-	
+
 	importJoin : importJoin,
 	getNullVote : getNullVote,
 	augVote : augVote,

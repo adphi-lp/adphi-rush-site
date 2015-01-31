@@ -12,5 +12,3 @@ appropriate status unless they can't be found.
 4. Rushees going from in house to jaunt
 should be first marked as going out then on a jaunt. Rushees going from
 in house to jaunt should be first marked as going out then on a jaunt.
-
-

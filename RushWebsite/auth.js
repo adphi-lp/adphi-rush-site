@@ -1,34 +1,48 @@
+/*jslint node: true */
 'use strict';
 
 var loginPage = null;
 
 var accountType = {
-	BROTHER: {
-		name: 'brother',
-		isFrontDesk : function() {return true;},
-		isBrother : function() {return true;},
-		isAdmin : function() {return false;}
-	},
-	
-	FRONTDESK: {
-		name: 'frontdesk',
-		isFrontDesk : function() {return true;},
-		isBrother : function() {return false;},
-		isAdmin : function() {return false;}
-	},
-	
-	ADMIN: {
-		name :'admin',
-		isFrontDesk : function() {return true;},
-		isBrother : function() {return true;},
-		isAdmin : function() {return true;}
-	},
-	
 	NULL: {
 		name :'none',
 		isFrontDesk : function() {return false;},
 		isBrother : function() {return false;},
+		isMeeting : function() {return false;},
 		isAdmin : function() {return false;}
+	},
+
+	FRONTDESK: {
+		name: 'frontdesk',
+		isFrontDesk : function() {return true;},
+		isBrother : function() {return false;},
+		isMeeting : function() {return false;},
+		isAdmin : function() {return false;}
+	},
+
+	BROTHER: {
+		name: 'brother',
+		isFrontDesk : function() {return true;},
+		isBrother : function() {return true;},
+		isMeeting : function() {return false;},
+		isAdmin : function() {return false;}
+	},
+
+
+	MEETING: {
+		name: 'meeting',
+		isFrontDesk : function() {return true;},
+		isBrother : function() {return true;},
+		isMeeting : function() {return true;},
+		isAdmin : function() {return false;}
+	},
+
+	ADMIN: {
+		name :'admin',
+		isFrontDesk : function() {return true;},
+		isBrother : function() {return true;},
+		isMeeting : function() {return true;},
+		isAdmin : function() {return true;}
 	}
 };
 
@@ -46,15 +60,12 @@ function clearCookie(res, key) {
 
 function getAccountType(req, res) {
 	var name = getCookie(req, 'accountType');
-	if (name === accountType.ADMIN.name) {
-		return accountType.ADMIN;
-	} else if (name === accountType.BROTHER.name){
-		return accountType.BROTHER;
-	} else if (name === accountType.FRONTDESK.name){
-		return accountType.FRONTDESK;
-	} else {
-		return accountType.NULL	;
+	for (var type in accountType) {
+		if (name === accountType[type].name) {
+			return accountType[type];
+		}
 	}
+	return accountType.NULL;
 }
 
 function setRedirect(page) {
@@ -70,7 +81,7 @@ function checkAuth(req, res, next) {
 		res.redirect(loginPage);
 		return;
 	}
-	
+
 	next();
 }
 
@@ -79,7 +90,7 @@ function checkFrontDeskAuth(req, res, next) {
 		res.redirect(loginPage);
 		return;
 	}
-	
+
 	next();
 }
 
@@ -88,13 +99,16 @@ function checkAdminAuth(req, res, next) {
 		res.redirect(loginPage);
 		return;
 	}
-	
+
 	next();
 }
 
 function login(username, password, res) {
 	if (username.toLowerCase() === 'admin' && password.toLowerCase() === 'rhythm7') {
 		setCookie(res, 'accountType', accountType.ADMIN.name);
+		return true;
+	} else if (username.toLowerCase() === 'meeting' && password.toLowerCase() === 'sameells') {
+		setCookie(res, 'accountType', accountType.MEETING.name);
 		return true;
 	} else if (username.toLowerCase() === 'brother' && password.toLowerCase() === 'leebhenry') {
 		setCookie(res, 'accountType', accountType.BROTHER.name);

@@ -21,7 +21,7 @@ function get(rushees, query) {
 		var rushee = rushees[i];
 		ranking[i] = [rushee, rank(rushee, words), i];
 	}
-	
+
 	ranking.sort(function(a, b) {
 		if (b[1] != a[1]) {
 			return b[1] - a[1];
@@ -29,9 +29,9 @@ function get(rushees, query) {
 			return a[2] - b[2];
 		}
 	});
-	
+
 	var results = ranking.slice(0,10);
-	
+
 	return tools.map(results, function(r) {
 		return r[0];
 	});
@@ -77,7 +77,7 @@ function rankStatus(rushee) {
 	if (rushee.status === undefined || rushee.status === null) {
 		return 0;
 	}
-	
+
 	var count = 1;
 	if (rushee.status.type._id === "IN") {
 		count += 4;

@@ -107,22 +107,34 @@ block content
           -for (var i = 0; i < voteTypes.length; i++)
             -var voteType = voteTypes[i];
             th.votes-header-cell #{voteType.name}
-         -for (var i = 0; i < rushee.sortedVotes.length; i++)
-            -var vote = rushee.sortedVotes[i]
-            -var bid = vote.type._id;
-            tr.votes-row
-            td.votes-name #{vote.brother.name}
-              -for (var j = 0; j < voteTypes.length; j++)
-                -var voteType = voteTypes[j];
-                -var vid = voteType._id;
-                -if (bid == vid)
-                  td.votes-cell.votes
-                    -if (voteType.value < 0)
-                      strong(style='color:red; font-weight:bold;') X
-                    -else
-                      strong X
-                -else
-                  td.votes-cell.votes
+        -for (var i = 0; i < rushee.sortedVotes.length; i++)
+          -var vote = rushee.sortedVotes[i]
+          -var bid = vote.type._id;
+          tr.votes-row
+          td.votes-name #{vote.brother.name}
+            -for (var j = 0; j < voteTypes.length; j++)
+              -var voteType = voteTypes[j];
+              -var vid = voteType._id;
+              -if (bid == vid)
+                td.votes-cell.votes
+                  -if (voteType.value < 0)
+                    strong(style='color:red; font-weight:bold;') X
+                  -else
+                    strong X
+              -else
+                td.votes-cell.votes
+        -if (accountType.isMeeting())
+          tr.votes-row
+          td.votes-name
+            strong Sum
+          -for (var i = 0; i < voteTypes.length; i++)
+            -voteType = voteTypes[i];
+            -var voteCount = rushee.countVotesByType[voteType._id];
+            td.votes-cell.votes
+              -if (voteType.value < 0 && voteCount > 0)
+                strong(style='color:red; font-weight:bold;') #{voteCount}
+              -else
+                strong #{voteCount}
 
   .comment-thread-wrapper
     h2.title Comments
