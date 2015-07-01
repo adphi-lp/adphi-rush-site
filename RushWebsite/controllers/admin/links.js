@@ -3,32 +3,32 @@ var stats;
 var links;
 
 function setup(env) {
-	rushdb = env.rushdb;
-	stats = env.stats;
-	links = env.links;
+    rushdb = env.rushdb;
+    stats = env.stats;
+    links = env.links;
 }
 
 function uri() {
-	return '/admin/links';
+    return '/admin/links';
 }
 
 function authGet(auth) {
-	return auth.checkAdminAuth;
+    return auth.checkAdminAuth;
 }
 
 function authPost(auth) {
-	return auth.checkAdminAuth;
+    return auth.checkAdminAuth;
 }
 
 function get(req, res) {
-	res.render('admin/links.jade', {links : links});
+    res.render('admin/links.jade', {links: links});
 }
 
 module.exports = {
-	setup : setup,
-	uri : uri(),
-	auth : {
-		get : authGet,
-	},
-	get : get,
+    setup: setup,
+    uri: uri(),
+    auth: {
+        get: authGet,
+    },
+    get: get,
 };

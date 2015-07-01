@@ -7,6 +7,16 @@
 !/RushWebsite/public/img/no_photo.jpg
 node_modules
 
+########## JetBrains #############
+
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
+
+*.iml
+
+## Directory-based project format:
+.idea/
+
+
 # Compiled source #
 ###################
 *.com
