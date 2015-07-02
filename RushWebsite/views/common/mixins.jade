@@ -1,19 +1,19 @@
 mixin object(entry)
-  -if (entry === null)
+  if (entry === null)
     | null
-  -else if (typeof entry === 'object')
+  else if (typeof entry === 'object')
     table
-      -for (var prop in entry)
+      each prop in entry
         tr
           td #{prop}
           td
             +object(entry[prop])
-  -else
+  else
     | #{entry}
 
 mixin rusheeName(rushee, accountType, basepath)
   a(href=basepath+'/rushee/view?rID='+rushee._id) #{rushee.name}
-    -if (accountType.isAdmin() && rushee.visible === false)
+    if (accountType.isAdmin() && rushee.visible === false)
       |  (hidden)
 
 mixin sponsorsName(sponsors, accountType, basepath)
@@ -23,9 +23,9 @@ mixin brotherName(brother, accountType, basepath)
   a(href=basepath+'/brother/view?bID='+brother._id) #{brother.name}
 
 mixin jauntName(jaunt, accountType, basepath)
-  -if (accountType.isAdmin())
+  if (accountType.isAdmin())
     a(href=basepath+'/jaunt/view?jID='+jaunt._id) #{jaunt.name}
-  -else
+  else
     | #{comment.jaunt.name}
 
 mixin pageStat(name, count, sum, average)
@@ -36,24 +36,24 @@ mixin pageStat(name, count, sum, average)
     td #{average}
 
 mixin rushee(rushee, accountType, basepath, options)
-  -if (options === undefined)
+  if (options === undefined)
     options = {};
   .rushee-content.clearfix
     rushee-photo-and-status.lfloat
       a.rushee-photo(href=basepath+'/rushee/view?rID='+rushee._id)
-        -if (options.largeimg)
+        if (options.largeimg)
           img.img-large(src=basepath+rushee.photo,alt=rushee.name)
-        -else
+        else
           img.img-medium(src=basepath+rushee.photo,alt=rushee.name)
       .rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
-      -if (rushee.priority)
+      if (rushee.priority)
         .rushee-priority Priority
     .rushee-info
       .rushee-info-item.rushee-name
         a(href=basepath+'/rushee/view?rID='+rushee._id) #{rushee.name}
-          -if (accountType.isAdmin() && rushee.visible === false)
+          if (accountType.isAdmin() && rushee.visible === false)
             |  (hidden)
-      -if (options.time)
+      if (options.time)
         .rushee-info-item.rushee-time #{rushee.time}
       .rushee-info-item.rushee-dorm
         span.rushee-info-type Dorm
@@ -69,22 +69,22 @@ mixin rushee(rushee, accountType, basepath, options)
         span.rushee-info-data #{rushee.year}
       .rushee-info-item.rushee-sponsors
         span.rushee-info-type Sponsor(s)
-        - if (rushee.sponsorsNameList.length > 0)
+        if (rushee.sponsorsNameList.length > 0)
           span.rushee-info-data #{rushee.sponsorsNameList.join(', ')}
-        - else
+        else
           span.rushee-info-data.missing-sponsor NEED SPONSOR
       .rushee-info-item.rushee-jaunts
         span.rushee-info-type Jaunt(s)
         span.rushee-info-data #{rushee.vansNameList.join(', ')}
-      -if (accountType.isAdmin())
-        -if (rushee.cross1 !== 'None')
+      if (accountType.isAdmin())
+        if (rushee.cross1 !== 'None')
           .rushee-info-item.rushee-cross
             span.rushee-info-type Cross Rush(s)
             -var cross = rushee.cross1;
-            -if (rushee.cross2 !== 'None')
+            if (rushee.cross2 !== 'None')
               -cross += ', ' + rushee.cross2;
             span.rushee-info-data #{cross}
-      -if (accountType.isAdmin())
+      if (accountType.isAdmin())
         .rushee-info-item.rushee-vote-score
           span.rushee-info-type Voting score
           -var vsClass = rushee.voteScoreFraction >= 0.65 ? 'bidworthy' : 'unbidworthy';
@@ -93,42 +93,42 @@ mixin rushee(rushee, accountType, basepath, options)
         span.rushee-info-type Voting total
         -var vsClass = rushee.voteTotalFraction >= 1/2 && accountType.isAdmin() ? 'possible-bidworthy' : '';
         span.rushee-info-data(class=vsClass) #{rushee.voteTotal} (#{(rushee.voteTotalFraction * 100).toFixed(1)}%)
-      -if (options.edit)
+      if (options.edit)
         .rushee-edit
           a(href=basepath+'/rushee/edit?rID='+rushee._id) edit
 
-    -if (accountType.isAdmin())
+    if (accountType.isAdmin())
       form.rushee-action
         input(type='hidden',name='rID',value='#{rushee._id}')
         input(type='hidden',name='redirect',value='/rushee/search')
-        -if (rushee.chID !== undefined && rushee.chID !== null)
+        if (rushee.chID !== undefined && rushee.chID !== null)
           input(type='hidden',name='chID',value=rushee.chID)
         input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/inhouse',value='In house')
         input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/outhouse',value='Going out')
         input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/onjaunt',value='On a jaunt')
 
 mixin comment(comment, accountType, basepath, options)
-  -if (basepath === undefined)
+  if (basepath === undefined)
     var basepath = '';
-  -if (options === undefined)
+  if (options === undefined)
     options = {};
   li.comment-wrapper
     .comment-content
       .comment-header
-        -if (options.brother)
+        if (options.brother)
           span.comment-header-element.comment-name
             +brotherName(comment.brother, accountType, basepath)
-        -else if (options.rushee)
+        else if (options.rushee)
           span.comment-header-element.comment-name
             +rusheeName(comment.rushee, accountType, basepath)
         span.comment-header-element.comment-type(style='color:#{comment.type.color};') #{comment.type.name}
-        -if (comment.jaunt !== undefined)
+        if (comment.jaunt !== undefined)
           span.comment-header-element.comment-jaunt
             +jauntName(comment.jaunt, accountType, basepath)
-        -if (options.rushee && options.brother)
+        if (options.rushee && options.brother)
           span.comment-header-element.comment-rushee
             +rusheeName(comment.rushee, accountType, basepath)
         .comment-text #{comment.text}
-        -if (accountType.isAdmin())
+        if (accountType.isAdmin())
           a.comment-edit(href=basepath+'/comment/edit?cID='+comment._id) edit
         .comment-time #{comment.time}

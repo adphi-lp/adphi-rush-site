@@ -4,6 +4,7 @@ var mongojs = require('mongojs');
 var db = null;
 var tools = require('./tools');
 var moment = require('moment');
+var _ = require('underscore');
 
 function connect(databaseURL, collections) {
     //ids is a reserved collection
@@ -158,40 +159,31 @@ function joinAssocIndexed(assocs, assocsIndexedName,
     }
 }
 
+/**
+ * Filters out people from the group who are not in members.
+ * @param groups
+ * @param members
+ * @returns {Array}
+ */
 function filterGroup(groups, members) {
     //create hashes and initialize
     var hashes = [];
     for (var i = 0; i < members.length; i++) {
-        var list = members[i][0];
-        hashes.push({});
-        for (var j = 0; j < list.length; j++) {
-            var el = list[j];
-            hashes[i][el._id] = el;
-        }
+        hashes.push(_.indexBy(members[i][0], '_id'));
     }
-    var retGroups = [];
     //go through each group
     for (var i = 0; i < groups.length; i++) {
         var group = groups[i];
         //go through each member list
-        var add = true;
         for (var j = 0; j < members.length; j++) {
             var idName = members[j][1];
-            //get group list of ids
-            var list = group[idName];
-            //go through group list of ids
-            for (var k = 0; k < list.length; k++) {
-                var id = list[k];
-                if (hashes[j][id] === undefined) {
-                    add = false;
-                }
-            }
-        }
-        if (add) {
-            retGroups.push(group);
+            // filter group list of ids
+            group[idName] = _.filter(group[idName], function(id) {
+                return hashes[j][id] !== undefined;
+            })
         }
     }
-    return retGroups;
+    return groups;
 }
 
 /**
@@ -238,7 +230,6 @@ function findOne(col, query, augment, callback) {
     db[col].findOne(query, function (err, doc) {
         if (err !== null && err !== undefined) {
             callback(err, doc);
-            return;
         } else if (doc === null) {
             callback(null, null);
         } else {
@@ -253,7 +244,6 @@ function find(col, query, sort, augment, callback) {
     db[col].find(query).sort(sort).forEach(function (err, doc) {
         if (err !== null && err !== undefined) {
             callback(err);
-            return;
         } else if (doc === null) {
             callback(null, docs);
         } else {
@@ -267,7 +257,6 @@ function findAndModify(col, query, augment, callback) {
     db[col].findAndModify(query, function (err, doc) {
         if (err !== null && err !== undefined) {
             callback(err, doc);
-            return;
         } else if (doc === null) {
             callback(null, null);
         } else {

@@ -8,7 +8,8 @@ html(lang='en')
     link(rel='stylesheet',href=basepath+'/css/master.css')
   body
     include navigation
-    -if (locals.ts !== null && locals.ts !== undefined)
-      p Timestamp is #{ts}
+    p
+    if (locals.ts !== null && locals.ts !== undefined)
+      a(href=basepath + '/admin/settime') Timestamp is #{ts}
     .content-wrapper
       block content

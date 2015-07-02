@@ -288,12 +288,14 @@ function getSecond(info, nextStep) {
     var queryRushees = {rusheeID: {$in: rusheeIDs}};
     var queryBrothers = {brotherID: {$in: brotherIDs}};
     var queryBoth = {rusheeID: {$in: rusheeIDs}, brotherID: {$in: brotherIDs}};
+    var queryAll = {};
 
     if (ts != null) {
         var where = "this.ts <= " + ts;
         queryRushees.$where = where;
         queryBrothers.$where = where;
         queryBoth.$where = where;
+        queryAll.$where = where
     }
 
     async.parallel({
@@ -319,15 +321,13 @@ function getSecond(info, nextStep) {
             joindb.find('comments', queryBoth, {ts: -1}, commentdb.augComment, cb);
         },
         sponsors: function (cb) {
-            joindb.find('sponsors', queryBoth, {ts: -1}, function () {
-            }, cb);
+            joindb.find('sponsors', queryBoth, {ts: -1}, function () {}, cb);
         },
         vans: function (cb) {
-            joindb.find('vans', {}, {ts: 1}, function () {
-            }, cb);
+            joindb.find('vans', queryAll, {ts: 1}, function () {}, cb);
         },
         jaunts: function (cb) {
-            joindb.find('jaunts', {}, {time: 1}, jauntdb.augJaunt, cb);
+            joindb.find('jaunts', queryAll, {time: 1}, jauntdb.augJaunt, cb);
         }
     }, nextStep);
 }
