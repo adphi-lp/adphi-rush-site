@@ -9,54 +9,35 @@ block head
 block content
   .rushees-wrapper
     #banner
-      -if (typeof(globalAnnouncement) !== 'undefined' && globalAnnouncement !== '')
+      if typeof(globalAnnouncement) !== 'undefined' && globalAnnouncement !== ''
         h2(style='white-space:pre-wrap; ') #{globalAnnouncement}
-      -if (accountType.isAdmin())
+      if accountType.isAdmin()
         .banner-edit(style='text-align:center;')
           a(href=basepath+'/admin/editannouncement') post announcement
     a(href=basepath+'/brother/summaries') (who to meet?)
     h1.rushees-title View all rushees
     form.rushees-search
       .search-bar
-        input#search(type='text', name = 'q', value = '#{q}')
+        input#search(type='text', name = 'q', value = q)
         input(type='submit',formmethod='get',formaction=basepath+'/rushee/search', value='Search')
       .search-options
-        -if (inhouse === 'on')
-          input#inhouse(type='checkbox', name = 'inhouse', checked)
-        -else
-          input#inhouse(type='checkbox', name = 'inhouse')
+        input#inhouse(type='checkbox', name = 'inhouse', checked=inhouse === 'on')
         label.toggle-choice(for='inhouse') In
 
-        -if (outhouse === 'on')
-          input#outhouse(type='checkbox', name = 'outhouse', checked)
-        -else
-          input#outhouse(type='checkbox', name = 'outhouse')
+        input#outhouse(type='checkbox', name = 'outhouse', checked=outhouse === 'on')
         label.toggle-choice(for='outhouse') Out
 
-        -if (onjaunt === 'on')
-          input#onjaunt(type='checkbox', name = 'onjaunt', checked)
-        -else
-          input#onjaunt(type='checkbox', name = 'onjaunt')
+        input#onjaunt(type='checkbox', name = 'onjaunt', checked=onjaunt === 'on')
         label.toggle-choice(for='onjaunt') Jaunt
 
-        -if (priority === 'on')
-          input#priority(type='checkbox', name = 'priority', checked)
-        -else
-          input#priority(type='checkbox', name = 'priority')
+        input#priority(type='checkbox', name = 'priority', checked=priority === 'on')
         label.toggle-choice(for='priority') Priority
 
-        -if (accountType.isAdmin())
-          -if (bidworthy === 'on')
-            input#bidworthy(type='checkbox', name = 'bidworthy', checked)
-          -else
-            input#bidworthy(type='checkbox', name = 'bidworthy')
+        if accountType.isAdmin()
+          input#bidworthy(type='checkbox', name = 'bidworthy', checked=bidworthy === 'on')
           label.toggle-choice(for='bidworthy') Bidworthy
 
-        -if (accountType.isAdmin())
-          -if (hidden === 'on')
-            input#hidden(type='checkbox', name = 'hidden', checked)
-          -else
-            input#hidden(type='checkbox', name = 'hidden')
+          input#hidden(type='checkbox', name = 'hidden', checked=hidden === 'on')
           label.toggle-choice(for='hidden') Hidden
       .sort-options
         input#sort-last-status-update(type='radio', name = 'sortMethod', value='lastStatusUpdate', checked=(sortMethod==='lastStatusUpdate'))
@@ -67,7 +48,6 @@ block content
       input#last-request-time(type='hidden', name='lastRequestTime', value=lastRequestTime)
     h3.rushees-result-count #{rushees.length} Results
     ul.rushees-list
-      -for(var i = 0; i < rushees.length; i++)
-        -var rushee = rushees[i];
+      each rushee in rushees
         li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
           +rushee(rushee, accountType, basepath)

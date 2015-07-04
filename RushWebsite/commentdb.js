@@ -64,8 +64,13 @@ function updateComment(commentID, typeID, text, jauntID, callback) {
         typeID: typeID,
         text: text
     };
-    if (jauntID !== undefined) comment.jauntID = jauntID;
-    joindb.update('comments', {_id: commentID}, {$set: comment}, {}, callback);
+    var command = {$set : comment};
+    if (jauntID !== undefined) {
+        comment.jauntID = jauntID;
+    } else {
+        command.$unset = {jauntID : jauntID}
+    }
+    joindb.update('comments', {_id: commentID}, command, {}, callback);
 }
 
 

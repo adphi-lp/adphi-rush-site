@@ -14,31 +14,27 @@ block content
         table.votes-table
           tr.votes-header-row
             th.votes-header-name Brother Name
-            -for (var i = 0; i < voteTypes.length; i++)
-              -var voteType = voteTypes[i];
+            each voteType in voteTypes
               th.votes-header-cell #{voteType.name}
             th.votes-header-cell Vote Score
             th.votes-header-cell Total votes
             th.votes-header-cell Sponsees
-            
-          -for (var i = 0; i < brothers.length; i++)
-            -var b = brothers[i];
+
+          each b in brothers
             tr.votes-row
               td.votes-name
                 +brotherName(b, accountType, basepath)
-                -for (var j = 0; j < voteTypes.length; j++)
-                  -var voteType = voteTypes[j];
+                each voteType in voteTypes
                   -var voteCount = b.countVotesByType[voteType._id]
                   td.votes-cell
-                    -if (voteType._id === 'NULL')
-                      -for (var r in relevantRushees)
-                        -var rushee = relevantRushees[r];
-                        -if (rushee.voteBy[b._id].type._id === 'NULL')
+                    if voteType._id === 'NULL'
+                      each rushee, r in relevantRushees
+                        if rushee.voteBy[b._id].type._id === 'NULL'
                           -var relstyle = 'color:' + rushee.status.type.color + ';';
                           -relstyle += rushee.priority ? 'font-weight:bold;' : '';
                           
                           .vote-rushee(style=relstyle) #{relevantRushees[r].name}
-                    -else
+                    else
                       | #{voteCount}
               td.votes-cell #{b.voteScore}
               td.votes-cell #{b.voteTotal}

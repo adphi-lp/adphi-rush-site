@@ -32,12 +32,8 @@ block content
         .rushee-add-item.rushee-year
           span.rushee-add-type Year
           select.rushee-add-data(name='year')
-            -var years = ['Freshman', 'Sophomore', 'Junior', 'Senior']
-            -for (var i = 0; i < years.length; i++)
-              -if (rushee.year === years[i])
-                option(value='#{years[i]}', selected) #{years[i]}
-              -else
-                option(value='#{years[i]}') #{years[i]}
+            each year in ['Freshman', 'Sophomore', 'Junior', 'Senior']
+              option(value=year, selected=rushee.year === year) #{year}
         .rushee-add-item.rushee-photo-old
           input.rushee-add-data(type='hidden',name='photoOld',value=rushee.photo)
         .rushee-add-item.rushee-photo
@@ -53,43 +49,28 @@ block content
         -var frats7 = ['Zeta-Psi'];
         -var frats8 = ['Beta-Theta-Pi', 'Alpha-Sigma-Psi'];
         -var frats = frats1.concat(frats2, frats3, frats4, frats5, frats6, frats7, frats8);
-        -if (accountType.isAdmin())
+        if accountType.isAdmin()
           .rushee-add-item.rushee-cross1
             span.rushee-add-type Cross Rush 1
             select.rushee-add-data(name='cross1')
               option(value='None') None
-              -for (var i = 0; i < frats.length; i++)
-                -if (rushee.cross1 === frats[i])
-                  option(value='#{frats[i]}', selected) #{frats[i]}
-                -else
-                  option(value='#{frats[i]}') #{frats[i]}
+              each frat in frats
+                option(value=frat, selected=rushee.cross1 === frat) #{frat}
           .rushee-add-item.rushee-cross2
             span.rushee-add-type Cross Rush 2
             select.rushee-add-data(name='cross2')
               option(value='None') None
-              -for (var i = 0; i < frats.length; i++)
-                -if (rushee.cross2 === frats[i])
-                  option(value='#{frats[i]}', selected) #{frats[i]}
-                -else
-                  option(value='#{frats[i]}') #{frats[i]}
+              each frat in frats
+                option(value=frat, selected=rushee.cross2 === frat) #{frat}
           .rushee-add-item.rushee-visible
             span.rushee-add-type Visible
-            -if (rushee.visible)
-              input(type='checkbox',name='visible', checked)
-            -else
-              input(type='checkbox',name='visible')
+            input(type='checkbox',name='visible', checked=rushee.visible)
           .rushee-add-item.rushee-priority
             span.rushee-add-type Priority
-            -if (rushee.priority)
-              input(type='checkbox',name='priority', checked)
-            -else
-              input(type='checkbox',name='priority')
+            input(type='checkbox',name='priority', checked=rushee.priority)
           .rushee-add-item.rushee-eligible
             span.rushee-add-type Eligible
-            -if (rushee.eligible)
-              input(type='checkbox',name='eligible', checked)
-            -else
-              input(type='checkbox',name='eligible')
+            input(type='checkbox',name='eligible', checked=rushee.eligible)
           .rushee-add-item.rushee-chID
             span.rushee-add-type Clearinghouse ID
             input.rushee-add-data(name='chID',value=rushee.chID || '')

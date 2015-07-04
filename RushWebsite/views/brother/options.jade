@@ -14,16 +14,15 @@ block content
       tr.votes-header-row
         th.votes-header-name Brother Name
         th.votes-header-cell Allow met
-      -for (var i = 0; i < brothers.length; i++)
-        -var b = brothers[i];
+      each b in brothers
         tr.votes-row
           td.votes-name
             +brotherName(b, accountType, basepath)
           td.votes-cell
-            -if (b.met)
+            if b.met
               input(type='hidden', name = 'pre[brother'+b._id+']')
               input(type='checkbox', name = 'post[brother'+b._id+']', checked)
-            -else
+            else
               input(type='checkbox', name = 'post[brother'+b._id+']')
     
     .votes-post

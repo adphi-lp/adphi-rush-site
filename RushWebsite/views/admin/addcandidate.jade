@@ -31,7 +31,7 @@ block content
           select.candidate-add-data(name='year')
             -years = ['Freshman', 'Sophomore', 'Junior', 'Senior']
             -for (var i = 0; i < years.length; i++)
-              option(value='#{years[i]}') #{years[i]}
+              option(value=years[i]) #{years[i]}
         .candidate-add-item#candidate-photo
           span.candidate-add-type Photo
           input.candidate-add-data(type='file',name='photo')

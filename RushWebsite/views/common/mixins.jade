@@ -99,7 +99,7 @@ mixin rushee(rushee, accountType, basepath, options)
 
     if (accountType.isAdmin())
       form.rushee-action
-        input(type='hidden',name='rID',value='#{rushee._id}')
+        input(type='hidden',name='rID',value=rushee._id)
         input(type='hidden',name='redirect',value='/rushee/search')
         if (rushee.chID !== undefined && rushee.chID !== null)
           input(type='hidden',name='chID',value=rushee.chID)

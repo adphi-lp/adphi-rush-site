@@ -21,75 +21,63 @@ block content
     .brother-action-wrapper
       form.brother-action-content(method='post',action=basepath+'/jaunt/pushRusheeToVan')
         span.brother-action-type Add to van
-        input(type='hidden',name='rID',value=#{rushee._id})
+        input(type='hidden',name='rID',value=rushee._id)
         select.jaunt-van-list(name='vID')
           each jaunt in jaunts
             each van in jaunt.vans
-              option(value=#{van._id}) #{jaunt.name + ': ' + van.name}
+              option(value=van._id) #{jaunt.name + ': ' + van.name}
         .post-wrapper
           input#save(type='submit',value='Submit')
 
   .brother-action-wrapper
     form.brother-action-content
-      input(type='hidden',name='rID',value='#{rushee._id}')
+      input(type='hidden',name='rID',value=rushee._id)
       if brother === null
         .brother-wrapper
           span.brother-action-type Name
           select.brother-list#brothers(name='bID')
             each b in brothers
-              if (brotherID === b._id)
-                option(value=#{b._id}, selected) #{b.lastfirst}
-              else
-                option(value=#{b._id}) #{b.lastfirst}
+              option(value=b._id, selected=brotherID === b._id) #{b.lastfirst}
          button#brother-select-button(formmethod='get',formaction=basepath+'/rushee/view',value='Select') Select
       else
-        input(type='hidden',name='bID',value='#{brother._id}')
+        input(type='hidden',name='bID',value=brother._id)
         .brother-wrapper
           span.brother-action-type Name
           span.brother-info#brother-name #{brother.name}
         .sponsor-wrapper
           .sponsor-content
             span.brother-action-type Sponsor
-            if (brother.sponsorBy[rushee._id].sponsor)
-              input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes',checked)
-              label.sponsor-choice(for='sponsorYes') Yes
-              input.span-space#sponsorNo(type='radio',name='sponsor',value='No')
-              label.sponsor-choice(for='sponsorNo') No
-            else
-              input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes')
-              label.sponsor-choice(for='sponsorYes') Yes
-              input.span-space#sponsorNo(type='radio',name='sponsor',value='No',checked)
-              label.sponsor-choice(for='sponsorNo') No
+            input.span-space#sponsorYes(type='radio',name='sponsor',value='Yes',checked=brother.sponsorBy[rushee._id].sponsor)
+            label.sponsor-choice(for='sponsorYes') Yes
+            input.span-space#sponsorNo(type='radio',name='sponsor',value='No',checked=!brother.sponsorBy[rushee._id].sponsor)
+            label.sponsor-choice(for='sponsorNo') No
         .vote-wrapper
           .vote-content
             span.brother-action-type Vote
-            - for (var i = 0; i < voteTypes.length; i++)
-              - var voteType = voteTypes[i];
+            each voteType, i in voteTypes
               - var bid = rushee.voteBy[brother._id].type._id;
               - var vid = voteType._id;
-              if (bid === vid)
-                input.span-space(id = 'vote#{i}',type='radio',name='vote',value='#{voteType._id}',checked)
-                label.vote-choice(for ='vote#{i}') #{voteType.name}
-              else if (vid !== 'MET' || brother.met)
-                input.span-space(id = 'vote#{i}', type='radio',name='vote',value='#{voteType._id}')
-                label.vote-choice(for ='vote#{i}') #{voteType.name}
+              // visible if they voted or they're allowed to vote met
+              if bid === vid || vid !== 'MET' || brother.met
+                input.span-space(id='vote' + i,type='radio',name='vote',value=voteType._id,checked=bid==vid)
+                label.vote-choice(for='vote' + i) #{voteType.name}
         .action-comment-wrapper
-          -for (var j = 0; j < 2; j++)
+          - for (var j = 0; j < 2; j++)
             .action-comment-content.clearfix
               span.brother-action-type Comment (optional)
               .action-comment-textarea-wrapper
-                textarea#comment-textarea(name='comment#{j}',rows=5,cols=40)
+                textarea#comment-textarea(name='comment' + j,rows=5,cols=40)
               .action-comment-type
                 span.brother-action-type Type
-                select(name='commentType#{j}')
-                  -for (var i = 0; i < commentTypes.length; i++)
-                    option(value='#{commentTypes[i]._id}') #{commentTypes[i].name}
+                select(name='commentType' + j)
+                  each commentType in commentTypes
+                    option(value=commentType._id) #{commentType.name}
               .action-comment-jaunt
                 span.brother-action-type Jaunt
-                select#comment-jaunt(name='commentJaunt#{j}')
+                select#comment-jaunt(name='commentJaunt' + j)
                   option(value='null') None
-                  -for (var i = 0; i < jaunts.length; i++)
-                    option(value='#{jaunts[i]._id}') #{jaunts[i].name}
+                  each jaunt in jaunts
+                    option(value=jaunt._id) #{jaunt.name}
         .post-wrapper
           input#save(type='submit',formmethod='post',formaction=basepath+'/rushee/view',value='Submit')
           input#done(type='submit',formmethod='get',formaction=basepath+'/',value='Back to rushees')

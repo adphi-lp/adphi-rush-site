@@ -16,12 +16,11 @@ block content
         a.jaunt-edit(href=basepath + '/jaunt/edit?jID=' + jaunt._id) Edit Jaunt
       .jaunt-content
         .jaunt-van-thread-wrapper
-          -for (var j = 0; j < jaunt.vans.length; j++)
-            -var van = jaunt.vans[j];
+          each van in jaunt.vans
             .jaunt-van-wrapper
               form.jaunt-van-edit-form(method='get',action=basepath+'/jaunt/editvan')
                 h3.jaunt-van-title #{van.name}
-                input(type='hidden',name='vID',value=van._id);
+                input(type='hidden',name='vID',value=van._id)
                 input(type='submit',value='Edit van')
               form.jaunt-van-form(method='post',action=basepath+'/jaunt/pullVanFromJaunt')
                 span.jaunt-van-driver #{van.driver}
@@ -32,8 +31,7 @@ block content
                 .jaunt-rushee-thread-header
                   h4.jaunt-rushee-thread-title Rushees
                 .jaunt-rushee-thread-content
-                  -for (var k = 0; k < van.rushees.length; k++)
-                    -var rushee = van.rushees[k];
+                  each rushee in van.rushees
                     .jaunt-rushee-wrapper
                       .jaunt-rushee-content
                         .jaunt-rushee-info-item.jaunt-rushee-name   
@@ -47,8 +45,7 @@ block content
                 .jaunt-brother-thread-header
                   h4.jaunt-brother-thread-title Brothers
                 .jaunt-brother-thread-content
-                  -for (var k = 0; k < van.brothers.length; k++)
-                    -var brother = van.brothers[k];
+                  each brother in van.brothers
                     .jaunt-brother-wrapper
                       .jaunt-brother-content
                         .jaunt-brother-name
@@ -62,7 +59,7 @@ block content
   .van-action-wrapper
     h2.title Add a van
     form.van-action-content(method='post',action='#')
-      input(type='hidden',name='jID',value='#{jaunt._id}')
+      input(type='hidden',name='jID',value=jaunt._id)
       .van-action-item
         span.van-action-name Name
         input.van-action-input(type='text',required,name = 'vName')

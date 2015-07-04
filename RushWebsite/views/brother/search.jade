@@ -8,8 +8,7 @@ block content
   .brothers-wrapper
     h1.brothers-title View all brothers
     ul.brothers-list
-      -for(var i = 0; i < brothers.length; i++)
-        -var brother = brothers[i];
+      each brother in brothers
         li.brother-wrapper
           .brother-content.clearfix
             .brother-info
@@ -26,9 +25,9 @@ block content
                 span.brother-info-data #{brother.email}
               .brother-info-item.brother-sponsors
                 span.brother-info-type Sponsoring
-                - if (brother.sponsorsNameList.length > 0)
+                if brother.sponsorsNameList.length > 0
                   span.brother-info-data #{brother.sponsorsNameList.join(', ')}
-                - else
+                else
                   span.brother-info-data.missing-sponsor None
               .brother-info-item.brother-votes
                 span.brother-info-type Vote score

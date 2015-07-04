@@ -24,9 +24,9 @@ block content
           span.brother-info-data #{brother.email}
         .brother-info-item.brother-sponsors
           span.brother-info-type Sponsoring
-          - if (brother.sponsorsNameList.length > 0)
+          if brother.sponsorsNameList.length > 0
             span.brother-info-data #{brother.sponsorsNameList.join(', ')}
-          - else
+          else
             span.brother-info-data.missing-sponsor None
         .brother-info-item.brother-votes
           span.brother-info-type Vote score
@@ -34,17 +34,15 @@ block content
         .brother-edit
           a(href=basepath+'/brother/edit?bID='+brother._id) edit
 
-  -if (accountType.isAdmin())
+  if accountType.isAdmin()
     .brother-action-wrapper
       form.brother-action-content(method='post',action=basepath+'/jaunt/pushBrotherToVan')
         span.brother-action-type Add to van
-        input(type='hidden',name='bID',value='#{brother._id}')
+        input(type='hidden',name='bID',value=brother._id)
         select.jaunt-van-list(name='vID')
-          -for (var i = 0; i < jaunts.length; i++)
-            -var jaunt  = jaunts[i];
-            -for (var j = 0; j < jaunt.vans.length; j++)
-              -var van = jaunt.vans[j]
-              option(value='#{van._id}') #{jaunt.name + ': ' + van.name}
+          each jaunt in jaunts
+            each van in jaunt.vans
+              option(value=van._id) #{jaunt.name + ': ' + van.name}
         .post-wrapper
           input#save(type='submit',value='Submit')
 
@@ -55,34 +53,28 @@ block content
           table.votes-table
             tr.votes-header-row
               th.votes-header-name Rushee Name
-              -for (var i = 0; i < voteTypes.length; i++)
-                -var voteType = voteTypes[i];
+              each voteType in voteTypes
                 th.votes-header-cell #{voteType.name}
-             -for (var i = 0; i < brother.sortedVotes.length; i++)
-                -var vote = brother.sortedVotes[i]
-                -var bid = vote.type._id;
-                tr.votes-row
+            each vote in brother.sortedVotes
+              -var bid = vote.type._id;
+              tr.votes-row
                 td.votes-name
                   +rusheeName(vote.rushee, accountType, basepath)
-                  -for (var j = 0; j < voteTypes.length; j++)
-                    -var voteType = voteTypes[j];
+                  each voteType in voteTypes
                     -var vid = voteType._id;
-                    -if (bid == vid)
+                    if bid == vid
                       td.votes-cell.votes
-                        -if (voteType.value < 0)
+                        if voteType.value < 0
                           strong(style='color:red; font-weight:bold;') X
-                        -else
+                        else
                           strong X
-                    -else
+                    else
                       td.votes-cell.votes
 
   .comment-thread-wrapper
     h2.title Comments
-      - if (accountType.isAdmin())
+      if accountType.isAdmin()
         a(href=basepath+'/rushee/history?bID='+brother._id) (View History)
     ul.comment-thread-content
-      - for (var i = 0; i < brother.comments.length; i++)
-        -var comment = brother.comments[i];
+      each comment in brother.comments
         +comment(comment, accountType, basepath, {rushee: true})
-
-

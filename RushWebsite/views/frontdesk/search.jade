@@ -11,89 +11,70 @@ block content
       h1.rushees-title Front Desk
       form.rushees-search
         .search-bar
-          input#search(type='text', name = 'q', value = '#{q}')
+          input#search(type='text', name = 'q', value = q)
           input(type='submit',formmethod='get',formaction=basepath+'/frontdesk', value='Search')
         .search-options
-          -if (inhouse === 'on')
-            input#inhouse(type='checkbox', name = 'inhouse', checked)
-          -else
-            input#inhouse(type='checkbox', name = 'inhouse')
+          input#inhouse(type='checkbox', name = 'inhouse', checked=inhouse === 'on')
           label.toggle-choice(for='inhouse') In
-        
-          -if (outhouse === 'on')
-            input#outhouse(type='checkbox', name = 'outhouse', checked)
-          -else
-            input#inhouse(type='checkbox', name = 'outhouse')
+
+          input#outhouse(type='checkbox', name = 'outhouse', checked=outhouse === 'on')
           label.toggle-choice(for='outhouse') Out
-        
-          -if (onjaunt === 'on')
-            input#onjaunt(type='checkbox', name = 'onjaunt', checked)
-          -else
-            input#onjaunt(type='checkbox', name = 'onjaunt')
+
+          input#onjaunt(type='checkbox', name = 'onjaunt', checked=onjaunt === 'on')
           label.toggle-choice(for='onjaunt') Jaunt
           
-          -if (accountType.isAdmin())
-            -if (hidden === 'on')
-              input#hidden(type='checkbox', name = 'hidden', checked)
-            -else
-              input#hidden(type='checkbox', name = 'hidden')
+          if accountType.isAdmin()
+            input#hidden(type='checkbox', name = 'hidden', checked=hidden === 'on')
             label.toggle-choice(for='hidden') Hidden
-            
-            -if (candidate === 'on')
-              input#candidate(type='checkbox', name = 'candidate', checked)
-            -else
-              input#candidate(type='checkbox', name = 'candidate')
+
+            input#candidate(type='checkbox', name = 'candidate', checked=candidate === 'on')
             label.toggle-choice(for='candidate') Cand
           
       ul.rushees-list
-        -for(var i = 0; i < rushees.length; i++)
-          -var rushee = rushees[i];
-          -var idName = 'rID';
-          -if (rushee.candidate) idName = 'cID';
+        each rushee in rushees
+          - var idName = rushee.candidate ? 'cID' : 'rID';
           li.rushee-wrapper
             .rushee-content.clearfix
               .rushee-info
                 .rushee-info-item
                   span.rushee-name #{rushee.name}
-                    -if (accountType.isAdmin() && rushee.visible === false)
+                    if accountType.isAdmin() && rushee.visible === false
                       |  (hidden)
-                    -if (accountType.isAdmin() && rushee.candidate === true)
+                    if accountType.isAdmin() && rushee.candidate === true
                       |  (cand)
                 form.rushee-action
-                  -var idName = 'rID';
-                  -if (rushee.candidate) idName = 'cID';
                   input(type='hidden',name='redirect',value='/frontdesk')
-                  input(type='hidden',name=idName,value='#{rushee._id}')
-                  -if (rushee.chID !== undefined && rushee.chID !== null)
+                  input(type='hidden',name=idName,value=rushee._id)
+                  if rushee.chID !== undefined && rushee.chID !== null
                     input(type='hidden',name='chID',value=rushee.chID)
-                  -if (rushee.status.type === StatusType.OUT || rushee.status.type === StatusType.NULL)
+                  if rushee.status.type === StatusType.OUT || rushee.status.type === StatusType.NULL
                     input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/inhouse',value='In house')
-                  -if (!(rushee.status.type === StatusType.OUT || rushee.status.type === StatusType.NULL))
+                  else
                     input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/outhouse',value='Going out')
-                  -if (rushee.status.type === StatusType.OUT || rushee.status.type === StatusType.NULL)
+                  if rushee.status.type === StatusType.OUT || rushee.status.type === StatusType.NULL
                     input(type='submit',formmethod='post',formaction=basepath+'/frontdesk/onjaunt',value='On a jaunt')
    
                 .rushee-info-item
-                  -if (accountType.isAdmin() || rushee.status.type._id !== 'NULL')
-                    span.rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
-                  -else
-                    span.rushee-status(style='color:#{StatusType.OUT.color};') #{StatusType.OUT.name}
+                  if accountType.isAdmin() || rushee.status.type._id !== 'NULL'
+                    span.rushee-status(style='color:' + rushee.status.type.color + ';') #{rushee.status.type.name}
+                  else
+                    span.rushee-status(style='color:' + StatusType.OUT.color + ';') #{StatusType.OUT.name}
                 
-                -if (accountType.isAdmin())
+                if accountType.isAdmin()
                   .rushee-info-item.rushee-dorm
                     span.rushee-info-type Dorm
                     span.rushee-info-data #{rushee.dorm}
                 .rushee-info-item.rushee-phone
                   span.rushee-info-type Phone
                   span.rushee-info-data #{rushee.phone}
-                -if (accountType.isAdmin())
+                if accountType.isAdmin()
                   .rushee-info-item.rushee-year
                     span.rushee-info-type Year
                     span.rushee-info-data #{rushee.year}
                 .rushee-info-item.rushee-email
                   span.rushee-info-type Email
                   span.rushee-info-data #{rushee.email}
-                -if (accountType.isAdmin())
+                if accountType.isAdmin()
                   .rushee-info-item.rushee-meta
                     span.rushee-info-type Meta
                     span.rushee-info-data #{rushee.metadata}
