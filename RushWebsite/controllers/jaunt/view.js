@@ -21,8 +21,6 @@ function authPost(auth) {
 function get(req, res) {
     var jauntID = req.query.jID === undefined ? null : rushdb.toObjectID(req.query.jID);
 
-    var time = process.hrtime();
-
     var arrangeJaunt = function (info, render) {
         rushdb.arrangeJaunt(jauntID, info, render);
     };
@@ -34,9 +32,6 @@ function get(req, res) {
             return;
         }
         res.render('jaunt/view.jade', info);
-        time = process.hrtime(time);
-        time = time[0] * 1e9 + time[1];
-        stats.addStat('/jaunt in ns', time);
     });
 }
 
@@ -65,7 +60,7 @@ module.exports = {
     uri: uri(),
     auth: {
         get: authGet,
-        post: authPost,
+        post: authPost
     },
     get: get,
     post: post

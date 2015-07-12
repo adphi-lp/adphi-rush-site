@@ -6,52 +6,46 @@ var CONVERSIONS = {
     'ms': 1e6,
     'cs': 1e7,
     'ds': 1e8,
-    's': 1e9,
+    's': 1e9
 };
 
 var stats = {};
 
-function addStat(n, v) {
-    var name = getName(n),
-        unit = getUnit(n),
+function addDiff(name, initial) {
+    var diff = process.hrtime(initial);
+    var time = diff[0] * 1e9 + diff[1];
+    addStat(name, 'ns', time);
+    return process.hrtime();
+}
+
+function addStat(n, u, v) {
+    var name = n,
+        unit = u,
         value = v * CONVERSIONS[unit];
     if (stats.hasOwnProperty(name)) {
         var curr = stats[name];
         curr.times.push(value);
         curr.sum += value;
-    }
-    else {
+    } else {
         stats[name] = {'times': [value], 'sum': value};
     }
     return stats;
 }
 
-function getStatAverage(n) {
+function getStatAverage(n, unit) {
     var count = getStatCount(n);
-    return count ? getStatSum(n) / count : 0;
+    return count ? getStatSum(n, unit) / count : 0;
 }
 
-function getName(n) {
-    return n.split(' ')[0];
-}
-
-function getUnit(n) {
-    return n.split(' ')[2];
-}
-
-function getStatSum(n) {
-    var name = getName(n),
-        unit = getUnit(n);
+function getStatSum(name, unit) {
     return stats.hasOwnProperty(name) ? stats[name].sum / CONVERSIONS[unit] : 0;
 }
 
-function getStatCount(n) {
-    var name = getName(n);
+function getStatCount(name) {
     return stats.hasOwnProperty(name) ? stats[name].times.length : 0;
 }
 
-function resetStat(n) {
-    var name = getName(n);
+function resetStat(name) {
     stats[name] = null;
 }
 
@@ -59,9 +53,8 @@ function resetStat(n) {
 module.exports = {
     CONVERSIONS: CONVERSIONS,
     stats: stats,
+    addDiff: addDiff,
     addStat: addStat,
-    getName: getName,
-    getUnit: getUnit,
     getStatAverage: getStatAverage,
     getStatSum: getStatSum,
     getStatCount: getStatCount,

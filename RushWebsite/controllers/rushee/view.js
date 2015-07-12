@@ -27,7 +27,6 @@ function get(req, res) {
         auth.setCookie(res, 'brotherID', brotherID + "");
     }
 
-    var time = process.hrtime();
     var arrangeVote = function (info, render) {
         rushdb.arrangeVote(rusheeID, brotherID, info, render);
     };
@@ -44,9 +43,6 @@ function get(req, res) {
         }
 
         res.render('rushee/view.jade', info);
-        time = process.hrtime(time);
-        time = time[0] * 1e9 + time[1];
-        stats.addStat('/vote in ns', time);
     });
 }
 
@@ -82,8 +78,8 @@ module.exports = {
     uri: uri(),
     auth: {
         get: authGet,
-        post: authPost,
+        post: authPost
     },
     get: get,
-    post: post,
+    post: post
 };

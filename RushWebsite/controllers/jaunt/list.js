@@ -19,8 +19,6 @@ function authPost(auth) {
 }
 
 function get(req, res) {
-    var time = process.hrtime();
-
     rushdb.get(rushdb.arrange, {}, function (err, info) {
         if (err !== undefined && err !== null) {
             console.log(err);
@@ -29,9 +27,6 @@ function get(req, res) {
         }
 
         res.render('jaunt/list.jade', info);
-        time = process.hrtime(time);
-        time = time[0] * 1e9 + time[1];
-        stats.addStat('/jaunts in ns', time);
     });
 }
 
@@ -53,7 +48,7 @@ module.exports = {
     uri: uri(),
     auth: {
         get: authGet,
-        post: authPost,
+        post: authPost
     },
     get: get,
     post: post

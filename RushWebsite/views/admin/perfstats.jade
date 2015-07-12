@@ -13,8 +13,7 @@ block content
     tr
       th Name
       th Count
-      th Sum (ns)
-      th Average (ns)
-    -for(var i = 0; i < stats.length; i++)
-      -var currStat = stats[i]; 
+      th Sum (ms)
+      th Average (ms)
+    each currStat in stats
       +pageStat(currStat.name, currStat.count, currStat.sum, currStat.average)

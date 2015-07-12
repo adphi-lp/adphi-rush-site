@@ -24,14 +24,14 @@ function makeLink(app, controller, basepath) {
     if (get !== undefined) {
         var authGet = controller.auth.get(auth);
         app.get(basepath + uri, authGet, function (req, res) {
-            process(req, res, basepath, get);
+            processPage(req, res, basepath, uri, get);
         });
     }
 
     if (post !== undefined) {
         var authPost = controller.auth.post(auth);
         app.post(basepath + uri, authPost, function (req, res) {
-            process(req, res, basepath, post);
+            processPage(req, res, basepath, uri, post);
         });
     }
 }
@@ -48,7 +48,8 @@ function makeLinks(app, paths) {
     links.sort();
 }
 
-function process(req, res, basepath, callback) {
+function processPage(req, res, basepath, uri, callback) {
+    var time = process.hrtime();
     var response = {};
     for (var x in res) {
         response[x] = res[x];
@@ -64,6 +65,7 @@ function process(req, res, basepath, callback) {
         info.StatusType = env.rushdb.StatusType;
         info.basepath = basepath;
         res.render(page, info);
+        env.stats.addDiff(uri, time);
     };
 
     callback(req, response);
@@ -72,5 +74,5 @@ function process(req, res, basepath, callback) {
 module.exports = {
     setEnv: setEnv,
     makeLinks: makeLinks,
-    links: links,
+    links: links
 };

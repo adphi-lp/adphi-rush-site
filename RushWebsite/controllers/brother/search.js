@@ -15,16 +15,9 @@ function authGet(auth) {
 }
 
 function get(req, res) {
-    var time = process.hrtime();
-
     rushdb.get(rushdb.arrange, {}, function (err, info) {
         if (err !== undefined && err !== null) {
             console.log(err);
-
-            time = process.hrtime(time);
-            time = time[0] * 1e9 + time[1];
-            stats.addStat('/viewbrothers in ns', time);
-
             res.redirect('/404');
             return;
         }
@@ -37,7 +30,7 @@ module.exports = {
     setup: setup,
     uri: uri(),
     auth: {
-        get: authGet,
+        get: authGet
     },
-    get: get,
+    get: get
 };

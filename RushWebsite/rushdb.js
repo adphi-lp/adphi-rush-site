@@ -14,7 +14,7 @@ var commentdb = require('./commentdb');
 var candidatedb = require('./candidatedb');
 var photodb = require('./photodb');
 var chdb = require('./clearinghousedb');
-var moment = require('moment');
+var stats = require('./stats');
 
 var COLLECTIONS = ['brothers', 'rushees', 'comments', 'sponsors',
     'votes', 'statuses', 'jaunts', 'vans', 'candidates', 'ids', 'import', 'logs'];
@@ -212,7 +212,6 @@ function get(arrange, options, render) {
     var secondStep = getSecond;
     var thirdStep = getThird;
 
-
     var time = process.hrtime();
 
     firstStep(function (err1, info1) {
@@ -221,9 +220,7 @@ function get(arrange, options, render) {
             return;
         }//otherwise,
 
-        time = process.hrtime(time);
-        console.log('step1 took %d seconds and %d nanoseconds', time[0], time[1]);
-        time = process.hrtime();
+        time = stats.addDiff('get() - step1', time);
 
         secondStep(info1, function (err2, info2) {
             if (err2 !== undefined && err2 !== null) {
@@ -231,17 +228,15 @@ function get(arrange, options, render) {
                 return;
             }//otherwise,
 
-            time = process.hrtime(time);
-            console.log('step2 took %d seconds and %d nanoseconds', time[0], time[1]);
-            time = process.hrtime();
+            time = stats.addDiff('get() - step2', time);
 
             thirdStep(info2, function (err3, info3) {
                 if (err3 !== undefined && err3 !== null) {
                     render(err3);
                     return;
                 }//otherwise
-                time = process.hrtime(time);
-                console.log('step3 took %d seconds and %d nanoseconds', time[0], time[1]);
+
+                time = stats.addDiff('get() - step3', time);
                 arrange(info3, render);
             });
         });
@@ -253,8 +248,7 @@ function getFirst(options, nextStep) {
     var query = {};
 
     if (ts != null) {
-        var where = "this.ts <= " + ts;
-        query.$where = where;
+        query.$where = "this.ts <= " + ts;
     }
 
     async.parallel({
@@ -772,5 +766,5 @@ module.exports = {
 
     inhouse: chdb.inhouse,
     outhouse: chdb.outhouse,
-    onjaunt: chdb.onjaunt,
+    onjaunt: chdb.onjaunt
 };

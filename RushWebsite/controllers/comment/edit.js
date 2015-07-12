@@ -21,7 +21,6 @@ function authPost(auth) {
 function get(req, res) {
     var cID = req.query.cID === undefined ? null : rushdb.toObjectID(req.query.cID);
 
-    var time = process.hrtime();
     var arrangeComment = function (info, render) {
         rushdb.arrangeComment(cID, info, render);
     };
@@ -34,9 +33,6 @@ function get(req, res) {
         }
 
         res.render('comment/edit.jade', info);
-        time = process.hrtime(time);
-        time = time[0] * 1e9 + time[1];
-        stats.addStat('/editcomment in ns', time);
     });
 }
 
@@ -64,7 +60,7 @@ module.exports = {
     uri: uri(),
     auth: {
         get: authGet,
-        post: authPost,
+        post: authPost
     },
     get: get,
     post: post

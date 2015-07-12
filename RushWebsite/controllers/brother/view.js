@@ -17,7 +17,6 @@ function authGet(auth) {
 function get(req, res) {
     var brotherID = req.query.bID === undefined ? null : rushdb.toObjectID(req.query.bID);
 
-    var time = process.hrtime();
     var arrangeBrother = function (info, render) {
         rushdb.arrangeBrother(brotherID, info, render);
     };
@@ -30,9 +29,6 @@ function get(req, res) {
         }
 
         res.render('brother/view.jade', info);
-        time = process.hrtime(time);
-        time = time[0] * 1e9 + time[1];
-        stats.addStat('/viewbrother in ns', time);
     });
 }
 
@@ -40,7 +36,7 @@ module.exports = {
     setup: setup,
     uri: uri(),
     auth: {
-        get: authGet,
+        get: authGet
     },
-    get: get,
+    get: get
 };
