@@ -80,8 +80,8 @@ module.exports = {
     uri: uri(),
     auth: {
         get: authGet,
-        post: authPost,
+        post: authPost
     },
     get: get,
-    post: post,
+    post: post
 };

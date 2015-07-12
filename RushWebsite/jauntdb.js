@@ -15,7 +15,7 @@ function filterVans(rushees, brothers, vans) {
 
 function augJaunt(jaunt) {
     var time = moment(jaunt.time);
-    jaunt.timehuman = time.format('dddd, MMM DD, HH:mm');
+    jaunt.timehuman = time.format('dddd, MMM DD, h:mm A');
 }
 
 /**

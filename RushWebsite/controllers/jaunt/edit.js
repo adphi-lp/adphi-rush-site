@@ -1,9 +1,11 @@
 var rushdb;
 var stats;
+var moment;
 
 function setup(env) {
     rushdb = env.rushdb;
     stats = env.stats;
+    moment = env.moment;
 }
 
 function uri() {
@@ -20,7 +22,6 @@ function authPost(auth) {
 
 function get(req, res) {
     var jauntID = req.query.jID === undefined ? null : rushdb.toObjectID(req.query.jID);
-    var time = process.hrtime();
 
     var arrangeJaunt = function (info, render) {
         rushdb.arrangeJaunt(jauntID, info, render);
@@ -34,23 +35,16 @@ function get(req, res) {
         }
 
         if (info.jaunt !== null) {
-            var date = new Date(info.jaunt.time);
-            info.jaunt.dateISO = date.toISOString();
+            info.jaunt.dateISO = moment(info.jaunt.time).format('YYYY-MM-DDTHH:mm:ss.SSS');
         }
         res.render('jaunt/edit.jade', info);
-        time = process.hrtime(time);
-        console.log('/editjaunt took %d seconds and %d nanoseconds', time[0], time[1]);
     });
 }
 
 function post(req, res) {
-    var jID = parseInt(req.body.jID);
+    var jID = rushdb.toObjectID(req.body.jID);
     var name = req.body.jName;
-    var time = Date.parse(req.body.jTime);
-    var vIDs = req.body.vID;
-    if (vIDs === null || vIDs === undefined) {
-        vIDs = [];
-    }
+    var time = moment(req.body.jTime).valueOf();
 
     var jaunt = {
         name: name,
@@ -66,7 +60,7 @@ module.exports = {
     uri: uri(),
     auth: {
         get: authGet,
-        post: authPost,
+        post: authPost
     },
     get: get,
     post: post

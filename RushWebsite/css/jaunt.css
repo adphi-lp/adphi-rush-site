@@ -1,3 +1,11 @@
 .jaunt-van-title {
 	display: inline;
 }
+
+.jaunt-title-header {
+    display: inline-block;
+}
+
+li {
+	margin-left:25px;
+}

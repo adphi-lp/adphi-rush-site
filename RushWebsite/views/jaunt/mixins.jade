@@ -1,0 +1,45 @@
+mixin jaunt(jaunt)
+  .jaunt-header
+    h2.jaunt-title-header
+      a.jaunt-title(href=basepath + '/jaunt/view?jID=' + jaunt._id) #{jaunt.name}
+    span.jaunt-time #{jaunt.timehuman}
+    a.jaunt-edit(href=basepath + '/jaunt/edit?jID=' + jaunt._id) Edit Jaunt
+  .jaunt-content
+    ul.jaunt-van-thread-wrapper
+      each van in jaunt.vans
+        li.jaunt-van-wrapper
+          form.jaunt-van-edit-form(method='get',action=basepath+'/jaunt/editvan')
+            h3.jaunt-van-title #{van.name}
+            input(type='hidden',name='vID',value=van._id)
+            input(type='submit',value='Edit van')
+          form.jaunt-van-form(method='post',action=basepath+'/jaunt/pullVanFromJaunt')
+            span.jaunt-van-driver #{van.driver}
+            input(type='hidden',name='vID',value=van._id)
+            input(type='hidden',name='jID',value=jaunt._id)
+            input(type='submit',value='Pull van')
+          .jaunt-rushee-thread-wrapper
+            .jaunt-rushee-thread-header
+              h4.jaunt-rushee-thread-title Rushees
+            ul.jaunt-rushee-thread-content
+              each rushee in van.rushees
+                li.jaunt-rushee-wrapper
+                  .jaunt-rushee-content
+                    .jaunt-rushee-info-item.jaunt-rushee-name
+                      form.jaunt-rushee-form(method='post',action=basepath+'/jaunt/pullRusheeFromVan')
+                        a(href=basepath+'/rushee/view?rID='+rushee._id) #{rushee.name}
+                        input(type='hidden',name='vID',value=van._id)
+                        input(type='hidden',name='rID',value=rushee._id)
+                        input(type='submit',value='Pull rushee')
+          .jaunt-brother-thread-wrapper
+            .jaunt-brother-thread-header
+              h4.jaunt-brother-thread-title Brothers
+            ul.jaunt-brother-thread-content
+              each brother in van.brothers
+                li.jaunt-brother-wrapper
+                  .jaunt-brother-content
+                    .jaunt-brother-name
+                      form.jaunt-rushee-form(method='post',action=basepath+'/jaunt/pullBrotherFromVan')
+                        a(href=basepath+'/brother/view?bID='+brother._id) #{brother.name}
+                        input(type='hidden',name='vID',value=van._id)
+                        input(type='hidden',name='bID',value=brother._id)
+                        input(type='submit',value='Pull brother')

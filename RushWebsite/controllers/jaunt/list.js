@@ -4,6 +4,7 @@ var stats;
 function setup(env) {
     rushdb = env.rushdb;
     stats = env.stats;
+    moment = env.moment;
 }
 
 function uri() {
@@ -32,7 +33,7 @@ function get(req, res) {
 
 function post(req, res) {
     var name = req.body.jName;
-    var time = Date.parse(req.body.jTime);
+    var time = moment(req.body.jTime).valueOf();
 
     var jaunt = {
         name: name,

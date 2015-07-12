@@ -1,11 +1,16 @@
 extends /common/layout
 include /common/mixins
 
+mixin pageStat(name, count, sum, average)
+  tr
+    td #{name}
+    td #{count}
+    td #{Math.round(sum)}
+    td #{Math.round(average)}
 
 block head
   title='View all Stats'
   link(rel='stylesheet',href=basepath+'/css/stats.css')
-  
 
 block content
   h1 View all stats
