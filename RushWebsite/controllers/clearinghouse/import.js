@@ -42,6 +42,9 @@ function post(req, res) {
                 var candidate = {
                     first: firstName,
                     last: lastName,
+                    photo: rushdb.DEFAULT_PHOTO_PATH,
+                    visible: true,
+                    priority: false,
                     chID: data.chID
                 };
                 rushdb.insertCandidate(candidate);
@@ -56,8 +59,8 @@ module.exports = {
     uri: uri(),
     auth: {
         get: authGet,
-        post: authPost,
+        post: authPost
     },
     get: get,
-    post: post,
+    post: post
 };
