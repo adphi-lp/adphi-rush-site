@@ -2,6 +2,7 @@
 'use strict';
 
 var tools = require('./tools');
+var photodb = require('./photodb');
 
 var joindb;
 
@@ -53,10 +54,10 @@ function transferCandidate(cID, insert, callback) {
                     phone: doc.phone,
                     email: doc.email,
                     year: doc.year,
-                    photo: doc.photo,
+                    photo: doc.photo || photodb.DEFAULT_PHOTO_PATH,
                     visible: doc.visible,
                     priority: doc.priority,
-                    chID: doc.chID,
+                    chID: doc.chID
                 };
                 insert(rushee, callback);
             });

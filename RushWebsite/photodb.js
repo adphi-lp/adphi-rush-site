@@ -14,12 +14,18 @@ function getFilePath(filename) {
     return __dirname + getPhotoPath(filename);
 }
 
+/**
+ * Uploads the given photo with a random filename if the photo.size is non-zero
+ * @param photo the new photo
+ * @param oldPath the old path of the photo
+ * @param callback callback function that receives err, filename of photo
+ */
 function uploadPhotoIf(photo, oldPath, callback) {
     if (photo.size === 0) {
         callback(null, oldPath);
         return;
     }
-    ;
+
     var filename = tools.randomString(PHOTO_NAME_LENGTH, '') + '.' + tools.extension(photo.name);
 
     fs.readFile(photo.path, function (err, data) {
@@ -32,7 +38,7 @@ function uploadPhotoIf(photo, oldPath, callback) {
         fs.writeFile(newPath, data, function (err) {
             if (err !== null && err != undefined) {
                 // log the error
-                console.log('uploadpath: ' + req.files.photo.path);
+                console.log('uploadpath: ' + photo.path);
                 console.log('photopath: ' + newPath);
                 console.log(err);
                 return;
@@ -53,5 +59,5 @@ module.exports = {
     DEFAULT_PHOTO_PATH: DEFAULT_PHOTO_PATH,
     PHOTO_NAME_LENGTH: PHOTO_NAME_LENGTH,
     uploadPhoto: uploadPhoto,
-    uploadPhotoIf: uploadPhotoIf,
-}
+    uploadPhotoIf: uploadPhotoIf
+};
