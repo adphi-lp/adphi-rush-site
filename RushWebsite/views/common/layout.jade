@@ -9,7 +9,7 @@ html(lang='en')
   body
     include navigation
     p
-    if (locals.ts !== null && locals.ts !== undefined)
-      a(href=basepath + '/admin/settime') Timestamp is #{ts}
+      if (locals.ts !== null && locals.ts !== undefined)
+        a(href=basepath + '/admin/settime') Timestamp is #{ts}
     .content-wrapper
       block content

@@ -1,0 +1,21 @@
+
+//- Short blurb about the rushee for the monitor
+mixin rusheeBlurb(rushee, accountType, basepath)
+   .rushee-content.clearfix
+      rushee-photo-and-status.lfloat
+         a.rushee-photo(href=basepath + '/rushee/view?rID=' + rushee._id)
+            img.img-medium(src=basepath + rushee.photo,alt=rushee.name)
+         if (rushee.priority)
+            .rushee-priority Priority
+      .rushee-info
+         .rushee-info-item.rushee-name
+            a(href=basepath + '/rushee/view?rID=' + rushee._id) #{rushee.name}
+         .rushee-info-item.rushee-sponsors
+            span.rushee-info-type Sponsor(s)
+            if (rushee.sponsorsNameList.length > 0)
+               span.rushee-info-data #{rushee.sponsorsNameList.join(', ')}
+            else
+               span.rushee-info-data.missing-sponsor NEED SPONSOR
+         .rushee-info-item.rushee-vote-total
+            span.rushee-info-type Voting total
+            span.rushee-info-data #{rushee.voteTotal} (#{(rushee.voteTotalFraction * 100).toFixed(1)}%)

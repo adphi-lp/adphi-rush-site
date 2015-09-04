@@ -1,0 +1,36 @@
+//-
+  For display on the monitor in the backroom
+
+include /common/mixins
+include /rushee/mixins
+
+!!! 5
+html(lang='en')
+  head
+    meta(http-equiv='refresh',content='300;url=' + basepath + '/rushee/monitor' + '?lastRequestTime=' + lastRequestTime)
+    title='View all Rushees'
+    link(rel='stylesheet',href=basepath + '/css/monitor.css')
+    link(rel='stylesheet',href=basepath+'/css/main.css')
+    link(rel='stylesheet',href=basepath+'/css/normalize.css')
+    link(rel='stylesheet',href=basepath+'/css/macro.css')
+    link(rel='stylesheet',href=basepath+'/css/master.css')
+  body
+    .content-wrapper
+      .columns
+        .banner#banner
+          if typeof(globalAnnouncement) !== 'undefined' && globalAnnouncement !== ''
+            h2(style='white-space:pre-wrap; ') #{globalAnnouncement}
+          form.rushees-search
+            input#last-request-time(type='hidden', name='lastRequestTime', value=lastRequestTime)
+        .rushees-wrapper
+          h1.rushees-title High prospects
+          ul.rushees-list
+            each rushee in leftCol
+              li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
+                +rusheeBlurb(rushee, accountType, basepath)
+        .rushees-wrapper
+          h1.rushees-title Recently entered
+          ul.rushees-list
+            each rushee in rightCol
+              li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
+                +rusheeBlurb(rushee, accountType, basepath)
