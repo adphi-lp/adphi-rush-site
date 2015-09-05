@@ -28,6 +28,37 @@ mixin jauntName(jaunt, accountType, basepath)
   else
     | #{jaunt.name}
 
+mixin rusheeCh(rushee, accountType, basepath)
+  .rushee-content.clearfix
+    rushee-photo-and-status.lfloat
+      a.rushee-photo(href=basepath+'/rushee/view?rID='+rushee._id)
+        img.img-medium(src=basepath+rushee.photo,alt=rushee.name)
+      .rushee-status(style='color:#{rushee.status.type.color};') #{rushee.status.type.name}
+    .rushee-info
+      .rushee-info-item.rushee-name
+        a(href=basepath+'/rushee/view?rID='+rushee._id) #{rushee.name}
+          if (accountType.isAdmin() && rushee.visible === false)
+            |  (hidden)
+      .rushee-info-item.rushee-mitID
+        span.rushee-info-type MIT ID
+        span.rushee-info-data #{rushee.mitID}
+      .rushee-info-item.rushee-year
+        span.rushee-info-type Year
+        span.rushee-info-data #{rushee.year}
+
+    if (accountType.isAdmin())
+      form.rushee-action
+        input(type='hidden',name='redirect',value='/frontdesk')
+        input(type='hidden',name='rID',value=rushee._id)
+        if rushee.chID !== undefined && rushee.chID !== null
+          input(type='hidden',name='chID',value=rushee.chID)
+        if rushee.status.type === StatusType.OUT || rushee.status.type === StatusType.NULL
+          input(type='submit',formmethod='post',formaction=basepath + '/frontdesk/inhouse',value='In house')
+        else
+          input(type='submit',formmethod='post',formaction=basepath + '/frontdesk/outhouse',value='Going out')
+        if rushee.status.type === StatusType.OUT || rushee.status.type === StatusType.NULL
+          input(type='submit',formmethod='post',formaction=basepath + '/frontdesk/onjaunt',value='On a jaunt')
+
 mixin rushee(rushee, accountType, basepath, options)
   if (options === undefined)
     options = {};

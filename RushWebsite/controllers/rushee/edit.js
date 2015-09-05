@@ -49,6 +49,7 @@ function post(req, res) {
             year: req.body.year,
             cross1: req.body.cross1,
             cross2: req.body.cross2,
+            mitID: req.body.mitID,
             photo: photoPath
         };
 

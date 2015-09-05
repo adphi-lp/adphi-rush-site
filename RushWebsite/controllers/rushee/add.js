@@ -34,11 +34,12 @@ function post(req, res) {
             dorm: req.body.dorm,
             phone: req.body.phone,
             email: req.body.email,
+            mitID: req.body.mitID,
             year: req.body.year,
             photo: photoPath,
             visible: true,
             priority: false,
-            eligible: false,
+            eligible: false
         };
 
         rushdb.insertRushee(rushee);
@@ -51,8 +52,8 @@ module.exports = {
     uri: uri(),
     auth: {
         get: authGet,
-        post: authPost,
+        post: authPost
     },
     get: get,
-    post: post,
+    post: post
 };

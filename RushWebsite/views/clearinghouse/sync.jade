@@ -1,0 +1,22 @@
+extends /common/layout
+include /common/mixins
+block head
+  title='Sync freshman rushees'
+  link(rel='stylesheet',href=basepath + '/css/viewrushees.css')
+
+block content
+  h1.rushees-title Unsynced rushees
+  p Missing the following mit ids:
+    | [#{missingIDs}]
+  .rushees-wrapper
+    ul.rushees-list
+      if locals.unsyncedRushees !== undefined
+        each rushee in unsyncedRushees
+          li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
+            +rusheeCh(rushee, accountType, basepath)
+
+  h1.rushees-title Clearinghouse MIT ids
+  form.candidate-form-wrapper
+    .import-wrapper
+      textarea#import(name = 'clearinghouse')
+      input(type='submit',formmethod='get',formaction='', value='Import')
