@@ -22,7 +22,7 @@ function get(req, res) {
     var text = req.query.clearinghouse;
 
     if (text === undefined) {
-        res.render('clearinghouse/sync.jade', {missingIDs: [], ourRushees : [], chRushees : []});
+        res.render('clearinghouse/sync.jade', {chMissingIds: [], missingIDs: [], ourRushees : [], chRushees : []});
         return;
     }
 
@@ -36,27 +36,41 @@ function get(req, res) {
         if (trimmed.length == 0) {
             continue;
         }
-        var word = trimmed.split(' ')[0];
+        var word = trimmed.split(/\s+/)[0];
         if (!word.match('[0-9]+')) {
             continue;
         }
 
-        ids[word] = true;
+        ids[word] = line.indexOf('CHECKOUT') > -1;
     }
 
     rushdb.get(rushdb.arrange, {}, function (err, info) {
         info.ourRushees = [];
         info.chRushees = [];
-        info.rusheeIDs = {};
+        info.chMissingIDs = [];
+        var rusheeIDs = {};
         for (var i = 0; i < info.rushees.length; i++) {
             var rushee = info.rushees[i];
+
+            if (rushee.year !== 'Freshman') {
+                continue;
+            }
+
             var mitID = rushee.mitID || '';
             if (mitID.trim() === '') {
                 continue;
             }
+            mitID = mitID.trim();
+
+            // missing IDs
+            rusheeIDs[mitID] = true;
+            if (ids[mitID] === undefined) {
+                info.chMissingIDs.push(mitID);
+                // not in clearing house
+                continue;
+            }
 
             var type = rushee.status.type;
-            info.rusheeIDs[mitID] = true;
             var ch = ids[mitID] === true;
             var ours = type === rushdb.StatusType.IN || type === rushdb.StatusType.JAUNT;
             if (ch && !ours) {
@@ -68,7 +82,7 @@ function get(req, res) {
 
         info.missingIDs = [];
         for (var id in ids) {
-            if (info.rusheeIDs[id] === undefined) {
+            if (rusheeIDs[id] === undefined) {
                 info.missingIDs.push(id)
             }
         }

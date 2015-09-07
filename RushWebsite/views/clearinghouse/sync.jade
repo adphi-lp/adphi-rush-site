@@ -6,16 +6,18 @@ block head
 
 block content
   h1.rushees-title Diff
-  p Missing the following mit ids:
-    | [#{missingIDs}]
   .rushees-wrapper.block-aligned
     h2 Our System
+    p Missing the following mit ids:
+      | [#{missingIDs}]
     ul.rushees-list
       each rushee in ourRushees
         li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
           +rusheeCh(rushee, accountType, basepath, {frontdesk: false})
   .rushees-wrapper.block-aligned
     h2 Clearinghouse
+    p Missing the following mit ids:
+      | [#{chMissingIDs}]
     ul.rushees-list
       each rushee in chRushees
         li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
@@ -24,5 +26,5 @@ block content
   h1.rushees-title Clearinghouse MIT ids
   form.candidate-form-wrapper
     .import-wrapper
-      textarea#import(name = 'clearinghouse')
+      textarea#import(name='clearinghouse',cols=100, rows=40)
       input(type='submit',formmethod='get',formaction='', value='Import')
