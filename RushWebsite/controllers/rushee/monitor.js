@@ -20,7 +20,7 @@ function uri() {
 }
 
 function authGet(auth) {
-    return auth.checkAdminAuth;
+    return auth.checkAuth;
 }
 
 function calcThisRequestTime(lastRequestTime, rushees) {

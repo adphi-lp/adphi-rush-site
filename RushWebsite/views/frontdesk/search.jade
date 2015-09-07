@@ -74,6 +74,9 @@ block content
                 .rushee-info-item.rushee-email
                   span.rushee-info-type Email
                   span.rushee-info-data #{rushee.email}
+                .rushee-info-item.rushee-email
+                  span.rushee-info-type MIT ID
+                  span.rushee-info-data #{rushee.mitID ? 'Yes' : 'No'}
                 if accountType.isAdmin()
                   .rushee-info-item.rushee-meta
                     span.rushee-info-type Meta

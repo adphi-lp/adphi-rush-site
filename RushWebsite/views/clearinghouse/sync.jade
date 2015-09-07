@@ -5,15 +5,21 @@ block head
   link(rel='stylesheet',href=basepath + '/css/viewrushees.css')
 
 block content
-  h1.rushees-title Unsynced rushees
+  h1.rushees-title Diff
   p Missing the following mit ids:
     | [#{missingIDs}]
-  .rushees-wrapper
+  .rushees-wrapper.block-aligned
+    h2 Our System
     ul.rushees-list
-      if locals.unsyncedRushees !== undefined
-        each rushee in unsyncedRushees
-          li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
-            +rusheeCh(rushee, accountType, basepath)
+      each rushee in ourRushees
+        li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
+          +rusheeCh(rushee, accountType, basepath, {frontdesk: false})
+  .rushees-wrapper.block-aligned
+    h2 Clearinghouse
+    ul.rushees-list
+      each rushee in chRushees
+        li.rushee-wrapper(class=(rushee.status.updated ? 'rushee-wrapper-updated' : undefined))
+          +rusheeCh(rushee, accountType, basepath, {frontdesk : false})
 
   h1.rushees-title Clearinghouse MIT ids
   form.candidate-form-wrapper

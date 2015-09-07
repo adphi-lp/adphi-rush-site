@@ -28,7 +28,9 @@ mixin jauntName(jaunt, accountType, basepath)
   else
     | #{jaunt.name}
 
-mixin rusheeCh(rushee, accountType, basepath)
+mixin rusheeCh(rushee, accountType, basepath, options)
+  if (options === undefined)
+    options = {};
   .rushee-content.clearfix
     rushee-photo-and-status.lfloat
       a.rushee-photo(href=basepath+'/rushee/view?rID='+rushee._id)
@@ -46,7 +48,7 @@ mixin rusheeCh(rushee, accountType, basepath)
         span.rushee-info-type Year
         span.rushee-info-data #{rushee.year}
 
-    if (accountType.isAdmin())
+    if (accountType.isAdmin() && options.frontdesk)
       form.rushee-action
         input(type='hidden',name='redirect',value='/frontdesk')
         input(type='hidden',name='rID',value=rushee._id)
@@ -114,7 +116,7 @@ mixin rushee(rushee, accountType, basepath, options)
           -var vsClass = rushee.voteScoreFraction >= 0.65 ? 'bidworthy' : 'unbidworthy';
           span.rushee-info-data(class=vsClass) #{rushee.voteScore} (#{(rushee.voteScoreFraction * 100).toFixed(1)}%)
       .rushee-info-item.rushee-vote-total
-        span.rushee-info-type Voting total
+        span.rushee-info-type Total Votes
         -var vsClass = rushee.voteTotalFraction >= 1/2 && accountType.isAdmin() ? 'possible-bidworthy' : '';
         span.rushee-info-data(class=vsClass) #{rushee.voteTotal} (#{(rushee.voteTotalFraction * 100).toFixed(1)}%)
       if (options.edit)

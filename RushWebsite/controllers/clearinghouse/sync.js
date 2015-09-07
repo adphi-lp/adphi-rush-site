@@ -22,7 +22,7 @@ function get(req, res) {
     var text = req.query.clearinghouse;
 
     if (text === undefined) {
-        res.render('clearinghouse/sync.jade', {missingIDs: [], unsyncedRushees : []});
+        res.render('clearinghouse/sync.jade', {missingIDs: [], ourRushees : [], chRushees : []});
         return;
     }
 
@@ -45,7 +45,8 @@ function get(req, res) {
     }
 
     rushdb.get(rushdb.arrange, {}, function (err, info) {
-        info.unsyncedRushees = [];
+        info.ourRushees = [];
+        info.chRushees = [];
         info.rusheeIDs = {};
         for (var i = 0; i < info.rushees.length; i++) {
             var rushee = info.rushees[i];
@@ -53,11 +54,15 @@ function get(req, res) {
             if (mitID.trim() === '') {
                 continue;
             }
-            // in clearinghouse === in house
+
             var type = rushee.status.type;
             info.rusheeIDs[mitID] = true;
-            if ((ids[mitID] === true) !== (type === rushdb.StatusType.IN || type === rushdb.StatusType.JAUNT)) {
-                info.unsyncedRushees.push(rushee);
+            var ch = ids[mitID] === true;
+            var ours = type === rushdb.StatusType.IN || type === rushdb.StatusType.JAUNT;
+            if (ch && !ours) {
+                info.chRushees.push(rushee);
+            } else if (ours && !ch) {
+                info.ourRushees.push(rushee);
             }
         }
 
