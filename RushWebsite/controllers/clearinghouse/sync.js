@@ -22,7 +22,7 @@ function get(req, res) {
     var text = req.query.clearinghouse;
 
     if (text === undefined) {
-        res.render('clearinghouse/sync.jade', {chMissingIds: [], missingIDs: [], ourRushees : [], chRushees : []});
+        res.render('clearinghouse/sync.jade', {chMissingIDs: [], missingIDs: [], ourRushees : [], chRushees : []});
         return;
     }
 
