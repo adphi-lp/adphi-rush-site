@@ -71,9 +71,10 @@ block content
           .rushee-add-item.rushee-eligible
             span.rushee-add-type Eligible
             input(type='checkbox',name='eligible', checked=rushee.eligible)
-          .rushee-add-item.rushee-chID
-            span.rushee-add-type Clearinghouse ID
-            input.rushee-add-data(name='chID',value=rushee.chID || '')
+          //-
+            .rushee-add-item.rushee-chID
+              span.rushee-add-type Clearinghouse ID
+              input.rushee-add-data(name='chID',value=rushee.chID || '')
           .rushee-add-item.rushee-mitID
             span.rushee-add-type MIT ID
             input.rushee-add-data(name='mitID',value=rushee.mitID || '')
