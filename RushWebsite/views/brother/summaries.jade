@@ -32,4 +32,7 @@ block content
                           
                           .vote-rushee(style=relstyle)
                             +rusheeName(rushee, accountType, basepath)
-              td.votes-cell #{b.sponsorsNameList.join(', ')}   
+              td.votes-cell
+                each rushee in b.sponsorsList
+                  .vote-rushee
+                    +rusheeName(rushee, accountType, basepath)
