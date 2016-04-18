@@ -30,8 +30,8 @@ block content
           span.rushee-add-type Year
           select.rushee-add-data(name='year')
             -years = ['Freshman', 'Sophomore', 'Junior', 'Senior']
-            -for (var i = 0; i < years.length; i++)
-              option(value=years[i]) #{years[i]}
+            each year in years
+              option(value=year) #{year}
         .rushee-add-item#rushee-mitID
           span.rushee-add-type MIT ID
           input.rushee-add-data(name='mitID')

@@ -13,8 +13,7 @@ block content
       tr
         th Timestamp
         th Entry
-      -for (var i = 0; i < logs.length; i++)
-        -var log = logs[i]
+      each log in logs
         tr
           td #{log.ts}
           td
