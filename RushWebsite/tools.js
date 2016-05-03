@@ -33,6 +33,20 @@ function lastfirst(first, nick, last) {
     }
 }
 
+function defaultTrue(bool) {
+    // If true, returns true
+    // If false returns false.
+    // If undefined or null, return true
+    return bool !== false;
+}
+
+function defaultFalse(bool) {
+    // If true, returns true
+    // If false returns false.
+    // If undefined or null, return false
+    return bool === true;
+}
+
 function map(arr, func) {
     var len = arr.length;
     var ret = new Array(len);
@@ -152,5 +166,7 @@ module.exports = {
     },
     file: {
         walkSync: walkSync
-    }
+    },
+    defaultFalse: defaultFalse,
+    defaultTrue: defaultTrue
 };
