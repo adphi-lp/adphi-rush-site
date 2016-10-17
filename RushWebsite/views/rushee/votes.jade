@@ -14,12 +14,15 @@ block content
         label.votes-sort-option-label(for='total') Vote Total
         input(type='radio', name = 'sortMethod', value='score', checked=(sortMethod==='score')).votes-sort-option
         label.votes-sort-option-label(for='score') Vote Score
+        input(type='radio', name = 'sortMethod', value='seen', checked=(sortMethod==='seen')).votes-sort-option
+        label.votes-sort-option-label(for='seen') Last Seen
         input(type='submit',formmethod='get',formaction=basepath+'/rushee/votes', value='Sort')
       .votes-content
         table.votes-table
           tr.votes-header-row
             th.votes-status Status
             th.votes-header-name Rushee Name
+            th.votes-header-cell Phone
             each voteType in voteTypes
               th.votes-header-cell #{voteType.name}
             th.votes-header-cell Vote Score
@@ -37,6 +40,8 @@ block content
                   | #{r.status.type.name}
               td.votes-name
                 a.rushee-name(href=basepath+'/rushee/view?rID='+r._id) #{r.name}
+              td.votes-cell
+                p #{r.phone}
                 each voteType in voteTypes
                   -var voteCount = r.countVotesByType[voteType._id]
                   if voteType.value >= 0 || voteCount === 0

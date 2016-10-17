@@ -58,9 +58,9 @@ block content
               - var bid = rushee.voteBy[brother._id].type._id;
               - var vid = voteType._id;
               // visible if they voted or they're allowed to vote met // hijacked - this now hides all votes
-              if bid === vid || brother.met
-                input.span-space(id='vote' + i,type='radio',name='vote',value=voteType._id,checked=bid==vid)
-                label.vote-choice(for='vote' + i) #{voteType.name}
+              // if bid === vid || brother.met
+              input.span-space(id='vote' + i,type='radio',name='vote',value=voteType._id,checked=bid==vid)
+              label.vote-choice(for='vote' + i) #{voteType.name}
         .action-comment-wrapper
           - for (var j = 0; j < 2; j++)
             .action-comment-content.clearfix

@@ -22,6 +22,9 @@ function get(req, res) {
         case 'score':
             sortFunction = rushdb.arrangeVoteScore;
             break;
+        case 'seen':
+            sortFunction = rushdb.arrangeLastSeen;
+            break;
         case 'total':
         /* falls through */
         default:

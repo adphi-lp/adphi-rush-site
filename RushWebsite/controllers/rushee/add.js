@@ -42,7 +42,10 @@ function post(req, res) {
             eligible: false
         };
 
-        rushdb.insertRushee(rushee);
+        rushdb.insertRushee(rushee, function(err, docs) {
+            var newID = docs[0]._id;
+            rushdb.insertStatus(newID, 'IN');
+});
         res.redirect('/rushee/add', {});
     });
 }

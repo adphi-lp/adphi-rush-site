@@ -533,6 +533,31 @@ function arrangeVoteTotal(info, render) {
     render(null, info);
 }
 
+function arrangeLastSeen(info, render) {
+    var rushees = info.rushees;
+    rushees.sort(function (a, b) {
+        if (a.status.typeID !== 'OUT' && b.status.typeID !== 'OUT') {
+        return 0;
+}
+        else if (a.status.typeID !== 'OUT') {return -1;}
+        else if (b.status.typeID !== 'OUT') {return 1;}
+        else return b.status.ts - a.status.ts;
+    });
+
+   // for (var i = 0; i < rushees.length; i ++) {
+   // console.log(rushees[i].status.typeID);
+   // console.log(rushees[i].status.ts);
+   // }
+
+    if (!info.brothersortoff) { //TODO make this cleaner
+        var brothers = info.brothers;
+        brothers.sort(function (a, b) {
+            return b.voteTotal - a.voteTotal;
+        });
+    }
+    render(null, info);
+}
+
 function arrangeInHouseVotes(info, render) {
     arrangeCustomVotes(info, render, 'inHouseRushees', 'brothers');
 }
@@ -705,6 +730,7 @@ module.exports = {
     arrangeBrother: arrangeBrother,
     arrangeVoteScore: arrangeVoteScore,
     arrangeVoteTotal: arrangeVoteTotal,
+    arrangeLastSeen: arrangeLastSeen,
     arrangeInHouseVotes: arrangeInHouseVotes,
     arrangeCustomVotes: arrangeCustomVotes,
     arrangeJaunt: arrangeJaunt,
