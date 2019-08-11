@@ -2,9 +2,9 @@
 'use strict';
 
 //constants
-var BASE_PATH = '/rushsite20';
+var BASE_PATH = '/rush_site';
 var CONTROLLERS_PATH = __dirname + '/controllers';
-var DATABASE_URL = 'ADPhiRush';
+var DATABASE_URL = 'mongodb://localhost:27017/adphi_rush';
 
 //get modules
 var express = require('express');
@@ -23,13 +23,14 @@ var urimapper = require('./urimapper');
 var app = express();
 auth.setRedirect(BASE_PATH + '/login');
 rushdb.connect(DATABASE_URL);
+var SECRET = 'feijowiefj98j213f8wef92832913823r';
 
 // limit the upload size
 app.use(express.limit('3mb'));
 // for parsing posts
 app.use(express.bodyParser({uploadDir: __dirname + '/uploads'}));
-// TODO: this is a really bad SECRET
-app.use(express.cookieParser('afjkv923jnjozp2323jfsjsi2'));
+app.use(express.cookieParser(SECRET));
+app.set('trust proxy', true);
 
 // set path to static things
 app.use(BASE_PATH + '/public/', express.static(__dirname + '/public'));

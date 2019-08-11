@@ -50,7 +50,23 @@ function makeLinks(app, paths) {
 
 function processPage(req, res, basepath, uri, callback) {
     var time = process.hrtime();
-    var response = {};
+
+    res.old_redirect = res.redirect;
+    res.redirect = function (path) {
+        res.old_redirect(basepath + path);
+    };
+
+    res.old_render = res.render;
+    res.render = function (page, info) {
+        info.voteTypes = env.rushdb.SORTED_VOTE_TYPES;
+        info.commentTypes = env.rushdb.SORTED_COMMENT_TYPES;
+        info.accountType = auth.getAccountType(req, res);
+        info.StatusType = env.rushdb.StatusType;
+        info.basepath = basepath;
+        res.old_render(page, info);
+        env.stats.addDiff(uri, time);
+    };
+/*    var response = {};
     for (var x in res) {
         response[x] = res[x];
     }
@@ -67,8 +83,8 @@ function processPage(req, res, basepath, uri, callback) {
         res.render(page, info);
         env.stats.addDiff(uri, time);
     };
-
-    callback(req, response);
+*/
+    callback(req, res);
 }
 
 module.exports = {

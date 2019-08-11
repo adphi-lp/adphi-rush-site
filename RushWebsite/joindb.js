@@ -9,7 +9,7 @@ var _ = require('underscore');
 function connect(databaseURL, collections) {
     //ids is a reserved collection
     var cols = collections.concat(['ids']);
-    db = mongojs.connect(databaseURL, collections);
+    db = mongojs(databaseURL, collections); // modified for newer mongojs
 
     //ensure id
     for (var i = 0; i < collections.length; i++) {
