@@ -419,6 +419,12 @@ function arrangeVote(rusheeID, brotherID, info, render) {
     }
 
     var brothers = info.brothers;
+// console.log(info.brothers);
+var f22 = function (brother) {
+    return brother.ts.getYear() % 100 == 22;
+};
+info.brothers = tools.filter(info.brothers, f22);
+
     if (brotherID !== null) {
         for (var b = 0, lb = brothers.length; b < lb; b++) {
             if (brothers[b]._id === brotherID) {

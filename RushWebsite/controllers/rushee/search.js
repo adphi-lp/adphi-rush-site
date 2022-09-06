@@ -155,6 +155,15 @@ function get(req, res) {
                 info.q = q;
             }
         }
+//        console.log(info.rushees);
+//console.log(info.rushees.length);
+var f22 = function (rushee) {
+console.log(rushee.ts.getYear());
+    return rushee.ts.getYear() % 100 == 22;
+};
+info.rushees = tools.filter(info.rushees, f22);
+//console.log(info.rushees.length);
+
         var thisRequestTime = calcThisRequestTime(lastRequestTime, info.rushees);
         info.lastRequestTime = thisRequestTime;
         res.render('rushee/search.jade', info);

@@ -248,6 +248,7 @@ function find(col, query, sort, augment, callback) {
             callback(null, docs);
         } else {
             augment(doc);
+//            if(doc && doc.name) console.log(doc.name);
             docs.push(doc);
         }
     });
