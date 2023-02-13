@@ -93,7 +93,7 @@ block content
             th.votes-header-cell #{voteType.name}
         each vote in rushee.sortedVotes
           -var bid = vote.type._id;
-          if (vote && vote.brother && vote.brother.ts.getYear() % 100 >= 22) {
+          if (vote && vote.brother && vote.brother.ts.getYear() % 100 >= 22)
             tr.votes-row
             td.votes-name #{vote.brother.name}
               each voteType in voteTypes
@@ -106,7 +106,6 @@ block content
                       strong X
                 else
                   td.votes-cell.votes
-          }
         if (accountType.isMeeting())
           tr.votes-row
           td.votes-name
