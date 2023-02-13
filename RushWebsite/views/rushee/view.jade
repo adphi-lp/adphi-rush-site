@@ -93,18 +93,20 @@ block content
             th.votes-header-cell #{voteType.name}
         each vote in rushee.sortedVotes
           -var bid = vote.type._id;
-          tr.votes-row
-          td.votes-name #{vote.brother.name}
-            each voteType in voteTypes
-              -var vid = voteType._id;
-              if (bid == vid)
-                td.votes-cell.votes
-                  if (voteType.value < 0)
-                    strong(style='color:red; font-weight:bold;') X
-                  else
-                    strong X
-              else
-                td.votes-cell.votes
+          if (vote && vote.brother && vote.brother.ts.getYear() % 100 >= 22) {
+            tr.votes-row
+            td.votes-name #{vote.brother.name}
+              each voteType in voteTypes
+                -var vid = voteType._id;
+                if (bid == vid)
+                  td.votes-cell.votes
+                    if (voteType.value < 0)
+                      strong(style='color:red; font-weight:bold;') X
+                    else
+                      strong X
+                else
+                  td.votes-cell.votes
+          }
         if (accountType.isMeeting())
           tr.votes-row
           td.votes-name
