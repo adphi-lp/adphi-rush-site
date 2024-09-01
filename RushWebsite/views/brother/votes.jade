@@ -2,18 +2,18 @@ extends /common/layout
 include /common/mixins
 
 block head
-  title='View all Brother Votes'  
+  title='View all Sibling Votes'  
   link(rel='stylesheet',href=basepath+'/css/viewbrothersvote.css')
 
 block content
   .brothers-wrapper
-    h1.brothers-title View all brothers votes
+    h1.brothers-title View all siblings votes
     .votes-wrapper
       h2.title Votes
       .votes-content
         table.votes-table
           tr.votes-header-row
-            th.votes-header-name Brother Name
+            th.votes-header-name Sibling Name
             each voteType in voteTypes
               th.votes-header-cell #{voteType.name}
             th.votes-header-cell Vote Score

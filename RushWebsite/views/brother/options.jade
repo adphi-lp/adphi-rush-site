@@ -2,17 +2,17 @@ extends /common/layout
 include /common/mixins
 
 block head
-  title='Brother options'
+  title='Sibling options'
   link(rel='stylesheet',href=basepath+'/css/vote.css')
   script(type='text/javascript',src=basepath+'/js/vendor/jquery-1.8.3.min.js')
   script(type='text/javascript',src=basepath+'/js/vote.js')
 
 block content
   form.votes-wrapper
-    h2.title Brother options
+    h2.title Sibling options
     table.votes-table
       tr.votes-header-row
-        th.votes-header-name Brother Name
+        th.votes-header-name Sibling Name
         th.votes-header-cell Allow met
       each b in brothers
         tr.votes-row
