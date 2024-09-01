@@ -48,8 +48,8 @@ function post(req, res) {
     };
 
     rushdb.insertVan(van, function (err, docs) {
-        var vID = docs[0]._id;
-        rushdb.pushVanToJaunt(vID, id);
+        var vID = docs && docs._id;
+        vID && rushdb.pushVanToJaunt(vID, id);
     });
 
     res.redirect('/jaunt/view?jID=' + id);
